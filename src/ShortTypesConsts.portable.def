@@ -1,0 +1,82 @@
+DEFINITION MODULE ShortTypesConsts; (* Portable Version *)
+
+(* Constants intended for import:
+   Bitwidth, MaxShortCard, MinShortInt, MaxShortInt *)
+
+   
+CONST RequestedBitwidth = 16;
+(* Not to exceed the bit width of type CARDINAL *)
+
+
+CONST
+
+(* Powers of 2 *)
+
+  MaxCardDivPow2Of8  = MAX(CARDINAL) DIV 256;
+  MaxCardDivPow2Of16 = MaxCardDivPow2Of8 DIV 256;
+  MaxCardDivPow2Of24 = MaxCardDivPow2Of16 DIV 256;
+  MaxCardDivPow2Of32 = MaxCardDivPow2Of24 DIV 256;
+  MaxCardDivPow2Of40 = MaxCardDivPow2Of32 DIV 256;
+  MaxCardDivPow2Of48 = MaxCardDivPow2Of40 DIV 256;
+  MaxCardDivPow2Of56 = MaxCardDivPow2Of48 DIV 256;
+
+(* Intermediaries *)
+
+  CardIs8Bit  = MAX(CARDINAL) <= 255;
+  CardIs16Bit = NOT CardIs8Bit  AND (MaxCardDivPow2Of8 <= 255);
+  CardIs24Bit = NOT CardIs16Bit AND (MaxCardDivPow2Of16 <= 255);
+  CardIs32Bit = NOT CardIs24Bit AND (MaxCardDivPow2Of24 <= 255);
+  CardIs40Bit = NOT CardIs32Bit AND (MaxCardDivPow2Of32 <= 255);
+  CardIs48Bit = NOT CardIs40Bit AND (MaxCardDivPow2Of40 <= 255);
+  CardIs56Bit = NOT CardIs48Bit AND (MaxCardDivPow2Of48 <= 255);
+  CardIs64Bit = NOT CardIs56Bit;
+
+(* Bitwidth of type CARDINAL *)
+
+  CardBitwidth =
+    8*ORD(CardIs8Bit)   + 16*ORD(CardIs16Bit) + 24*ORD(CardIs24Bit) + 32*ORD(CardIs32Bit) +
+    40*ORD(CardIs40Bit) + 48*ORD(CardIs48Bit) + 56*ORD(CardIs56Bit) + 64*ORD(CardIs64Bit);
+
+
+(* Bitwidth of Short Types *)
+
+  Bitwidth = 
+    RequestedBitwidth * ORD(RequestedBitwidth <= CardBitwidth) +
+    CardBitwidth * ORD(RequestedBitwidth > CardBitwidth);
+
+
+(* Intermediaries *)
+
+  IsBW8  = (Bitwidth = 8);  IsBW16 = (Bitwidth = 16); IsBW24 = (Bitwidth = 24);
+  IsBW32 = (Bitwidth = 32); IsBW40 = (Bitwidth = 40); IsBW48 = (Bitwidth = 48);
+  IsBW56 = (Bitwidth = 56); IsBW64 = (Bitwidth = 64);
+
+
+(* Pow2Of32Factor is either 2^32 or 1 if bitwidth is larger than 32 *)
+
+  Pow2Of32Factor = 4294967295 * ORD(IsBW40 OR IsBW48 OR IsBW56 OR IsBW64) + 1;
+
+(* Pow2ofBW = 2^bitwidth *)
+
+  Pow2ofBW = 
+    (256 * ORD(IsBW8)) + 
+    (65536 * ORD(IsBW16)) + 
+    (16777216 * ORD(IsBW24)) + 
+    (1 * ORD(IsBW32) * Pow2Of32Factor) + 
+    (256 * ORD(IsBW40) * Pow2Of32Factor) + 
+    (65536 * ORD(IsBW48) * Pow2Of32Factor) + 
+    (16777216 * ORD(IsBW56) * Pow2Of32Factor) + 
+    (1 * ORD(IsBW64) * Pow2Of32Factor * Pow2Of32Factor); (* 2^32 * 2^32 *)
+
+
+(* Maximum Value for Type SHORTCARD *)
+
+CONST MaxShortCard = Pow2ofBW - 1;
+
+
+(* Minimum and Maximum Values for Type SHORTINT *)
+
+CONST MinShortInt = -(Pow2ofBW DIV 2);
+CONST MaxShortInt = (Pow2ofBW DIV 2) - 1;
+
+END ShortTypesConsts.

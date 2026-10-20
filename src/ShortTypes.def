@@ -1,0 +1,17 @@
+DEFINITION MODULE ShortTypes;
+
+FROM ShortTypesConsts IMPORT
+  MaxShortCard, MinShortInt, MaxShortInt;
+
+
+(* Type ShortCard *)
+
+TYPE ShortCard = CARDINAL [0 .. MaxShortCard];
+
+
+(* Type ShortInt *)
+
+TYPE ShortInt = INTEGER [MinShortInt .. MaxShortInt];
+
+
+END ShortTypes.

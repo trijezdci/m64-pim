@@ -1,0 +1,323 @@
+(*!m2pim+mocka*)
+
+(* ------------------------------------------------------------------------ *
+ * MOCKA Modula-2 Compiler System, Version 2610                             *
+ *                                                                          *
+ * Copyright (C) 1988-2000 by                                               *
+ *  GMD Gesellschaft fuer Mathematik und Datenverarbeitung,                 *
+ *  Ehemalige GMD Forschungsstelle an der Uni Karlsruhe;                    *
+ *  [EN] German National Research Center for Computer Science,              *
+ *  Former GMD Research Lab at the University of Karlsruhe.                 *
+ *                                                                          *
+ * Copyright (C) 2001-2018 by                                               *
+ *  Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung;       *
+ *  [EN] Fraunhofer Society for the Advancement of Applied Research.        *
+ *                                                                          *
+ * Copyright (C) 2026 by Fraunhofer & Benjamin Kowarsch                     *
+ * ------------------------------------------------------------------------ *)
+
+(* BK 2026-10-18 : No occurrences of &, ~ and <> nor any octal literals *)
+
+DEFINITION MODULE CgTypeMap;
+
+(* AMD64 Backend *)
+
+FROM ShortTypes IMPORT
+  ShortCard, ShortInt;
+
+FROM SuErrors IMPORT
+   SourcePosition;
+
+CONST
+  MinChar = 0;
+  MaxChar = 255;
+   
+  (* CARDINAL and INTEGER boundaries *)
+  MaxCardinal   (* 32-bit *) =  0FFFFFFFFH;
+  MaxInteger    (* 32-bit *) =  2147483647;
+  MinInteger    (* 32-bit *) = -2147483648;
+  AbsMinInteger (* 32-bit *) =  2147483648;
+   
+  (* LONGCARD and LONGINT boundaries *)
+  MaxLongCard   (* 64-bit *) =  0FFFFFFFFFFFFFFFFH;
+  MaxLongInt    (* 64-bit *) =  9223372036854775807;
+  MinLongInt    (* 64-bit *) = -9223372036854775808;
+  AbsMinLongInt (* 64-bit *) =  9223372036854775808;
+   
+  MaxBitset = 31; (* 32-bit *)
+  MaxSet = MaxBitset;
+
+  (* Temporary aliases for backwards compatibility *)
+  MaxShortCard   (* DEPRECATED *) = MaxCardinal;
+  MaxShortInt    (* DEPRECATED *) = MaxInteger;
+  MinShortInt    (* DEPRECATED *) = MinInteger;
+  AbsMinShortInt (* DEPRECATED *) = AbsMinInteger;
+
+
+(* Alignment *)
+
+  Align8   (* AUTHORITATIVE *) = 1;
+  Align16  (* AUTHORITATIVE *) = 2;
+  Align32  (* AUTHORITATIVE *) = 4;
+  Align64  (* AUTHORITATIVE *) = 8;
+   
+  ByteAligned   (* NEW NAME *) = Align8;
+  WordAligned   (* NEW NAME *) = Align16;
+  DWordAligned  (* NEW NAME *) = Align32;
+  QWordAligned  (* NEW NAME *) = Align64;
+   
+  (* Temporary aliases for backwards compatibility *)
+  AlignByte    (* DEPRECATED *) = ByteAligned;
+  AlignWord    (* DEPRECATED *) = WordAligned;
+  AlignLong    (* DEPRECATED *) = DWordAligned;
+  AlignDouble  (* DEPRECATED *) = QWordAligned;
+   
+  MaxAlignment   = QWordAligned;
+  StackAlignment = QWordAligned;
+
+   
+(* Allocation *)
+
+  Size8   (* AUTHORITATIVE *) = 1;
+  Size16  (* AUTHORITATIVE *) = 2;
+  Size24  (* AUTHORITATIVE *) = 3;
+  Size32  (* AUTHORITATIVE *) = 4;
+  Size64  (* AUTHORITATIVE *) = 8;
+   
+  ByteSized    (* NEW NAME *) = Size8;
+  WordSized    (* NEW NAME *) = Size16;
+  DWordSized   (* NEW NAME *) = Size32;
+  QWordSized   (* NEW NAME *) = Size64;
+  TripleByteSized  (* NEW NAME *) = Size24;
+   
+  (* Temporary aliases for backwards compatibility *)
+  ByteSize       (* DEPRECATED *) = ByteSized;
+  WordSize       (* DEPRECATED *) = WordSized;
+  LongSize       (* DEPRECATED *) = DWordSized;
+  DoubleSize     (* DEPRECATED *) = QWordSized;
+  ThreeByteSize  (* DEPRECATED *) = TripleByteSized;
+   
+  StringParamSize         = QWordSized;
+  ReservedParamFrameSize  = 16;
+    (* 8-byte return address + 8-byte old base pointer *)
+  ReservedProcFrameSize   = 8;
+    (* 8-byte old DisplayVector[CurLevel] pointer *)
+  ReservedModuleFrameSize = 0;
+
+
+(* Bespoke Type Allocation Sizes *)
+
+  SizeCHAR       = ByteSized;
+  AlignCHAR      = ByteAligned;
+  SizeBOOLEAN    = ByteSized;
+  AlignBOOLEAN   = ByteAligned;
+   
+  SizeCARDINAL   = DWordSized;
+  AlignCARDINAL  = DWordAligned;
+  SizeINTEGER    = DWordSized;
+  AlignINTEGER   = DWordAligned;
+   
+  SizeLONGCARD   = QWordSized;
+  AlignLONGCARD  = QWordAligned;
+  SizeLONGINT    = QWordSized;
+  AlignLONGINT   = QWordAligned;
+   
+  SizeREAL       = DWordSized;
+  AlignREAL      = DWordAligned;
+  SizeLONGREAL   = QWordSized;
+  AlignLONGREAL  = QWordAligned;
+   
+  SizeBITSET     = DWordSized;
+  AlignBITSET    = DWordAligned;
+   
+  SizeADDRESS    = QWordSized;
+  AlignADDRESS   = QWordAligned;
+   
+  SizeWORD       = ByteSized; (* PIM defines WORD as smallest addressable unit *)
+  AlignWORD      = ByteAligned;
+   
+  SizePROC       = SizeADDRESS; 
+  AlignPROC      = AlignADDRESS; 
+  SizeNIL        = SizeADDRESS;
+  AlignNIL       = AlignADDRESS;
+  SizeOPAQUE     = SizeADDRESS;
+  AlignOPAQUE    = AlignADDRESS;
+   
+  SizeSTRING     = 0;
+  AlignSTRING    = 0;
+  SizeVOID       = 0;
+  AlignVOID      = 0;
+  SizeERROR      = 0;
+  AlignERROR     = 1;	(* *** CvR 91/02/20 *** *)
+   
+  (* Temporary aliases for backwards compatibility *)   
+  SizeSHORTCARD  (* DEPRECATED *) = SizeCARDINAL;
+  AlignSHORTCARD (* DEPRECATED *) = AlignCARDINAL;
+  SizeSHORTINT   (* DEPRECATED *) = SizeINTEGER;
+  AlignSHORTINT  (* DEPRECATED *) = AlignINTEGER;
+
+
+  (* attributes for internal constant expression evaluation types *)
+   
+  SizeSIorLI          = QWordSized;  (* Needs to span up to full 64-bit bounds *)
+  AlignSIorLI         = QWordAligned;
+  SizeSIorSCorLIorLC  = QWordSized;
+  AlignSIorSCorLIorLC = QWordAligned;
+  SizeSCorLIorLC      = QWordSized;
+  AlignSCorLIorLC     = QWordAligned;
+  SizeLIorLC          = QWordSized;
+  AlignLIorLC         = QWordAligned;
+  SizeSRorLR          = QWordSized;
+  AlignSRorLR         = QWordAligned;
+
+  OpenArraySize = 2 * QWordSized;
+    (* 8-byte address vector + 8-byte HIGH value *)
+  OpenArrayAlign = QWordAligned;
+    (* same alignment as ADDRESS *)
+
+  TransferParamSize    = 2 * QWordSized;
+  TransferParam1Offset = ReservedParamFrameSize;
+  TransferParam2Offset = TransferParam1Offset + QWordSized;
+
+  NewProcessParamSize    = 4 * QWordSized;
+  NewProcessParam1Offset = ReservedParamFrameSize;
+  NewProcessParam2Offset = NewProcessParam1Offset + QWordSized;
+  NewProcessParam3Offset = NewProcessParam2Offset + QWordSized;
+  NewProcessParam4Offset = NewProcessParam3Offset + QWordSized;
+
+  (* PROCEDURE NEW ( ADDRESS; LONGCARD ) *)
+  StandardProcNEWparamSize	= SizeADDRESS + SizeLONGCARD; 
+  
+  (* PROCEDURE DISPOSE ( ADDRESS; LONGCARD ) *)
+  StandardProcDISPOSEparamSize	= SizeADDRESS + SizeLONGCARD; 
+
+(* --- CvR 91/02/18 --- *)
+
+VAR
+   MinReal, MaxReal : REAL;
+   MinLongReal, MaxLongReal : LONGREAL;
+
+
+PROCEDURE InitTypeMap;
+(* Initialize. *)
+
+
+PROCEDURE GenProcNumber () : ShortCard;
+(* Generate a new procedure number. *)
+
+
+PROCEDURE InitBlockAlign
+  ( InitialActivationRecordSize : LONGINT;
+    VAR EnclosingActivationRecordOffset : LONGINT );
+(* Initialize alignment when entering a block.  *)
+
+
+PROCEDURE FinishBlockAlign
+  ( EnclosingActivationRecordOffset : LONGINT;
+    VAR ActivationRecordSize : LONGINT );
+(* Returns size of activation record when leaving a block.  *)
+
+
+PROCEDURE InitModuleFrameSize
+  (InitialModuleFrameSize : LONGINT );
+(* Initializes static frame of current module. *)
+
+
+PROCEDURE GetModuleFrameSize
+   ( VAR ModuleFrameSize : LONGINT );
+(* Returns static frame size of current module. *)
+
+
+PROCEDURE Add
+  ( pos : SourcePosition;
+    op1 : LONGINT;
+    VAR op2 : LONGINT ); 
+(* Perform the operation 'op2 := op1 + op2', check for overflow *)
+
+
+PROCEDURE AlignVariable
+  ( pos : SourcePosition;
+    VarSize : LONGINT;
+    VarAlign : ShortCard; (* HE 04/90 *) 
+    VarIsGlobal : BOOLEAN;
+    VAR VarOffset : LONGINT );
+(* Align variable.
+ * On exit 'VarOffset' contains the offset of the variable
+ * described by 'VarSize' and 'VarIsGlobal'. *)
+
+
+PROCEDURE AlignRecordField
+  ( pos : SourcePosition;
+    RecFieldSize : LONGINT; 
+  	RecFieldAlign: ShortCard; (* HE 04/90 *) 
+    VAR size : (* inout *) LONGINT; 
+    VAR align : (* inout *) ShortCard; (* HE 04/90 *) 
+    VAR RecOffset : (* inout *) LONGINT;
+    VAR FieldOffset : (* out *) LONGINT );
+(* Align record field.
+ * 'RecOffset' denotes the next free field offset, 'size' the current 
+ * calculated size of the record or variant part. On exit 'FieldOffset'
+ * contains the offset of the record field described by 'RecFieldSize'.  *)
+
+
+PROCEDURE AlignParam
+  ( pos : SourcePosition;
+    IsValueParam : BOOLEAN;
+    IsOpenArray : BOOLEAN;
+    ParamSize : LONGINT;
+    ParamAlign : ShortCard; (* HE 04/90 *) 
+    VAR ParamOffset : LONGINT );
+(* Align formal parameter.  *)
+
+
+PROCEDURE GetOpenArrayBounds
+  ( ElemSize : LONGINT;
+    ElemAlign : ShortCard;
+    VAR lwb : LONGINT;
+    VAR upb : LONGINT );
+(* Returns lwb and upb of open array *)
+
+
+PROCEDURE HighFieldOffset ( base : LONGINT ) : LONGINT;
+(* Returns offset of high field of the open array
+   whose descriptor has offset 'base'. *)
+
+
+PROCEDURE GetParamSize () : LONGINT;
+(* Returns storage size occupied by parameters
+   to be called after all parameters are evaluated. *)
+
+
+PROCEDURE GetArraySize
+  ( pos : SourcePosition;
+    IndexLength : LONGCARD;
+    CompSize : LONGINT;
+    CompAlign : ShortCard ) : LONGINT;
+(* Calculate size of array type.  *)
+
+
+PROCEDURE AdjustedArrayElemSize
+ ( ElemSize : LONGINT;
+   ElemAlign: ShortCard ) : LONGINT;
+(* Aligns ElemSize to word boundary, if not equal byte size. *)
+
+
+(* +++ CvR 91/01/24 +++ *)
+PROCEDURE GetArrayAlign
+  ( ElemSize : LONGINT;
+    ElemAlign: ShortCard;
+    ArraySize: LONGINT ) : ShortCard;
+(* Calculate the alignment of array type. *)
+(* --- CvR 91/01/24 --- *)
+
+
+PROCEDURE GetEnumSize
+  ( MaxVal : LONGINT; VAR Size : LONGINT; VAR Align : ShortCard ); (* HE 04/90 *) 
+(* Calculate size of enumeration type, MaxVal denotes last literal.  *)
+
+
+PROCEDURE GetSetSize
+  (SetSize : LONGINT; VAR Size : LONGINT; VAR Align : ShortCard ); (* HE 04/90 *) 
+(* Calculate size of set type. *)
+
+END CgTypeMap.

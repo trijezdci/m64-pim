@@ -1,0 +1,11 @@
+DEFINITION MODULE ShortTypesConsts;
+
+CONST Pow2of16 = 64 * 1024;
+
+CONST MaxShortCard = Pow2of16 - 1;
+
+CONST MinShortInt = - (Pow2of16 DIV 2);
+
+CONST MaxShortInt = Pow2of16 DIV 2;
+
+END ShortTypesConsts.
