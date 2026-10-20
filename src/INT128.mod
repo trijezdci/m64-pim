@@ -1031,7 +1031,7 @@ VAR
 (* --------------------------------------------------------------------------
  * Procedure:  Pow2(n, res, stat)
  * --------------------------------------------------------------------------
- * Passes quotient and remainder in quot and rem respectively.
+ * Passes the n-th power of 2 in res, and status in stat.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Pow2 ( n : CARDINAL; VAR res : INT128; VAR stat : Status );
@@ -1056,11 +1056,8 @@ PROCEDURE InitPow2Table;
 VAR
   stat : Status;
   index : CARDINAL;
-  factor : INT128T;
 
 BEGIN
-  (* factor := 2; *)
-  factor.highBits := 0;
   factor.lowBits := 2;
   
   (* powerOf2[0] := 1; *)
@@ -1069,7 +1066,7 @@ BEGIN
   
   (* powerOf2[index] := factor * powerOf2[index-1]; *)
   FOR index := 1 TO Bitwidth-1 DO
-    Mul(factor, powerOf2[index-1], powerOf2[index], stat);
+    Shl(powerOf2[index-1], 1, powerOf2[index], stat);
   END (* FOR *)
 END InitPow2Table;
 
