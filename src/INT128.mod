@@ -489,93 +489,18 @@ END Sub;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Mul ( left, right : INT128T; VAR res : INT128T; VAR stat : Status );
-
-PROCEDURE Mul ( left, right : INT128T; VAR res : INT128T; VAR stat : Status );
-VAR
-  resLow      : LONGCARD;
-  resHigh     : LONGINT;
-  nativeLeft  : LONGINT;
-  nativeRight : LONGINT;
-  native64    : LONGINT;
-  tempLeft    : INT128T;
-  tempRight   : INT128T;
-  prod        : INT128T;
-  isNeg       : BOOLEAN;
 BEGIN
-  
-  IF (left.highBits = 0) AND (right.highBits = 0) THEN
-    (* both operands are non-negative and fit in 64-bit *)
-    IF NOT prodOverflowsLC(left.lowBits, right.lowBits) THEN
-      (* product fits in 64-bit *)
-      res.lowBits := left.lowBits * right.lowBits;
-      res.highBits := 0;
-      stat := Success;
-      RETURN
-    ELSE (* product overflows 64-bit *)
-      LongMul(left, right, res, stat);
-      RETURN
-    END (* IF *)
+  IF (left.highBits = 0) AND (left.lowBits = 0) THEN
+    SetZero(res);
+    stat := Success;
+    RETURN
   END; (* IF *)
-  
-  IF ((left.highBits = -1) AND (right.highBits = 0)) THEN
-  
-    (* sign reduce left operator to 64-bit *)
-    left64 := MIN(LONGINT) + VAL(LONGINT, left.lowBits - 08000000000000000H)
-    
-  ELSEIF ((right.highBits = -1) AND (left.highBits = 0)) THEN
-  
-    (* sign reduce right operator to 64-bit *)
-    right64 := MIN(LONGINT) + VAL(LONGINT, right.lowBits - 08000000000000000H)
-  ELSE
-  
-  END;
-    
-  
-  (* operands have different signs and fit in signed 64-bit *)
-  IF ((left.highBits = 0)  OR (left.highBits = -1)) AND
-     ((right.highBits = 0) OR (right.highBits = -1)) THEN
-     
-    (* Sign reduce left operator into 64-bit signed staging variable *)
-    IF left.highBits = -1 THEN
-      nativeLeft := MIN(LONGINT) + VAL(LONGINT, left.lowBits - 08000000000000000H)
-    ELSE
-      nativeLeft := VAL(LONGINT, left.lowBits)
-    END;
-
-    (* Sign reduce right operator into 64-bit signed staging variable *)
-    IF right.highBits = -1 THEN
-      nativeRight := MIN(LONGINT) + VAL(LONGINT, right.lowBits - 08000000000000000H)
-    ELSE
-      nativeRight := VAL(LONGINT, right.lowBits)
-    END;
-
-    (* Verify no 64-bit signed overflow or underflow occurs *)
-    IF prodOverflowsLI(nativeLeft, nativeRight) THEN
-      (* If it overflows 64-bit but could fit in 128-bit, skip to long multiplication *)
-    ELSIF prodUnderflowsLI(nativeLeft, nativeRight) THEN
-      (* If it underflows 64-bit but could fit in 128-bit, skip to long multiplication *)
-    ELSE
-      (* Safe native 64-bit multiplication *)
-      native64 := nativeLeft * nativeRight;
-      
-      (* Sign extend the 64-bit result into the 128-bit destination *)
-      IF native64 < 0 THEN
-        resLow := 0 - VAL(LONGCARD, ABS(native64));
-        resHigh := -1
-      ELSE
-        resLow := VAL(LONGCARD, native64);
-        resHigh := 0
-      END;
-      
-      res.lowBits := resLow;
-      res.highBits := resHigh;
-      stat := Success;
-      RETURN
-    END (* IF *)
+  IF (right.highBits = 0) AND (right.lowBits = 0) THEN
+    SetZero(res);
+    stat := Success;
+    RETURN
   END; (* IF *)
-  
-  LongMul(left, right, res, stat);
-  
+  LongMul(left, right, res, stat)
 END Mul;
 
 
@@ -586,6 +511,32 @@ END Mul;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Div ( left, right : INT128T; VAR res : INT128T; VAR stat : Status );
+VAR
+  resIsNeg : BOOLEAN;
+  absLeft, absRight, quot, rem : INT128T;
+BEGIN
+  IF (right.highBits = 0) AND (right.lowBits = 0) THEN
+    stat := DivByZero;
+    SetZero(res);
+    RETURN
+  END; (* IF *)
+
+  resIsNeg := (left.highBits < 0) # (right.highBits < 0);
+  Abs(left, absLeft, stat);
+  IF stat # Success THEN RETURN END;
+  Abs(right, absRight, stat);
+  IF stat # Success THEN RETURN END;
+
+  DivMod128(absLeft, absRight, quot, rem, stat);
+  IF stat # Success THEN RETURN END;
+
+  IF resIsNeg THEN
+    Neg(quot, res, stat)
+  ELSE
+    res := quot;
+    stat := Success
+  END (* IF *)
+END Div;
 
 
 (* --------------------------------------------------------------------------
@@ -595,6 +546,130 @@ PROCEDURE Div ( left, right : INT128T; VAR res : INT128T; VAR stat : Status );
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Mod ( left, right : INT128T; VAR res : INT128T; VAR stat : Status );
+VAR
+  leftIsNeg : BOOLEAN;
+  absLeft, absRight, quot, rem : INT128T;
+BEGIN
+  IF (right.highBits = 0) AND (right.lowBits = 0) THEN
+    stat := DivByZero;
+    SetZero(res);
+    RETURN
+  END; (* IF *)
+
+  leftIsNeg := left.highBits < 0;
+  Abs(left, absLeft, stat);
+  IF stat # Success THEN RETURN END;
+  Abs(right, absRight, stat);
+  IF stat # Success THEN RETURN END;
+
+  DivMod128(absLeft, absRight, quot, rem, stat);
+  IF stat # Success THEN RETURN END;
+
+  IF leftIsNeg THEN
+    Neg(rem, res, stat)
+  ELSE
+    res := rem;
+    stat := Success
+  END (* IF *)
+END Mod;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  INT128.Shl(i, shift, res, stat)
+ * --------------------------------------------------------------------------
+ * Shifts i left by shift bits. Passes result in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Shl ( i : INT128T; shift : CARDINAL; VAR res : INT128T; VAR stat : Status );
+VAR
+  s : CARDINAL;
+  carryBits : LONGCARD;
+  powS, powInv : LONGCARD;
+  isNegative : BOOLEAN;
+BEGIN
+  isNegative := i.highBits < 0;
+  IF shift = 0 THEN
+    res := i;
+    stat := Success;
+    RETURN
+  ELSIF shift >= 128 THEN
+    res.highBits := 0;
+    res.lowBits := 0;
+    IF (i.highBits # 0) OR (i.lowBits # 0) THEN
+      stat := Overflow
+    ELSE
+      stat := Success
+    END; (* IF *)
+    RETURN
+  ELSIF shift >= 64 THEN
+    s := shift - 64;
+    IF i.highBits # 0 THEN
+      stat := Overflow
+    ELSE
+      stat := Success
+    END; (* IF *)
+    powS := Pow2(s);
+    res.highBits := VAL(LONGINT, i.lowBits * powS);
+    res.lowBits := 0
+  ELSE (* 1 <= shift < 64 *)
+    s := shift;
+    powS := Pow2(s);
+    powInv := Pow2(64 - s);
+    carryBits := i.lowBits DIV powInv;
+    res.highBits := (i.highBits * VAL(LONGINT, powS)) + VAL(LONGINT, carryBits);
+    res.lowBits := i.lowBits * powS
+  END; (* IF *)
+  IF (res.highBits < 0) # isNegative THEN
+    stat := Overflow
+  ELSE
+    stat := Success
+  END (* IF *)
+END Shl;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  INT128.Shr(i, shift, res)
+ * --------------------------------------------------------------------------
+ * Arithmetic shift right of i by shift bits. Passes result in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE AShr ( i : INT128T; shift : CARDINAL; VAR res : INT128T );
+VAR
+  s : CARDINAL;
+  carryBits : LONGCARD;
+  powS, powInv : LONGCARD;
+BEGIN
+  IF shift = 0 THEN
+    res := i;
+    RETURN
+  ELSIF shift >= 128 THEN
+    IF i.highBits < 0 THEN
+      res.highBits := -1;
+      res.lowBits := MAX(LONGCARD)
+    ELSE
+      res.highBits := 0;
+      res.lowBits := 0
+    END; (* IF *)
+    RETURN
+  ELSIF shift >= 64 THEN
+    s := shift - 64;
+    powS := Pow2(s);
+    IF i.highBits < 0 THEN
+      res.highBits := -1;
+      res.lowBits := VAL(LONGCARD, i.highBits DIV VAL(LONGINT, powS))
+    ELSE
+      res.highBits := 0;
+      res.lowBits := VAL(LONGCARD, i.highBits) DIV powS
+    END (* IF *)
+  ELSE (* 1 <= shift < 64 *)
+    s := shift;
+    powS := Pow2(s);
+    powInv := Pow2(64 - s);
+    carryBits := (VAL(LONGCARD, i.highBits) MOD powS) * powInv;
+    res.highBits := i.highBits DIV VAL(LONGINT, powS);
+    res.lowBits := (i.lowBits DIV powS) + carryBits
+  END (* IF *)
+END AShr;
 
 
 (* **************************************************************************
@@ -803,33 +878,32 @@ PROCEDURE LongMul ( i, j : INT128T; VAR res : INT128T; VAR stat : Status );
 VAR
   resIsNegative : BOOLEAN;
   absI, absJ, prod : INT128T;
-  
+  tempStat : Status;
 BEGIN
-  resIsNegative := ORD((i.highBits < 0) # (j.highBits < 0));
-  
-  Abs(i, absLeft, stat);
-  IF stat # Success THEN RETURN END; (* ABS(i) > MAX(INT128T) *)
-  
-  Abs(j, absRight, stat);
-  IF stat # Success THEN RETURN END; (* ABS(j) > MAX(INT128T) *)
+  resIsNegative := (i.highBits < 0) # (j.highBits < 0);
 
-  prod.highBits := 0;
-  prod.lowBits := 0;
+  Abs(i, absI, stat);
+  IF stat # Success THEN RETURN END;
 
-  WHILE (absRight.lowBits # 0) OR (absRight.highBits # 0) DO
-    IF ODD(absI.lowBits) THEN
+  Abs(j, absJ, stat);
+  IF stat # Success THEN RETURN END;
+
+  SetZero(prod);
+
+  WHILE (absJ.lowBits # 0) OR (absJ.highBits # 0) DO
+    IF ODD(absJ.lowBits) THEN
       Add(prod, absI, prod, stat);
-      IF stat # Success THEN 
-        IF isNeg THEN
+      IF stat # Success THEN
+        IF resIsNegative THEN
           stat := Underflow
         ELSE
           stat := Overflow
-        END;
+        END; (* IF *)
         RETURN
-      END
-    END;
-    Shl128(absI, 1);
-    Shr128(absJ, 1)
+      END (* IF *)
+    END; (* IF *)
+    Shl(absI, 1, absI, tempStat);
+    Shr(absJ, 1, absJ)
   END; (* WHILE *)
 
   IF resIsNegative THEN
@@ -837,7 +911,171 @@ BEGIN
   ELSE
     res := prod;
     stat := Success
-  END
+  END (* IF *)
 END LongMul;
 
+
+(* --------------------------------------------------------------------------
+ * Procedure:  Shr(i, shift, res)
+ * --------------------------------------------------------------------------
+ * Logical shift right of i by shift bits. Passes result in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Shr ( i : INT128T; shift : CARDINAL; VAR res : INT128T );
+VAR
+  s : CARDINAL;
+  carryBits : LONGCARD;
+  powS, powInv : LONGCARD;
+  uHigh : LONGCARD;
+BEGIN
+  IF shift = 0 THEN
+    res := i;
+    RETURN
+  ELSIF shift >= 128 THEN
+    res.highBits := 0;
+    res.lowBits := 0;
+    RETURN
+  ELSIF shift >= 64 THEN
+    s := shift - 64;
+    powS := Pow2(s);
+    res.highBits := 0;
+    res.lowBits := VAL(LONGCARD, i.highBits) DIV powS
+  ELSE (* 1 <= shift < 64 *)
+    s := shift;
+    powS := Pow2(s);
+    powInv := Pow2(64 - s);
+    uHigh := VAL(LONGCARD, i.highBits);
+    carryBits := (uHigh MOD powS) * powInv;
+    res.highBits := VAL(LONGINT, uHigh DIV powS);
+    res.lowBits := (i.lowBits DIV powS) + carryBits
+  END (* IF *)
+END Shr;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  DivMod(left, right, quot, rem, stat)
+ * --------------------------------------------------------------------------
+ * Passes quotient and remainder in quot and rem respectively.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE DivMod ( left, right : INT128T; VAR quot, rem : INT128T; VAR stat : Status );
+VAR
+  bit : CARDINAL;
+  zero128 : INT128T;
+  tempStat : Status;
+BEGIN
+  SetZero(zero128);
+  IF eq(right, zero128) THEN
+    stat := DivByZero;
+    SetZero(quot);
+    SetZero(rem);
+    RETURN
+  END; (* IF *)
+
+  IF lt(left, right) THEN
+    SetZero(quot);
+    rem := left;
+    stat := Success;
+    RETURN
+  END; (* IF *)
+
+  IF eq(left, right) THEN
+    FromCard(1, quot);
+    SetZero(rem);
+    stat := Success;
+    RETURN
+  END; (* IF *)
+
+  SetZero(quot);
+  SetZero(rem);
+
+  bit := 128;
+  REPEAT
+    DEC(bit);
+    Shl(rem, 1, rem, tempStat);
+    IF bit >= 64 THEN
+      IF (VAL(LONGCARD, left.highBits) DIV Pow2(bit - 64)) MOD 2 = 1 THEN
+        rem.lowBits := rem.lowBits + 1
+      END; (* IF *)
+    ELSE
+      IF (left.lowBits DIV Pow2(bit)) MOD 2 = 1 THEN
+        rem.lowBits := rem.lowBits + 1
+      END; (* IF *)
+    END; (* IF *)
+
+    IF gteq(rem, right) THEN
+      Sub(rem, right, rem, tempStat);
+      IF bit >= 64 THEN
+        quot.highBits := quot.highBits + VAL(LONGINT, Pow2(bit - 64))
+      ELSE
+        quot.lowBits := quot.lowBits + Pow2(bit)
+      END (* IF *)
+    END (* IF *)
+  UNTIL bit = 0;
+
+  stat := Success
+END DivMod;
+
+
+(* --------------------------------------------------------------------------
+ * Data table for powers of 2
+ * ----------------------------------------------------------------------- *)
+
+CONST
+  Bitwidth = TSIZE(INT128T);
+
+VAR
+  powerOf2 : ARRAY [0..Bitwidth-1] OF INT128T;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  Pow2(n, res, stat)
+ * --------------------------------------------------------------------------
+ * Passes quotient and remainder in quot and rem respectively.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Pow2 ( n : CARDINAL; VAR res : INT128; VAR stat : Status );
+BEGIN
+  IF n < Bitwidth THEN
+    stat := Success;
+    res := powerOf2[n];
+  ELSE
+    stat := Overflow;
+  END; (* IF *)
+END Pow2;
+
+
+(* --------------------------------------------------------------------------
+ * procedure InitPow2Table
+ * --------------------------------------------------------------------------
+ * Initialises data table with powers of 2.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE InitPow2Table;
+
+VAR
+  stat : Status;
+  index : CARDINAL;
+  factor : INT128T;
+
+BEGIN
+  (* factor := 2; *)
+  factor.highBits := 0;
+  factor.lowBits := 2;
+  
+  (* powerOf2[0] := 1; *)
+  powerOf2[0].highBits := 0;
+  powerOf2[0].lowBits := 1;
+  
+  (* powerOf2[index] := factor * powerOf2[index-1]; *)
+  FOR index := 1 TO Bitwidth-1 DO
+    Mul(factor, powerOf2[index-1], powerOf2[index], stat);
+  END (* FOR *)
+END InitPow2Table;
+
+
+(* Initialise data table *)
+
+BEGIN
+  InitPow2Table
 END INT128.
