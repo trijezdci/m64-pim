@@ -1,0 +1,2482 @@
+GMD MODULA SYSTEM MOCKA
+User Manual
+Zirkel 2, D{76131 Karlsruhe
+Universitat Karlsruhe
+Institut fur Programm- und Datenstrukturen
+Zirkel 2
+D-76131 Karlsruhe, Germany
+Phone: ++49.721 / 608-7398
+Fax: ++49.721 / 30047
+Contact:
+Thilo Gaul
+Email: gaul@ira.uka.de
+January 22, 1999
+
+1
+
+MOCKA - Modula-2 Compiler System
+
+Contents
+
+2
+
+1 Introduction
+
+3
+
+2 MOCKA Reference Manual
+
+5
+
+3 The Modula-2 Implementation
+
+10
+
+4 The System Library
+
+15
+
+A Example 1: First Steps with the MOCKA System
+B Example 2: Using the Make Facility
+C Example 3: Foreign Modules
+D Example 4: A System Installation
+E Example 5: Use of Compiler Pragmas in a Source Program
+
+26
+27
+30
+31
+32
+
+1.1
+1.2
+1.3
+1.4
+1.5
+1.6
+1.7
+1.8
+
+2.1
+2.2
+2.3
+2.4
+2.5
+2.6
+
+3.1
+3.2
+3.3
+3.4
+3.5
+3.6
+3.7
+
+Pre-Preliminary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Preliminary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Supported machines . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Compilation Speed . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Optimizer . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Debugger . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Libraries . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+The Compiler . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+The Binder . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Interactive Environment and Make Facility . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+System Installation Parameters . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Compiler Pragmas . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Files and File Name Conventions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+3
+3
+3
+3
+3
+4
+4
+4
+
+5
+5
+6
+7
+8
+9
+
+Extensions of Modula-2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+Foreign Modules: Accessing Procedures written in other Languages . . . . . . . . . . . . . . . . . 10
+Storage Representations of Modula-2 Objects . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+Type Compatibility Rules . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+Operations on Types . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+Floating-Point Arithmetic . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+Implementation Restrictions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+
+4.1 Description . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+4.2 De nition Modules . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+4.2.1 Unix interfaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+4.2.2 Storage, MemPools . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18
+4.2.3 Strings, Strings1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+4.2.4 BasicIO, ByteIO, TextIO . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+4.2.5 Exceptions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22
+4.2.6 InOut . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+4.2.7 NumConv, RealConv, LREAL . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24
+4.2.8 MathLib . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25
+
+MOCKA - Modula-2 Compiler System
+
+3
+
+1 Introduction
+
+1.1 Pre-Preliminary
+
+If you are not interested in the technical data and the special features of the MOCKA system prefering a direct
+approach to the system you should skip to Appendix A, in which a short sample session gives you a basic idea
+of how to use the system.
+
+1.2 Preliminary
+
+MOCKA (Modula Compiler Karlsruhe) is a complete, high performance implementation of the language
+Modula-2 as de ned in [Wir85]. The MOCKA system consists of a compiler, a binder, and a simple environment (including a make-facility) supporting interactive program development. The compiler translates
+Modula-2 source programs into binary machine code or assembler code. For some systems (e.g. HP 9000) instead of machine or assembly code - C code is produced, which is then passed on to a C compiler. The binder
+checks the object les generated by the compiler for consistency and links them to an executable program. All
+these components may be used separately in a command mode (e.g. in shell scripts), but also integrated under
+supervision of the interactive programming environment (in the so-called session mode). Additionally, this environment provides a mechanism similar to the Unix-make, but works interactively and makes the maintenance
+of a description le (make le) super uous.
+
+1.3 Supported machines
+
+MOCKA may be used on the following systems:
+target machine
+DEC Station
+Silicon Graphics
+Sony NEWS
+SUN3
+SUN4
+SUN4
+PCS Cadmus
+NeXT
+HP9000/300
+HP9000/700
+RS6000
+VAX
+Transputer
+PowerPC
+IBM PC
+IBM PC
+C
+
+operating system
+ULTRIX
+IRIX
+News
+SUN OS
+SUN OS
+Solaris2.x/SunOS 5
+UNIX
+Mach/Unix
+HPUX
+HPUX
+AIX
+UNIX (BSD) / ULTRIX
+Without own O.S.
+but access via UNIX
+from a host computer
+PARIX
+Parsytec PowerExplorer
+access i.e. via SUN host
+Linux
+386BSD
+UNIX
+
+processor
+R2000 (MIPS)
+R2000 (MIPS)
+MC 68020 with 68881
+MC 68020 with 68881
+SPARC
+SPARC
+MC68020 with 68881
+MC68020 with 68881
+MC68020 with 68881
+using C backend
+using C backend
+VAX
+T800, T414
+PPC602
+80386
+80386
+
+C
+
+1.4 Compilation Speed
+
+MOCKA compiles up to 33000 lines of source per minute (on a DEC 3100 station).
+
+1.5 Optimizer
+
+An optimizer is available which can be used to speed up the execution of the compiled program. For some
+systems the resulting code is up to 20% faster than the non-optimized. For the Intel 80386/486 the optimizer
+is not yet supported.
+
+MOCKA - Modula-2 Compiler System
+
+4
+
+1.6 Debugger
+
+For some target systems, the 'dbx' and 'gdb' debugger is supported. 'adb' may be used on all (non-VMS)
+systems.
+
+1.7 Libraries
+
+The Modula-2 source and binary les may be distributed into libraries. These libraries are mapped to the le
+system of the underlying operating system. A standard library is provided containing MathLib, (un)formatted
+and raw byte I/O utilities, storage management utilities, and access to the operating system.
+
+1.8 Acknowledgements
+
+MOCKA was designed and implemented by Friedrich-Wilhelm Schroer, Franz Engelmann, Dirk SchwarzHertzner, Helmut Emmelmann and Jurgen Vollmer at the former GMD Forschungsstelle an der Universitat
+Karlsruhe, German National Research Center for Computer Science. MOCKA is now maintained at the University of Karlsruhe. This paper serves as a guide how to work with the MOCKA system.
+
+MOCKA - Modula-2 Compiler System
+
+5
+
+2 MOCKA Reference Manual
+
+2.1 The Compiler
+
+There are three kinds of compilation units in Modula-2:
+De nition Modules specify interfaces which may be imported by other modules. Files containing de nition
+modules must end with the sux \.md".
+Implementation Modules provide the implementation of the corresponding interface. Files containing implementation modules must end with the sux \.mi".
+A Program Module constitutes the main program. A program module le must also end with the sux \.mi".
+
+Module name and le name pre x must be identical.
+To compile the de nition module contained in le source.md, invoke the compiler with the shell command (let
+'$' be the prompt of the operation system):
+$ mc -s source [ options ]
+
+If the de nition module is free of errors, a symbol le containing the interface description of the module is
+created.
+To compile an implementation module or a program module contained in le source.mi, invoke the compiler
+with the shell command:
+$ mc -c source [ options ]
+
+If the module does not contain any errors, an object le is created that contains the binary code of the module.
+De nition modules imported by a compilation unit must have been compiled previously. Their interface description is searched in the current directory, in the directories speci ed at system invocation and in the installation
+speci c system library, in this order.
+A de nition module must be compiled before the corresponding implementation module. If a de nition module
+is recompiled the corresponding implementation module and all units importing the module must be recompiled.
+The system checks consistency of con gurations. In session mode, i.e. using the interactive environment, the
+system invokes recompilation automatically.
+The compiler invocation may be parameterized with the following two classes of options:
+ compiler pragmas
+ options
+
+Compiler pragmas and options are described in section 2.5 and section 2.4 below.
+
+2.2 The Binder
+
+The binder performs the modula-speci c preparations for the system linker call. E.g., in Unix systems the
+system linker is ld . The binder collects the transitive closure of the imported modules, provides a consistency
+check on the object les of the modules that together constitute the program, generates an initialization routine
+that is executed when the program is loaded (to initialize the module bodies), and invokes the system linker
+(with a complete argument list).
+To link the object modules of the program module program , invoke the system with
+$ mc -p program [option]
+
+If the object les of the program module and of the (transitive closure of the) modules imported by the program
+module were found and consistent, an executable program named program is generated.
+
+MOCKA - Modula-2 Compiler System
+
+6
+
+2.3 Interactive Environment and Make Facility
+
+The MOCKA system components may be used separately in the command mode as described above, or integrated in an interactive session mode under supervision of a special programming environment. The interactive
+environment reduces the number of commands to be typed in, and provides a make facility to support the
+development and maintenance of large programs consisting of many compilation units. So, if the MOCKA
+system is used in session mode, the user needs not worry about the correct compilation order.
+To ease the rst steps with the MOCKA system, see for Appendix A. Appendix B describes a sample session
+where the capabilities of the MOCKA system are used in a more sophisticated way.
+To invoke the system in session mode, enter the shell command
+$ mc [ options ]
+
+Again, the options available are of two classes:
+ compiler pragmas
+ options
+
+Compiler pragmas and options are described in section 2.5 and section 2.4 respectively.
+In session mode, the user can enter commands to edit or compile compilation units, to specify goals that
+the system tries to reach automatically, to overwrite options given at system invocation, or to execute Unix
+commands. Goals are such as "generate an executable program for program module xy". In this case the user
+needs neither enter commands by hand to compile the program module and each module (both de nition and
+implementation) imported by the program module (in an correct order) nor to bind the objects. All necessary
+actions to reach the speci ed goal are performed by the MOCKA system.
+The commands available in session mode are:
+ d module
+ i module
+ s module
+ c module
+ p module
+ <empty>
+ -pragma
+ q
+ unixcommand
+
+To edit the de nition module module stored in source le module.md enter the d command. To edit the
+implementation/program module module stored in source le module.mi enter the i command. If the name
+module is omitted, the name used in the previous d or i command is taken.
+The user can specify goals with the s, c or p command. The system tries to reach this goal automatically by
+compiling (and/or recompiling) modules. The correct compilation order is computed by the system itself, the
+user needs not specify the dependencies between compilation units in a description le (make le).
+If an error is detected during compilation of a module a listing is generated and the editor is invoked automatically. Errors may be corrected in the listing. After leaving the editor the system writes the listing back to the
+source le (without the error messages).
+Give the s command to specify the goal: \compile and generate a symbol le for the de nition module module.
+Create symbol les for all (transitively) imported modules if they are missing or obsolete".
+
+MOCKA - Modula-2 Compiler System
+
+7
+
+Give the c command to specify the goal: \compile and generate a code le for the implementation/program
+module module and symbol les for all modules imported (transitively) by module, if they are missing or
+obsolete".
+Give the p command to specify the goal: \compile and generate a code le for the program module module and
+code and symbol les for all modules imported (transitively) by module, if they are missing or obsolete. Create
+executable program module if missing or obsolete".
+Give the empty command empty to continue processing after editing a le. The goal is that speci ed in the
+previous s, c or p command.
+For the use of pragmas see section 2.5.
+Give the q command to leave the system.
+All other commands entered in session mode are assumed to be Unix commands and passed to the Unix shell.
+<
+
+>
+
+2.4 System Installation Parameters
+
+The MOCKA system can be installed in various con gurations depending on the actual installation parameters
+given. A default installation (including default values for the options) is given in the shell script mc that is used
+to invoke the system. Installation parameters may also be given as options at system invocation time in order
+to overwrite the default values.
+Installation parameters available are:
+-d directory
+-D directory
+-link script
+-edit script
+-asm / -cvt script
+-cc script
+-O
+-list script
+-syslib directory
+
+Libraries are directories containing compiled modules. If the module to be compiled contains imports from
+other modules, the actual directory is inspected rst (by default). The -d option may be repeated and allows
+import from modules in library directory. The libraries are inspected in the order speci ed, but after the actual
+directory. Finally, the installation-speci c system library (given as an argument of the -syslib option) is
+inspected.
+The -D option allows you to specify a directory where the compilation results are put. On default the current
+directory is chosen.
+A script is the name of an executable le containing Unix shell commands.
+The script given in the link parameter is used by the MOCKA system to invoke the system linker. When a
+p module was entered in session mode, the system collects all modules imported by module, checks them for
+consistency, creates a root module containing the initializations for the module bodies, and then invokes the
+link script with module and a list of object les as arguments (script module object le . . . ).
+The script given in the edit parameter is used by the MOCKA system to invoke the editor. When a d module
+or a i module was entered in session mode, the system calls script with the source le as argument (script
+source le) .
+The -asm and -cc allow you to use your own scripts to invoke an assembler or a C-Compiler respectively. Note
+that the NeXT-Version of the MOCKA Compiler does not know the -asm option, because the MOCKA system
+produces native code for this machine. The resulting code le, however, must be transformed to suit NeXT
+standards. A script can be speci ed for this task by the -cvt option.
+
+MOCKA - Modula-2 Compiler System
+
+8
+
+The -O option switches on the Optimizer.
+The script given in the list parameter is used by the MOCKA system to generate listings. When an error is
+detected in session mode during a compilation this script is called with the name of the source le (where the
+error occurred) as argument. The script contains commands to generate the listing with the error messages
+interspersed, to invoke the editor, to remove the error messages from the corrected listing, and to copy the
+listing to the source le.
+Appendix D shows how implementations of such scripts used as options could look like.
+
+2.5 Compiler Pragmas
+
+Pragmas are instructions to the compiler and can be used to control code generation for runtime checks.
+Pragmas may be given at system invocation time, or during a session, or inside a Modula-2 source program.
+The pragmas described here are a speciality of the MOCKA system and therefore depend on this special
+Modula-2 implementation. Do not expect them in other implementations.
+Pragmas available are
+ range / norange
+ index / noindex
+ Stack_Test / noStack_Test
+ S / noS
+ static / nostatic
+ g / nog
+ O / noO
+ blip / noblip
+ info
+The Stack_Test / noStack_Test, S / noS, g / nog, and O / noO pragma is not supported on all target
+systems.
+The range / norange pragma causes the compiler to generate / not to generate additional code to check at
+runtime whether a value to be assigned is out of the range of the variable it will be assigned to, e.g. for the
+assignment statement or parameter passing. If the value is out of bounds, an error message will be emitted by
+the runtime system and the program execution will be aborted. Default value is range.
+The index / noindex pragma causes the compiler to generate / not to generate additional code to check at
+runtime whether array indices are out of bounds, i.e. out of the range speci ed by the array's index type. If
+the index is out of bounds, an error message will be emitted by the runtime system and the program execution
+will be aborted. Default value is index.
+The Stack_Test / noStack_Test pragma controls generation of additional code for workspace violations by
+procedure calls. Has to be set, if NEWPROCESS or TRANSFER are used. With programs that do not use coroutines
+this pragma is useless.
+The S option prevents the MOCKA Compiler from deleting the le module.s, which contains the assembler code
+for the module module.mi. Default is noS.
+The g option supports debugging. Default is g.
+The static option will link the resulting executable statically. Default is nostatic.
+The blip option switches on counting processed procedures during the semantic analysis. Default is blip.
+By specifying O or noO you may enable or disenable the Optimizer. For MOCKA versions with a C-BackEnd
+this is the C-Optimizer.
+Concluding info shows the current settings of the system installation parameters.
+The syntax for pragmas used at system invocation time or during a session is
+-pragma
+The syntax for pragmas located in a Modula-2 source is:
+%tpragma
+A pragma may be located in any declaration part of a module or a procedure, the scope of the pragma extends
+from the point where it is speci ed up to the end of the block containing the speci cation (cf. example 5).
+
+MOCKA - Modula-2 Compiler System
+
+2.6 Files and File Name Conventions
+
+9
+
+The commands of the MOCKA system expect module names instead of le names. To enable the MOCKA
+system to relate a module name and the name of the le that contains the module, the le names have to
+follow special conventions, i.e. the le name consists of the concatenation of the module name and a sux that
+describes the purpose of the le.
+The conventions are:
+module.md source le with de nition module module.
+module.mi source le with implementation/program module module.
+module.d symbol le for de nition module module. Used for inter module type checking, created as the result
+of the compilation of the correct de nition module module .
+module.i symbol le for implementation/program module module. Used for debugging, created as the result of
+the compilation of a correct implementation/program module module.
+module.r reference le for implementation/program module module. Used for linking, created as the result of
+the compilation of a correct implementation/program module module.
+module.s contains the assembler code for the module module. It is removed after the assembler has produced
+executable code, unless the S option was speci ed.
+module.o code le for implementation/program module module. Created as the result of the compilation of a
+correct implementation/program module module.
+module executable program for program module module.
+
+MOCKA - Modula-2 Compiler System
+
+10
+
+3 The Modula-2 Implementation
+The MOCKA system implements the language Modula-2 as de ned in [Wir85] , with a few minor extensions.
+
+3.1 Extensions of Modula-2
+
+underscores in identi ers : The underscore character is considered as a letter and may be used in identi ers.
+additional basic types LONGINT and LONGCARD : Two additional basic types LONGINT and LONGCARD are introduced. LONGINT comprises the integers between MIN(LONGINT) and MAX(LONGINT). LONGCARD comprises
+the integers between 0 and MAX(LONGCARD).
+additional basic types SHORTINT and SHORTCARD : Two additional basic types SHORTINT and SHORTCARD are introduced. SHORTINT comprises the integers between MIN(SHORTINT) and MAX(SHORTINT). SHORTCARD
+comprises the integers between 0 and MAX(SHORTCARD).
+type BYTE : The type BYTE exported from module SYSTEM represents an individually accessible storage unit. It
+is implemented as synonym to WORD. No operation except assignment is de ned on this type. However,
+if a formal parameter of a procedure is of type BYTE, the corresponding actual parameter may be of any
+type that uses one storage unit. If a formal parameter has the type ARRAY OF BYTE, its corresponding
+actual parameter may be of any type.
+
+3.2 Foreign Modules: Accessing Procedures written in other Languages
+
+The MOCKA system allows that procedures not written in Modula-2 may be called in Modula-2 programs.
+Such procedures have to be declared in so-called Foreign Modules which act as de nition modules. There is no
+corresponding implementation module. Instead the object le is created by e.g. the C compiler or the assembler.
+Nevertheless, the binder may be used as before.
+Foreign modules have the same syntax as de nition modules except that the keyword DEFINITION is replaced
+by FOREIGN. They may contain type, constant and procedure declarations, but they may not de ne global
+variables.
+The compiler of the MOCKA system follows the C calling conventions, i.e. the parameters are passed from
+right to left. There is no speci c conversion of Modula-2 parameters. The representation of Modula-2 objects is
+described in a section below. Table 1 illustrates the correspondence of actual Modula-2 parameters with formal
+C parameter types. Size and layout of Modula-2 types are described below.
+formal C parameter type
+char
+int
+short int
+long int
+unsigned
+unsigned short
+unsigned long
+oat
+double
+pointer type
+enum type
+struct
+array
+open array, int
+
+actual Modula-2 argument
+
+CHAR
+SHORTINT or LONGINT (machine-dependent)
+SHORTINT
+LONGINT
+SHORTCARD or LONGCARD (machine-dependent)
+SHORTCARD
+LONGCARD
+REAL
+LONGREAL
+
+pointer type
+enumeration type
+address of RECOD of corresponding size and layout
+address of ARRAY of corresponding size and layout
+open array
+
+Table 1: Modula-2 to C parameter passing
+
+Complex structure like arrays (ARRAY), structs (RECORD) may be passed as VAR parameters to the corresponding constructs in C. Arrays and Records are passed as addresses, while open arrays are passed as address
+and last index (= HIGH(array)). For an example see Appendix C.
+
+MOCKA - Modula-2 Compiler System
+
+11
+
+The MOCKA system expects an object le for each foreign module in the same directory where the corresponding
+symbol le is located. The object le has to be named according to the MOCKA le name conventions. The
+C functions that correspond to the Modula-2 procedures declared in a foreign module usually are located in
+some C library, maybe even in di erent ones. Compile these C sources, link the object les created by the C
+compiler without resolving the relocation information ( pre-linking , cf. your Unix system linker manual for the
+corresponding options), and instruct the system linker to create as output an object le whose name corresponds
+with the foreign module's name. Move that object le into the directory where the corresponding symbol le is
+(or will be) located. The pre-linked object le has to be existent in that directory before the Modula-2 program
+that imports the corresponding foreign module is linked. Example 3 illustrates the use of foreign modules.
+
+3.3 Storage Representations of Modula-2 Objects
+
+The representation of Modula-2 objects in storage is machine- and implementation-dependent. MOCKA allocates Modula-2 objects as speci ed in table 2. Class 1 comprises Sun-3, pcs and NeXT computers, Class 2
+VAX, SPARC, 80386 and MIPS.
+Modula-2 type size
+BOOLEAN
+1
+CHAR
+1
+enumeration1 1 (or 2)
+SHORTINT
+2
+SHORTCARD
+2
+LONGINT
+4
+LONGCARD
+4
+INTEGER
+4
+CARDINAL
+4
+subranges
+size base type
+BYTE
+1
+WORD
+1
+REAL2
+4
+LONGREAL2
+8
+BITSET
+4
+ADDRESS
+4
+pointer type
+4
+opaque type
+4
+procedure type 4
+set type
+4
+
+alignment Class 1
+byte address
+byte address
+byte (or even) address
+even address
+even address
+even address
+even address
+even address
+even address
+align base type
+byte address
+byte address
+even address
+even address
+even address
+even address
+even address
+even address
+even address
+even address
+
+alignment Class 2
+byte address
+byte address
+byte (or even) address
+even address
+even address
+four byte boundary
+four byte boundary
+four byte boundary
+four byte boundary
+align base type
+byte address
+byte address
+four byte boundary
+eight byte boundary
+four byte boundary
+four byte boundary
+four byte boundary
+four byte boundary
+four byte boundary
+four byte boundary
+
+Table 2: storage representation of Modula-2 objects
+
+3.4 Type Compatibility Rules
+
+The Wirth report states about type compatibility (pp. 148):
+"A type T1 is said to be compatible with a type T0, if it is declared either as T1 = T0 or as a
+subrange of T0, or if T0 is a subrange of T1, or if T0 and T1 are both subranges of the same (base)
+type."
+
+And on page 155:
+"A string of length 1 is compatible with the type CHAR."
+1 enumeration types If the number of literals in the enumeration type declaration does not exceed 256, variables of this type
+
+are stored in one byte. Otherwise, if the number of literals does not exceed 32767, such variables occupy two bytes.
+2 REAL,LONGREAL Variables of type REAL or LONGREAL are stored in IEEE oating-point format, except for the VAX system.
+
+MOCKA - Modula-2 Compiler System
+
+12
+
+Those type compatibility rules are implemented as stated but with some relaxations concerning the new SHORT
+and LONG types. This means, two types that are compatible according to the report are also compatible in the
+MOCKA implementation.
+CARDINAL and LONGCARD are implemented as synonyms, and also INTEGER and LONGINT. BYTE and WORD are
+synonyms either. Additionally, integer types (INTEGER, SHORTINT, LONGINT) are compatible with each other.
+The same holds for cardinal types (CARDINAL, SHORTCARD, LONGCARD).
+Table 3 shows the compatibilities between arithmetic types as implemented in the MOCKA system. The "+"
+in position (x,y) indicates compatibility between type x and type y. Subrange types inherit the compatibilities
+of their base types. Other types not mentioned here are compatible only if they are equal.
+I
+N
+T
+E
+G
+E
+R
+INTEGER
+SHORTINT
+LONGINT
+CARDINAL
+SHORTCARD
+LONGCARD
+REAL
+LONGREAL
+ADDRESS
+
+S
+H
+O
+R
+T
+I
+N
+T
+
+L
+O
+N
+G
+I
+N
+T
+
++ + +
++ + +
++ + +
+
+C
+A
+R
+D
+I
+N
+A
+L
+
+S
+H
+O
+R
+T
+C
+A
+R
+D
+
+L
+O
+N
+G
+C
+A
+R
+D
+
++ + +
++ + +
++ + +
++
+
++
+
+R
+E
+A
+L
+
+L
+O
+N
+G
+R
+E
+A
+L
+
+A
+D
+D
+R
+E
+S
+S
+
++
++
+
++
++
+
++
+
+Table 3: type compatibility
+
+The Wirth report states about assignment compatibility (pp. 155):
+"Operand types are said to be compatible, if either they are compatible or both are INTEGER or
+CARDINAL or subranges with base types INTEGER or CARDINAL.
+Those type compatibility rules are implemented in the MOCKA system as stated in the report but with the
+relaxation that each integer or cardinal type is assignment compatible with each other integer or cardinal type.
+Table 4 shows the assignment compatibilities between types as implemented. The "+" in position (x,y) indicates
+that a variable of type x may be assigned a value of type y. Subrange types inherit the assignment compatibilities
+of their base types. Other types not mentioned here are assignment compatible only if they are equal.
+
+MOCKA - Modula-2 Compiler System
+
+INTEGER
+SHORTINT
+LONGINT
+CARDINAL
+SHORTCARD
+LONGCARD
+REAL
+LONGREAL
+ADDRESS
+
+13
+I
+N
+T
+E
+G
+E
+R
+
+S
+H
+O
+R
+T
+I
+N
+T
+
+L
+O
+N
+G
+I
+N
+T
+
+C
+A
+R
+D
+I
+N
+A
+L
+
++
++
++
++
++
++
+
++
++
++
++
++
++
+
++
++
++
++
++
++
+
++
++
++
++
++
++
+
+S
+H
+O
+R
+T
+C
+A
+R
+D
++
++
++
++
++
++
+
+L
+O
+N
+G
+C
+A
+R
+D
++
++
++
++
++
++
+
+R
+E
+A
+L
+
+L
+O
+N
+G
+R
+E
+A
+L
+
+A
+D
+D
+R
+E
+S
+S
+
++
++ +
++ +
+
++
++
+Table 4: assignment compatibility
+
++
++
+
+3.5 Operations on Types
+
+Table 5 shows which operations may be applied on objects of the various types (cf. [Wir85]). The operations
+available for subranges are identical with those for their base types.
+The types of the right hand side and the left hand side in an assignment must be assignment compatible. The
+operands of binary operations must be compatible.
+The operands of arithmetic binary operations may be of di erent, but compatible (base) types. If the operand
+types are identical, the result is of the operand type. Otherwise, the result is of the larger operand type (e.g.
+the result of the addition of a SHORTINT and a LONGINT variable is of type LONGINT). If one operand is a constant
+expression, the value of the expression has to be in the range of the other operand's type.
+type
+operations
+BOOLEAN
+:=, AND, OR, NOT, =, #
+CHAR
+:=, =, #
+INTEGER
+:=, +, -, *, DIV, MOD, =, #, =
+=
+SHORTINT
+:=, +, -, *, DIV, MOD, =, #, =
+=
+LONGINT
+:=, +, -, *, DIV, MOD, =, #, =
+=
+CARDINAL
+:=, +, -, *, DIV, MOD, =, #, =
+=
+SHORTCARD
+:=, +, -, *, DIV, MOD, =, #, =
+=
+LONGCARD
+:=, +, -, *, DIV, MOD, =, #, =
+=
+REAL
+:=, +, -, *, /, =, #, =
+=
+LONGREAL
+:=, +, -, *, /, =, #, =
+=
+enumeration types :=, =, #
+BITSET
+:=, IN, =, #, = =
+set types
+:=, IN, =, #, = =
+array types
+:=, indexing
+record types
+:=, selection
+pointer types
+:=, =, #, dereferencing
+opaque types
+:=, =, #
+procedure types
+:=,
+ADDRESS
+:=, =, #
+WORD
+:=, =, #
+BYTE
+:=, =, #
+Table 5: operations availabe on types
+<
+
+;>
+
+<
+
+;>
+
+<
+
+; <; >; >
+
+<
+
+; <; >; >
+
+<
+
+; <; >; >
+
+<
+
+; <; >; >
+
+<
+
+; <; >; >
+
+<
+
+; <; >; >
+
+<
+
+; <; >; >
+
+<
+
+; <; >; >
+
+MOCKA - Modula-2 Compiler System
+
+14
+
+3.6 Floating-Point Arithmetic
+
+On MC68020/MC68881 and Intel80386 processor con gurations the compiler supports the oating-point coprocessor by default.
+
+3.7 Implementation Restrictions
+
+The MOCKA system implements the language Modula-2 as speci ed in [Wir85] with the restrictions listed
+below.
+code size of procedure and module bodies The code size of a procedure or module body must not exceed 32
+KByte, because on MC680xx and MIPS processors the displacement of a branch instruction is restricted
+to a signed word.
+function results The result type of a function procedure must not be an array nor a record type.
+absolute addressing in variable declarations This non-standard facility (cf. [Wir85] page 167) is not supported.
+The compiler returns an error message if this feature is used.
+module priorities The speci cation of a priority in a module heading (cf. [Wir85] report page 168) has no e ect.
+IOTRANSFER The procedure IOTRANSFER is not implemented.
+constant declarations The right-hand side of a constant declaration may contain calls of built-in functions
+(standard procedures, functions exported from module SYSTEM).
+set types Set types must contain elements whose ordinal numbers are in the range 0..31.
+type WORD Wirth's report states that the type WORD represents an individually accessible storage unit. Bytes are
+individual accessible storage units. So, the type WORD represents a byte, not a machine word.
+standard procedure ABS ABS returns a value whose type is the type of the argument.
+standard procedure ORD If the argument type is of an integer type, the argument must have a non-negative
+value.
+arithmetic over ow Checks on arithmetic over ow are not generated by the compiler.
+WITH nesting depth Up to 16 WITH statements may be nested.
+CASE labels The ordinal numbers of the smallest and and greatest case label used in a CASE statement must not
+di er more than 2048, i.e. ORD(greatest label) - ORD(smallest label) <= 2048. E.g., if the ordinal value
+of the smallest case label is 10000, the other labels may be in the range 10001 .. 12047. If the case label
+range exceeds this range for some reasons, use an IF-ELSIF construct or split the case statement into two
+or more.
+type transfer functions The size of the argument of the type transfer function and the size of the destination
+type have to be equal.
+passing of string constants as VAR-parameters It is allowed to pass a string constant to a VAR-parameter.
+OC-Handling of strings String Constants are 0C terminated by the compiler, although [Wir85] does not explicitly call for this. The 0C character is not considered part of the string, so having passed it to an open
+array accessing it will cause an index check error. Therefore it is recommended to use the built-in function
+HIGH in order to determine the end of the string when using open array parameters.
+
+MOCKA - Modula-2 Compiler System
+
+15
+
+4 The System Library
+4.1 Description
+
+The MOCKA system includes a small system library (including sources) that gives enough support to implement
+Modula-2 programs for simple applications. The library comprises bu ered I/O for standard input/output
+devices (InOut), and formatted/unformatted I/O via les (TextIO, ByteIO), interfaces to the Unix system
+(SysLib, ErrNumbers, Arguments, Clock, Signals) , modules to allocate data structures dynamically (Storage,
+MemPools), a module with mathematic functions (MathLib), modules for conversions (NumConv, RealConv,
+LREAL), a module for simple string handling (Strings1), and a simple exception mechanism (not all target
+systems) (Exceptions). The user should have in mind that there exists currently no standard library for Modula2, and that the modules listed in the appendix of the Wirth report are only meant as proposals (some modules
+are meaningful only on Wirth's Lilith computer).
+
+4.2 De nition Modules
+
+The following list of annotated de nition modules is intended to aid proper use of the system library.
+
+4.2.1 Unix interfaces
+FOREIGN MODULE Arguments;
+TYPE ArgTable =
+POINTER TO ARRAY [0..999] OF
+POINTER TO ARRAY [0..999] OF CHAR;
+PROCEDURE GetArgs (VAR argc: SHORTCARD; VAR argv: ArgTable);
+(* GetArgs provides access to arguments of the shell command that *)
+(* invoked the current program. After a call GetArgs (argc, argv) *)
+(* argc is the number of arguments and argv^[i] is a pointer to *)
+(* the i-th argument *)
+(* (i in [0 .. argc-1]; argv^[0] is the command name). *)
+PROCEDURE GetEnv (VAR env: ArgTable);
+(* GetEnv provides access to Unix environment variables. *)
+(* After a call GetEnv(env) env^[i] is a pointer to the i-th *)
+(* variable definition (which is a string of the form name=val) *)
+(* (i in [0 .. n] , where env^[n] is the first entry = NIL *)
+END Arguments.
+
+Note that the transputer version of Arguments is a normal de nition module with corresponding implementation
+module.
+DEFINITION MODULE Clock;
+PROCEDURE ResetClock;
+PROCEDURE UserTime() : INTEGER;
+(* Return user time since last 'ResetClock' *)
+PROCEDURE SystemTime() : INTEGER;
+(* Return system time since last 'ResetClock' *)
+END Clock.
+FOREIGN MODULE ErrNumbers;
+PROCEDURE ErrNo () : SHORTCARD;
+(* Returnes the error number set by system calls *)
+CONST
+ePERM
+eNOENT
+eSRCH
+eINTR
+eIO
+eNXIO
+e2BIG
+eNOEXEC
+eBADF
+eCHILD
+
+= 1;
+= 2;
+= 3;
+= 4;
+= 5;
+= 6;
+= 7;
+= 8;
+= 9;
+= 10;
+
+(* Not super-user *)
+(* No such file or directory *)
+(* No such process *)
+(* interrupted system call *)
+(* I/O error *)
+(* No such device or address *)
+(* Arg list too long *)
+(* Exec format error *)
+(* Bad file number *)
+(* No children *)
+
+MOCKA - Modula-2 Compiler System
+eAGAIN
+= 11;
+eNOMEM
+= 12;
+eACCES
+= 13;
+eFAULT
+= 14;
+eNOTBLK = 15;
+eBUSY
+= 16;
+eEXIST
+= 17;
+eXDEV
+= 18;
+eNODEV
+= 19;
+eNOTDIR = 20;
+eISDIR
+= 21;
+eINVAL
+= 22;
+eNFILE
+= 23;
+eMFILE
+= 24;
+eNOTTY
+= 25;
+eTXTBSY = 26;
+eFBIG
+= 27;
+eNOSPC
+= 28;
+eSPIPE
+= 29;
+eROFS
+= 30;
+eMLINK
+= 31;
+ePIPE
+= 32;
+eDOM
+= 33;
+eRANGE
+= 34;
+eNOMSG
+= 35;
+eIDRM
+= 36;
+eCHRNG
+= 37;
+eL2NSYNC = 38;
+eL3HLT
+= 39;
+eL3RST
+= 40;
+eLNRNG
+= 41;
+eUNATCH = 42;
+eNOCSI
+= 43;
+eL2HLT
+= 44;
+eNOSWP
+= 45;
+eXPATH
+= 46;
+eXREDO
+= 47;
+eDEADLK = 48;
+eNOUARP = 49;
+eNOUGW
+= 50;
+eLOOP
+= 51;
+
+(* No more processes *)
+(* Not enough core *)
+(* Permission denied *)
+(* Bad address *)
+(* Block device required *)
+(* Mount device busy *)
+(* File exists *)
+(* Cross-device link *)
+(* No such device *)
+(* Not a directory *)
+(* Is a directory *)
+(* Invalid argument *)
+(* File table overflow *)
+(* Too many open files *)
+(* Not a typewriter *)
+(* Text file busy *)
+(* File too large *)
+(* No space left on device *)
+(* Illegal seek *)
+(* Read only file system *)
+(* Too many links *)
+(* Broken pipe *)
+(* Math arg out of domain of func *)
+(* Math result not representable *)
+(* No message of desired type *)
+(* Identifier removed *)
+(* Channel number out of range *)
+(* Level 2 not synchronized *)
+(* Level 3 halted *)
+(* Level 3 reset *)
+(* Link number out of range *)
+(* Protocol driver not attached *)
+(* No CSI structure available *)
+(* Level 2 halted *)
+(* Out of swap space *)
+(* Path continues onto another machine *)
+(* Unison request for a retry *)
+(* Record locking deadlock *)
+(* Could not resolve IP addr, host down *)
+(* No available gateway in route table *)
+(* symbolic links form endless loop *)
+
+END ErrNumbers.
+FOREIGN MODULE Signals;
+FROM SysLib IMPORT
+SIGNED;
+CONST
+SIGHUP = 1;
+SIGINT = 2;
+SIGQUIT = 3;
+SIGILL = 4;
+SIGTRAP = 5;
+SIGIOT = 6;
+SIGEMT = 7;
+SIGFPE = 8;
+SIGKILL = 9;
+SIGBUS = 10;
+SIGSEGV = 11;
+SIGSYS = 12;
+SIGPIPE = 13;
+SIGALRM = 14;
+SIGTERM = 15;
+SIGADDR = 16;
+SIGZERO = 17;
+SIGCHK = 18;
+SIGOVER = 19;
+SIGPRIV = 20;
+SIGUSR1 = 21;
+SIGUSR2 = 22;
+SIGCLD = 23;
+SIGPWR = 24;
+
+(* hangup *)
+(* interrupt *)
+(* quit *)
+(* illegal instruction *)
+(* trace or breakpoint *)
+(* IOT instruction *)
+(* ETT instruction *)
+(* floating exception *)
+(* kill, uncatchable termination *)
+(* bus error *)
+(* segmentation violation *)
+(* bad argument to system call *)
+(* end of pipe *)
+(* alarm clock *)
+(* software termination signal *)
+(* odd address error *)
+(* zero divide *)
+(* check error *)
+(* arithmetic overflow *)
+(* privilege violation *)
+(* user defined signal 1 *)
+(* user defined signal 2 *)
+(* death of a child (old signal) *)
+(* power-fail restart *)
+
+TYPE
+Signal
+= SIGNED [1 .. 24];
+SignalHandler = PROCEDURE (Signal);
+
+16
+
+MOCKA - Modula-2 Compiler System
+
+17
+
+PROCEDURE signal
+(sig : Signal; func : SignalHandler) : SignalHandler;
+(* Defines the handler procedure for the specified signal 'sig' *)
+(* as 'func'. Returns the previous (or initial) handler procedure *)
+(* of the particular signal. Upon recept of the signal 'sig' the *)
+(* handler procedure 'func' is executed. Before entering 'func', *)
+(* the handler procedure of 'sig' is reset to it's initial value. *)
+(* Upon return from 'func', execution continues at the interrupted *)
+(* point. *)
+END Signals.
+
+The module SysLib is highly machine-dependent and thus exists in many di erent versions, of which only the
+mips-version is printed here.
+FOREIGN MODULE SysLib;
+FROM SYSTEM IMPORT ADDRESS;
+TYPE
+SIGNED
+UNSIGNED
+
+= INTEGER;
+= INTEGER;
+
+inoT
+offT
+devT
+timeT
+
+= CARDINAL;
+= INTEGER;
+= SHORTINT;
+= INTEGER;
+
+Stat =
+RECORD
+stDev
+: devT;
+stIno
+: inoT;
+stMode
+: SHORTCARD;
+stNlink : SHORTINT;
+stUid
+: SHORTINT;
+stGid
+: SHORTINT;
+stRdev
+: devT;
+stSize
+: offT;
+stAtime : timeT;
+stSpare1 : INTEGER;
+stMtime : timeT;
+stSpare2 : INTEGER;
+stCtime : timeT;
+stSpare3 : INTEGER;
+stBlksize: INTEGER;
+stBlocks : INTEGER;
+stSpare4 : ARRAY [0..1] OF INTEGER;
+END;
+clockT = LONGINT;
+tms =
+RECORD
+utime : clockT;
+stime : clockT;
+cutime : clockT;
+cstime : clockT;
+END;
+CONST
+(* flags for open *)
+oTRUNC
+oAPPEND
+oRDWR
+oWRONLY
+oRDONLY
+
+= 01000B;
+=
+010B;
+=
+02B;
+=
+01B;
+=
+0B;
+
+(* open with truncation *)
+(* append, i.e writes at the end *)
+(* open for reading and writing *)
+(* open for writing only *)
+(* open for reading only *)
+
+(* file access permisson flags (for create and umask) *)
+pXUSID
+pXGRID
+pSTEXT
+pROWNER
+pWOWNER
+pXOWNER
+pRGROUP
+pWGROUP
+
+= 04000B;
+= 02000B;
+= 01000B;
+= 0400B;
+= 0200B;
+= 0100B;
+=
+040B;
+=
+020B;
+
+(* set user ID on execution *)
+(* set group ID on execution *)
+(* save text image after execution *)
+(* read by owner *)
+(* write by owner *)
+(* execute by owner *)
+(* read by group *)
+(* write by group *)
+
+MOCKA - Modula-2 Compiler System
+pXGROUP =
+pROTHERS =
+pWOTHERS =
+pXOTHERS =
+pEMPTY
+=
+
+010B;
+04B;
+02B;
+01B;
+0B;
+
+18
+
+(* execute by group *)
+(* read by others *)
+(* write by others *)
+(* execute by others *)
+(* no flag set *)
+
+(* file access check flags (for access) *)
+cREAD
+cWRITE
+cEXEC
+cEXISTS
+
+= 04H;
+= 02H;
+= 01H;
+= 0H;
+
+(* check if readable *)
+(* check if writable *)
+(* check if executable *)
+(* check existance *)
+
+PROCEDURE umask (cmask : SIGNED) : SIGNED;
+PROCEDURE access (path
+
+: ADDRESS; amode : SIGNED) : SIGNED;
+
+PROCEDURE creat (path
+
+: ADDRESS; cmode : SIGNED) : SIGNED;
+
+PROCEDURE open (path : ADDRESS; oflag : SIGNED) : SIGNED;
+PROCEDURE close (fildes : SIGNED) : SIGNED;
+PROCEDURE unlink (path : ADDRESS) : SIGNED;
+PROCEDURE read (fildes : SIGNED; buf : ADDRESS; nbyte : UNSIGNED) : SIGNED;
+PROCEDURE write (fildes : SIGNED; buf : ADDRESS; nbyte : UNSIGNED) : SIGNED;
+PROCEDURE sbrk (incr : SIGNED): ADDRESS;
+PROCEDURE malloc (size : UNSIGNED) : ADDRESS;
+PROCEDURE free (ptr : ADDRESS);
+PROCEDURE stat (path: ADDRESS; VAR buf: Stat) : SIGNED;
+PROCEDURE fstat (fd: SIGNED
+
+; VAR buf: Stat) : SIGNED;
+
+PROCEDURE time (VAR t : INTEGER);
+PROCEDURE times (VAR buffer: tms);
+PROCEDURE system (string : ADDRESS) : SIGNED;
+PROCEDURE exit (n: SIGNED);
+PROCEDURE abort ();
+END SysLib.
+
+4.2.2 Storage, MemPools
+DEFINITION MODULE Storage;
+FROM SYSTEM IMPORT ADDRESS;
+PROCEDURE ALLOCATE (VAR a : ADDRESS; size : CARDINAL);
+(* Allocates an area of the given size 'size' and returns it's *)
+(* address in 'a'. If no space is available, 'a' becomes 'NIL'. *)
+PROCEDURE DEALLOCATE (VAR a : ADDRESS; size : CARDINAL);
+(* Frees the area of size 'size' starting at address 'a'. *)
+(* Upon return 'a' is set 'NIL' *)
+END Storage.
+DEFINITION MODULE MemPools;
+FROM SYSTEM IMPORT ADDRESS;
+TYPE
+MemPool;
+PROCEDURE NewPool(VAR pool: MemPool);
+(* Does create a new [empty] MemPool. *)
+PROCEDURE PoolAllocate(VAR pool: MemPool; VAR ptr: ADDRESS; want: CARDINAL);
+(* Allocates want bytes of memory out of pool MemPool.
+*)
+(* ptr's alignment will be suitable for all types.
+*)
+PROCEDURE KillPool(VAR pool: MemPool);
+
+MOCKA - Modula-2 Compiler System
+
+19
+
+(* Destroys the pool. *)
+END MemPools.
+
+4.2.3 Strings, Strings1
+DEFINITION MODULE Strings;
+TYPE String = ARRAY [0..255] OF CHAR;
+PROCEDURE EmptyString (VAR str: ARRAY OF CHAR);
+(* str := "" *)
+PROCEDURE Assign (VAR dst, src: ARRAY OF CHAR);
+(* assign string 'src' to string 'dst'. 'src' must be terminated by 0C *)
+PROCEDURE Append (VAR dest, suffix: ARRAY OF CHAR);
+(* append 'suffix' to 'dest', only significant characters. *)
+PROCEDURE StrEq (VAR x, y: ARRAY OF CHAR): BOOLEAN;
+(* x = y , only significant characters. *)
+PROCEDURE Length (VAR str : ARRAY OF CHAR) : CARDINAL;
+(* returns the number of significant characters. *)
+PROCEDURE Insert
+(substr: ARRAY OF CHAR; VAR str: ARRAY OF CHAR; inx: CARDINAL);
+(* Inserts 'substr' into 'str', starting at str[inx] *)
+PROCEDURE Delete (VAR str: ARRAY OF CHAR; inx, len: CARDINAL);
+(* Deletes 'len' characters from 'str', starting at str[inx] *)
+PROCEDURE pos (substr: ARRAY OF CHAR; str: ARRAY OF CHAR): CARDINAL;
+(* Returns the index of the first occurrence of 'substr' in 'str' or *)
+(* HIGH (str) + 1 if 'substr' not found. *)
+PROCEDURE Copy
+(str: ARRAY OF CHAR; inx, len: CARDINAL; VAR result: ARRAY OF CHAR);
+(* Copies 'len' characters from 'str' into 'result', *)
+(* starting at str[inx] *)
+PROCEDURE Concat
+(s1, s2: ARRAY OF CHAR; VAR result: ARRAY OF CHAR);
+(* Returns in 'result' the concatenation of 's1' and 's2' *)
+PROCEDURE compare (s1, s2: ARRAY OF CHAR): INTEGER;
+(* Compares 's1' with 's2' and returns -1 if s1 < s2, 0 if s1 = s2, *)
+(* or 1 if s1 > s2 *)
+PROCEDURE CAPS (VAR str: ARRAY OF CHAR);
+(* CAP for the entire 'str' *)
+END Strings.
+
+About the OC termination of strings see Chapter 3.7 dealing with implementation features. The module Strings1
+contains the same types, procedures, etc. as module Strings. This is needed to avoid name clashes with the
+reuse library. Please use Strings1 instead of Strings if you use the reuse library.
+
+4.2.4 BasicIO, ByteIO, TextIO
+DEFINITION MODULE BasicIO;
+FROM SYSTEM IMPORT ADDRESS;
+TYPE File = INTEGER;
+PROCEDURE OpenInput (VAR file : File; VAR name : ARRAY OF CHAR);
+(* Open file 'file' for input. Use External name 'name' *)
+PROCEDURE OpenOutput (VAR file : File; VAR name : ARRAY OF CHAR);
+(* Open file 'file' for input. Use External name 'name' *)
+PROCEDURE Close (file: File);
+(* Close file 'file' *)
+PROCEDURE Erase (VAR name : ARRAY OF CHAR;
+VAR ok
+: BOOLEAN);
+(* erase file with external name 'name' *)
+PROCEDURE Read (file : File; x : ADDRESS; n : INTEGER; VAR read : INTEGER);
+
+MOCKA - Modula-2 Compiler System
+(* Read n bytes from file 'file' into area starting at address 'x' *)
+(* On exit 'read' denotes the number of bytes actually read *)
+PROCEDURE Write (file : File; x : ADDRESS; n : INTEGER);
+(* Write 'n' bytes of area starting at address 'x' to file 'file' *)
+PROCEDURE Accessible (VAR name
+: ARRAY OF CHAR;
+ForWriting : BOOLEAN) : BOOLEAN;
+(* Return true if the file with external name 'name' is accessible for
+reading (ForWriting = FALSE) resp. for writing (ForWriting = TRUE).
+*)
+VAR DONE : BOOLEAN;
+END BasicIO.
+
+(* READ ONLY variable *)
+
+DEFINITION MODULE ByteIO;
+FROM SYSTEM IMPORT
+(* TYPE *) BYTE;
+IMPORT BasicIO;
+TYPE File = BasicIO.File;
+(* for all variants of the mocka system *)
+PROCEDURE OpenInput (VAR file : File; VAR name : ARRAY OF CHAR);
+(********************************************************************)
+(* Open file 'file' for input. Use External name 'name'
+*)
+(* Any sequential file any record format may be opened.
+*)
+(********************************************************************)
+PROCEDURE OpenOutput (VAR file : File; VAR name : ARRAY OF CHAR);
+(********************************************************************)
+(* Open file 'file' for input. Use External name 'name'
+*)
+(* A sequential file with undefined record format is opend.
+*)
+(********************************************************************)
+PROCEDURE Close (file: File);
+(* Close file 'file' *)
+(*=== Byte IO ===*)
+PROCEDURE GetByte (file : File; VAR x : BYTE);
+(* Read the next byte of file 'file' into 'x' *)
+PROCEDURE GetBytes (file : File; VAR x : ARRAY OF BYTE; n : CARDINAL);
+(* Read the next 'n' bytes of file 'file' into 'x' *)
+PROCEDURE GetItem (file : File; VAR x : ARRAY OF BYTE);
+(* Read the next n bytes of file 'file' into 'x' *)
+(* where n = HIGH(x)+1
+*)
+PROCEDURE PutByte (file : File; x : BYTE);
+(* Write the byte 'x' to file 'file' *)
+PROCEDURE PutBytes (file : File; VAR x : ARRAY OF BYTE; n : CARDINAL);
+(* Write the first 'n' bytes of 'x' to file 'file' *)
+PROCEDURE PutItem (file : File; VAR x : ARRAY OF BYTE);
+(* Write the first n bytes of 'x' to file 'file' *)
+(* where n = HIGH(x)+1 *)
+(*=== Misc. ===*)
+PROCEDURE UndoGetByte (file: File);
+(******************************************************************************)
+(* The last 'GetByte' is undone, i.e The same byte is returned with the next *)
+(* 'GetByte'.
+*)
+(* NOTICE: no other 'Get...' procedure is allowed to be called between
+*)
+(*
+'GetByte' and 'UndoGetByte'!!!
+*)
+(* 'Done ()' signals success.
+*)
+(******************************************************************************)
+PROCEDURE Done () : BOOLEAN;
+(******************************************************************************)
+(* last operation successfully
+*)
+(* (notice: if during reading a file the end-of-file is reached, then 'Done' *)
+(*
+returns FALSE).
+*)
+(******************************************************************************)
+PROCEDURE PutBf (file : File);
+(* Emit buffer contents immediately *)
+
+20
+
+MOCKA - Modula-2 Compiler System
+PROCEDURE EOF (file : File) : BOOLEAN;
+(* TRUE iff next read will read beyond end of file *)
+PROCEDURE Accessible
+(VAR name : ARRAY OF CHAR; ForWriting : BOOLEAN) : BOOLEAN;
+(* returns true if the file with external name 'name' is *)
+(* accessible for writing ('ForWriting' is true)
+*)
+(* or for readig ('ForWriting' is false).
+*)
+PROCEDURE Erase (VAR name : ARRAY OF CHAR; VAR ok : BOOLEAN);
+(* Erase the file wirh external name 'name'. *)
+(* On exit 'ok' indicates success.
+*)
+END ByteIO.
+DEFINITION MODULE TextIO;
+IMPORT BasicIO;
+TYPE File = BasicIO.File;
+(*=== Open/Close ===*)
+PROCEDURE OpenInput (VAR file : File; VAR name : ARRAY OF CHAR);
+(* Open file 'file' for input. Use External name 'name' *)
+PROCEDURE OpenOutput (VAR file : File; VAR name : ARRAY OF CHAR);
+(* Open file 'file' for input. Use External name 'name' *)
+PROCEDURE Close (file: File);
+(* Close file 'file' *)
+(*=== Formatted IO ===*)
+PROCEDURE GetChar (file : File; VAR x : CHAR);
+(* Read the next char of file 'file' into 'x' *)
+PROCEDURE GetString (file : File; VAR x : ARRAY OF CHAR);
+(* Read the next string of file 'file' into 'x'
+*)
+(* A string is a non empty sequence of characters
+*)
+(* not containing blanks nor control characters.
+*)
+(* Leading blanks and control characters are ignored *)
+(* Input is terminated by any character <= ' '
+*)
+PROCEDURE GetCard (file : File; VAR x : CARDINAL);
+(* Read the next string from file 'file' *)
+(* and convert it to cardinal 'x'
+*)
+PROCEDURE GetInt (file : File; VAR x : INTEGER);
+(* Read the next string from file 'file' *)
+(* and convert it to integer 'x'
+*)
+PROCEDURE GetReal (file : File; VAR x : REAL);
+(* Read the next string from file 'file' *)
+(* and convert it to real 'x'
+*)
+PROCEDURE GetLongReal (file : File; VAR x : LONGREAL);
+(* Read the next string from file 'file' *)
+(* and convert it to long real 'x'
+*)
+PROCEDURE PutChar (file : File; x : CHAR);
+(* Write the char 'x' to file 'file' *)
+PROCEDURE PutString (file : File; VAR x : ARRAY OF CHAR);
+(* Write the string 'x' to file 'file' *)
+PROCEDURE PutCard (file : File; x : CARDINAL; n : CARDINAL);
+(* Convert the cardinal 'x' into decimal representation
+*)
+(* and write it to file 'file'. Field width is at least 'n' *)
+PROCEDURE PutOct (file : File; x : CARDINAL; n : CARDINAL);
+(* Convert the cardinal 'x' into octal representation
+*)
+(* and write it to file 'file'. Field width is at least 'n' *)
+PROCEDURE PutHex (file : File; x : CARDINAL; n : CARDINAL);
+(* Convert the cardinal 'x' into hexadecimal representation *)
+(* and write it to file 'file'. Field width is at least 'n' *)
+PROCEDURE PutInt (file : File; x : INTEGER; n : CARDINAL);
+(* Convert the integer 'x' into decimal representation
+*)
+(* and write it to file 'file'. Field width is at least 'n' *)
+
+21
+
+MOCKA - Modula-2 Compiler System
+PROCEDURE PutReal (file : File; x : REAL; n : CARDINAL; k : INTEGER);
+(* Convert the real 'x' into external representation
+*)
+(* and write it to file 'file'. Field width is at least 'n'. *)
+(* If k > 0 use k decimal places.
+*)
+(* If k = 0 write x as integer.
+*)
+(* If k < 0 use scientific notation.
+*)
+PROCEDURE PutLongReal (file : File; x : LONGREAL; n : CARDINAL; k : INTEGER);
+(* Convert the long real 'x' into external representation
+*)
+(* and write it to file 'file'. Field width is at least 'n' *)
+(* If k > 0 use k decimal places.
+*)
+(* If k = 0 write x as integer.
+*)
+(* If k < 0 use scientific notation.
+*)
+PROCEDURE PutLn (file : File);
+(* Write the end of line character to file 'file' *)
+PROCEDURE PutBf (file : File);
+(* Emit buffer contents immediately *)
+(*=== Misc. ===*)
+PROCEDURE UndoGetChar (file: File);
+(******************************************************************************)
+(* The last 'GetChar' is undone, i.e The same char is returned with the next *)
+(* 'GetChar'.
+*)
+(* NOTICE: no other 'Get...' procedure is allowed to be called between
+*)
+(*
+'GetChar' and 'UndoGetChar'!!!
+*)
+(* 'Done ()' signals success.
+*)
+(******************************************************************************)
+PROCEDURE Done () : BOOLEAN;
+(******************************************************************************)
+(* TRUE if the last action on the file succeeds, FALSE else
+*)
+(* (notice: if during reading a file the end-of-file is reached, then 'Done' *)
+(*
+returns FALSE).
+*)
+(******************************************************************************)
+PROCEDURE EOF (file : File) : BOOLEAN;
+(******************************************************************************)
+(* TRUE if it is tried to read beyond the last record in the file.
+*)
+(* FALSE else.
+*)
+(******************************************************************************)
+PROCEDURE Accessible
+(VAR name : ARRAY OF CHAR; ForWriting : BOOLEAN) : BOOLEAN;
+(* returns true if the file with external name 'name' is *)
+(* accessible for writing ('ForWriting' is true)
+*)
+(* or for readig ('ForWriting' is false).
+*)
+PROCEDURE Erase (VAR name : ARRAY OF CHAR; VAR ok : BOOLEAN);
+(* Erase the file wirh external name 'name'. *)
+(* On exit 'ok' indicates success.
+*)
+END TextIO.
+
+4.2.5 Exceptions
+FOREIGN MODULE Exceptions;
+FROM SYSTEM IMPORT
+WORD;
+TYPE
+Exception = ARRAY [1 .. 300] OF WORD; (* PRIVATE *)
+PROCEDURE SetJump (VAR exc : Exception) : LONGINT;
+(* Setjump saves the current process state for later use by LongJump. *)
+(* It always returnes zero. Warning: if SetJump is called on parameter *)
+(* position, absolute chaos is guaranteed. *)
+PROCEDURE LongJump (VAR exc : Exception; val : LONGINT);
+(* LongJump restores the process state saved by the last call of SetJump *)
+(* After LongJump is completed, program execution continues as if the *)
+(* corresponding call of SetJump had returned 'val'. If 'val' is 0 upon *)
+(* a call of LongJump, SetJump will return 1. *)
+END Exceptions.
+
+22
+
+MOCKA - Modula-2 Compiler System
+Note that the Type Exception is maschine dependent. Only the mips version is printed here.
+
+4.2.6 InOut
+DEFINITION MODULE InOut;
+PROCEDURE Read (VAR x : CHAR);
+(* Read the next character from std input into 'x' *)
+PROCEDURE ReadString (VAR x : ARRAY OF CHAR);
+(* Read the next string from std input into 'x'. *)
+(* Leading blanks are ignored.
+*)
+(* Input is terminated by any character <= ' '
+*)
+PROCEDURE ReadCard (VAR x : CARDINAL);
+(* Read the next string from std input and *)
+(* convert it to cardinal 'x'.
+*)
+(* Syntax : digit {digit}
+*)
+PROCEDURE ReadInt (VAR x : INTEGER);
+(* Read the next string from std input and *)
+(* convert it to integer 'x'.
+*)
+(* Syntax : ['+'|'-'] digit {digit}
+*)
+PROCEDURE ReadReal (VAR x : REAL);
+(* Read the next string from std input and convert it
+*)
+(* to real 'x'.
+*)
+(* Syntax : ['+'|'-'] digit {digit} ['.' digit {digit}] *)
+(*
+['E'['+'|'-'] digit {digit}]
+*)
+PROCEDURE ReadLongReal (VAR x : LONGREAL);
+(* Read the next string from std input and convert it
+*)
+(* to long real 'x'.
+*)
+(* Syntax : ['+'|'-'] digit {digit} ['.' digit {digit}] *)
+(*
+['E'['+'|'-'] digit {digit}]
+*)
+PROCEDURE Write (x : CHAR);
+(* Write character 'x' onto std output *)
+PROCEDURE WriteString (x : ARRAY OF CHAR);
+(* Write the string 'x' onto std output *)
+PROCEDURE WriteCard (x : CARDINAL; n : CARDINAL);
+(* Convert the cardinal 'x' into decimal representation and *)
+(* write it onto std output. Field width is at least 'n'.
+*)
+PROCEDURE WriteOct (x : CARDINAL; n : CARDINAL);
+(* Convert the cardinal 'x' into octal representation and *)
+(* write it onto std output. Field width is at least 'n'. *)
+PROCEDURE WriteHex (x : CARDINAL; n : CARDINAL);
+(* Convert the cardinal 'x' into hexadecimal representation
+*)
+(* and write it onto std output. Field width is at least 'n'. *)
+PROCEDURE WriteInt (x : INTEGER; n : CARDINAL);
+(* Convert the integer 'x' into decimal representation and *)
+(* write it onto std output. Field width is at least 'n'. *)
+PROCEDURE WriteReal (x : REAL; n : CARDINAL; k : INTEGER);
+(* Convert the real 'x' into external representation and *)
+(* write it onto std output. Field width is at least 'n'. *)
+(* If k > 0 use k decimal places.
+*)
+(* If k = 0 write x as integer.
+*)
+(* If k < 0 use scientific notation.
+*)
+PROCEDURE WriteLongReal (x : LONGREAL; n : CARDINAL; k : INTEGER);
+(* Convert long real 'x' into external representation and *)
+(* write it onto std output. Field width is at least 'n'. *)
+(* If k > 0 use k decimal places.
+*)
+(* If k = 0 write x as integer.
+*)
+(* If k < 0 use scientific notation.
+*)
+PROCEDURE WriteLn;
+(* Write the end of line character onto std output *)
+(* Emit buffer contents immediately
+*)
+PROCEDURE WriteBf;
+(* Emit buffer contents immediately *)
+
+23
+
+MOCKA - Modula-2 Compiler System
+PROCEDURE Done () : BOOLEAN;
+(* last operation ok *)
+PROCEDURE EOF () : BOOLEAN;
+(* EOF at standard input *)
+END InOut.
+
+4.2.7 NumConv, RealConv, LREAL
+DEFINITION MODULE NumConv;
+CONST
+MaxBase = 16;
+TYPE
+tBase = [2..MaxBase];
+PROCEDURE Str2Num(VAR num: LONGCARD; base: tBase;
+str: ARRAY OF CHAR;
+VAR done: BOOLEAN);
+(* Convert 'str' to 'num' using 'base' *)
+PROCEDURE Num2Str(num: LONGCARD; base: tBase;
+VAR str: ARRAY OF CHAR;
+VAR done: BOOLEAN);
+(* Convert 'num' to 'str' using 'base' *)
+PROCEDURE AdjustWidth(VAR str: ARRAY OF CHAR; width: INTEGER; filler: CHAR);
+(* make str at least abs(width) chars long
+width >= 0: insert filler chars to the left if necessary
+width < 0 : append filler chars if necessary
+*)
+END NumConv.
+DEFINITION MODULE RealConv;
+(* This procedures only work if maschine use IEEE Standard for REALs *)
+PROCEDURE IsLongRealInfinityOrNaN (x: LONGREAL) : BOOLEAN;
+PROCEDURE IsRealInfinityOrNaN
+(x: REAL)
+: BOOLEAN;
+PROCEDURE IsLongRealInfinity
+(x: LONGREAL) : BOOLEAN;
+PROCEDURE IsRealInfinity
+(x: REAL)
+: BOOLEAN;
+PROCEDURE Str2Real(s: ARRAY OF CHAR; VAR done: BOOLEAN): REAL;
+(* Converts the string 's' to real 'x'.
+*)
+(* s has to be of the form:
+*)
+(* real
+= num ['.' {digit}] ['E' num].
+*)
+(* num
+= ['+'|'-'] digit {digit}.
+*)
+PROCEDURE Str2LongReal(s: ARRAY OF CHAR; VAR done: BOOLEAN): LONGREAL;
+(* Converts the string 's' to real 'x'.
+*)
+(* s has to be of the form:
+*)
+(* real
+= num ['.' {digit}] ['E' num].
+*)
+(* num
+= ['+'|'-'] digit {digit}.
+*)
+PROCEDURE Real2Str (x : REAL; n : CARDINAL; k : INTEGER;
+VAR s: ARRAY OF CHAR; VAR done: BOOLEAN);
+(* Convert real 'x' into external representation.
+*)
+(* IF k > 0 use k decimal places.
+*)
+(* IF k = 0 write 'x' as integer.
+*)
+(* IF k < 0 use scientific notation.
+*)
+PROCEDURE LongReal2Str (x : LONGREAL; n : CARDINAL; k : INTEGER;
+VAR s: ARRAY OF CHAR; VAR done: BOOLEAN);
+(* Convert long real 'x' into external representation.*)
+(* IF k > 0 use k decimal places.
+*)
+(* IF k = 0 write 'x' as integer.
+*)
+(* IF k < 0 use scientific notation.
+*)
+END RealConv.
+FOREIGN MODULE LREAL;
+PROCEDURE LTRUNC(x: LONGREAL): LONGINT;
+PROCEDURE LFLOAT(x: LONGINT): LONGREAL;
+END LREAL.
+
+24
+
+MOCKA - Modula-2 Compiler System
+
+4.2.8 MathLib
+DEFINITION MODULE MathLib;
+PROCEDURE sqrt (x : REAL) : REAL;
+(* calculates the square root of 'x' *)
+PROCEDURE sqrtL (x : LONGREAL) : LONGREAL;
+(* calculates the square root of 'x' *)
+PROCEDURE exp (x : REAL) : REAL;
+(* calculates 'e' to the power of 'x', 'e' Euler's number *)
+PROCEDURE expL (x : LONGREAL) : LONGREAL;
+(* calculates 'e' to the power of 'x', 'e' Euler's number *)
+PROCEDURE ln (x : REAL) : REAL;
+(* calculates natural logarithm of 'x' *)
+PROCEDURE lnL (x : LONGREAL) : LONGREAL;
+(* calculates natural logarithm of 'x' *)
+PROCEDURE sin (x : REAL) : REAL;
+(* calculates sine of 'x' *)
+PROCEDURE sinL (x : LONGREAL) : LONGREAL;
+(* calculates sine of 'x' *)
+PROCEDURE cos (x : REAL) : REAL;
+(* calculates cosine of 'x' *)
+PROCEDURE cosL (x : LONGREAL) : LONGREAL;
+(* calculates cosine of 'x' *)
+PROCEDURE arctan (x : REAL) : REAL;
+(* calculates arc tangent of 'x' *)
+PROCEDURE arctanL (x : LONGREAL) : LONGREAL;
+(* calculates arc tangent of 'x' *)
+PROCEDURE real (x : INTEGER) : REAL;
+(* converts 'x' to type 'REAL' *)
+PROCEDURE realL (x : INTEGER) : LONGREAL;
+(* converts 'x' to type 'LONGREAL' *)
+PROCEDURE entier (x : REAL) : INTEGER;
+(* calculates the largest integer <= 'x' *)
+PROCEDURE entierL (x : LONGREAL) : INTEGER;
+(* calculates the largest long integer <= 'x' *)
+END MathLib.
+
+25
+
+MOCKA - Modula-2 Compiler System
+
+26
+
+A Example 1: First Steps with the MOCKA System
+To ease the rst steps with the MOCKA system, we present here a demo session that involves editing, compiling,
+binding, and executing of a program module that has no imports (besides an import of module InOut which is
+located in the system library).
+First, to invoke the MOCKA system in session mode, type (let '$' be the prompt of the operating system):
+$ mc
+
+The MOCKA system responds with the version number and then enters the session mode. Now you can enter
+one of the commands that are available for session mode (or a Unix command). We want to create a program
+module named hello, so we enter (let ' ' be the prompt of the MOCKA system):
+>>
+
+>> i
+
+hello
+
+If a source le with the name hello.mi already exists in the actual working directory, this source le would be
+loaded into the editor. In our example we assume that there is no such le, so the editor is loaded with the
+newly created empty le. You can now type in a Modula-2 program, e.g.:
+MODULE hello;
+FROM InOut IMPORT WriteString, WriteLn;
+BEGIN
+WriteString("hello world");
+WriteLn;
+END helo.
+
+The last line of this program contains an misspelt hello. After having typed in this program, leave the editor.
+You are then back in the MOCKA system and you can compile the program module by typing:
+>> c
+
+hello
+
+The compiler detects the error and generates a listing which is loaded into the editor:
+
+@ LISTING
+MODULE hello;
+FROM InOut IMPORT WriteString, WriteLn;
+BEGIN
+WriteString("hello world");
+WriteLn;
+END helo.
+@
+^
+@ Col 5: module identifiers do not match
+
+You can nd the position of an error messages in the listing by searching for the character in the rst column
+of the rst line of the listing. If you are using the vi editor invoked by the standard edit script you may just
+type v to move to the next error message in the listing. Correct the error, by changing helo to hello.
+Let us assume this was the only error, so no further corrections are necessary. Leave the editor and resume the
+compilation by entering the empty command. After the compilation is nished an object le for the program
+module hello exists. To create an executable program, enter
+>> p
+
+hello
+
+The binder links the object les, in this case the object les of the program module hello, and the module InOut,
+the root module (not visible to the user), and the runtime system. Execute the created program by entering
+
+MOCKA - Modula-2 Compiler System
+
+27
+
+>> hello
+
+It should be noted that the above c hello command was redundant, because the make facility would have
+detected that there was no object le for hello when the p hello command was entered, and therefore would
+have invoked the compiler automatically.
+
+B Example 2: Using the Make Facility
+In this example we explain the usage and e ects of the make facility implemented in the MOCKA system.
+In Modula-2, a de nition module imported by a compilation unit must have been compiled previously. A
+de nition module must be compiled before its corresponding implementation module. The recompilation of a
+de nition module invalidates the corresponding implementation module and all units importing that module.
+Recompilation of an implementation or program module invalidates no other units, but the program has to be
+linked again. Invalidated compilation units must be recompiled in an order corresponding to the dependencies
+between those units. The dependencies are introduced through imports. The make facility computes those
+dependencies and initiates the necessary recompilations automatically.
+To illustrate the behaviour of the make facility let us consider a sample program consisting of several compilation
+units. Beyond the purpose to introduce module dependencies the sample program has no meaning (so the sources
+contain neither declarations nor statements). The sources of the sample program are:
+DEFINITION MODULE black;
+END black.
+IMPLEMENATION MODULE black;
+END black.
+DEFINITION MODULE brown;
+END brown.
+IMPLEMENATION MODULE brown;
+END brown.
+DEFINITION MODULE blue;
+IMPORT black;
+END blue.
+IMPLEMENATION MODULE blue;
+END blue.
+DEFINITION MODULE green;
+END green.
+IMPLEMENATION MODULE green;
+IMPORT black;
+IMPORT brown;
+END green.
+MODULE red;
+IMPORT blue;
+IMPORT green;
+BEGIN
+(* ... *)
+END red.
+
+Figure 1 shows the dependency graph of the sample program (forget about the thin entities for the moment).
+Compilation units are represented as boxes. The box representing an implementation module is partially
+hidden by the box representing the corresponding de nition module. This means that the declarations made
+in a de nition module are visible in the corresponding implementation module and therefore a dependency is
+introduced implicitly. Explicit import is represented by arrows. E.g., an arrow from the box representing the
+implementation module green to the box representing the de nition module black means that the implementation
+module green imports module black.
+Each implementation module depends on the corresponding de nition module. The implementation module
+green depends on the de nition modules (symbol les) of black and brown. The de nition module blue (and
+because of the transitivity the corresponding implementation module either) depends on the de nition module
+black. The program module red depends directly on the de nition modules blue and green, and (because of
+
+MOCKA - Modula-2 Compiler System
+
+28
+
+red
+@
+
+@
+@
+R
+@
+
+green
+
+blue
+
+
+ A
+
+
+A
+
+
+A
+)
+
+AAU
+
+?
+
+black
+
+brown
+A
+
+A
+A
+AAU
+
+white
+
+Figure 1: module dependencies of a sample program
+
+MOCKA - Modula-2 Compiler System
+
+29
+
+the transitivity) on black and brown. Suppose that the actual working directory contains all the sources of the
+sample program. The corresponding symbol and object les are not present neither in the working directory
+nor in one of the libraries nor in the system library. So the invocation of the MOCKA system
+$ mc
+and the speci cation of the goal
+>> p
+
+red
+
+results in the compilation of each unit that is part of the sample program in an order computed automatically.
+Note that there are several orders possible, e.g.
+definition module green
+definition module brown
+implementation module brown
+definition module black
+implementation module black
+implementation module green
+definition module blue
+implementation module blue
+program module red.
+
+After completion of compilation and binding an executable program named red exists.
+During the further development of the program modules will be modi ed, e.g. the de nition module black:
+>> d
+
+black
+
+Modify black.md, e.g. by insertion of
+CONST c=0;
+
+After leaving the editor the program is no longer consistent, because the still existing symbol le of black is
+the result of the compilation of an older version of de nition module black. The implementation module black
+is invalidated, and also the de nition module blue and the implementation module green. Furthermore, the
+transitive closure of invalidated modules contains the implementation module blue and the program module red,
+because they depend on modules that were invalidated. So, resuming of processing (enter the empty command)
+will lead to recompilation of
+definition module black
+implementation module black
+implementation module green
+definition module blue
+implementation module blue
+program module red
+
+MOCKA - Modula-2 Compiler System
+
+30
+
+e.g. in this order.
+During the development of a program system it often happens that new modules have to be incorporated, in
+our example the module white:
+DEFINITION MODULE white;
+END white.
+IMPLEMENATION MODULE white;
+END white.
+
+Let the implementation module brown import objects exported by white, thus insert IMPORT white; Figure 1
+(now including the thin entities) illustrates the new situation.
+Resuming of processing will start the compilation of the de nition and implementation module white (because
+neither symbol nor object le for white existed before) and the recompilation of the implementation module
+brown, because the source was modi ed and therefore the corresponding object le has become invalid.
+
+C Example 3: Foreign Modules
+The example presented here gives an idea how foreign modules can be used to access procedures not written in
+Modula-2. The example implements (parts of) a simple numeric I/O based on the C library. Let us consider
+the following C source:
+
+/* implementation NumericIO.c */
+void WriteCard (unsigned long card)
+{
+printf("%d",card);
+}
+void WriteLn ()
+{
+printf("\n");
+}
+void WriteCardArray (unsigned long cardarr[], int high)
+{
+while(high>=0) {
+WriteCard(cardarr[high--]);
+WriteLn();
+}
+}
+
+The Modula-2 declarations of those C functions are contained in a foreign module say with the name NumericIO.md.
+FOREIGN MODULE NumericIO;
+PROCEDURE WriteCard(c : CARDINAL);
+PROCEDURE WriteLn();
+PROCEDURE WriteCardArray(VAR a : ARRAY OF CARDINAL);
+END NumericIO.
+
+Note, how parameters are passed. MOCKA passes an open array as address and last index ( = HIGH(a)). This
+has to be considered in NumericIO.c, where WriteCardArray has an additional parameter high. To use the
+FOREIGN MODULE NumericIO.md you just have to compile the C source le and place the resulting object
+
+MOCKA - Modula-2 Compiler System
+
+31
+
+le in a path where MOCKA looks for it (the current directory or directories speci ed by the -d or -D option).
+The command sequence might look like this :
+cc -c NumericIO.c
+
+You can now use the module NumericIO like an ordinary MOCKA module.
+
+D Example 4: A System Installation
+The options can be used to embed the MOCKA system into various environments. An example is given here
+that usually ts into each Unix environment. Note that pathnames and command arguments might di er from
+system to system.
+Let the executable code of the MOCKA system be contained in the le /usr/local/lib/mocka/sys/Mc. The Unix
+shell script mc that invokes the MOCKA system with default parameters could look like this:
+MOCKADIR = /usr/local/lib/mocka
+COMPILER = Mc
+export MOCKA_DIR
+$MOCKADIR/sys/$COMPILER
+-link \$MOCKADIR/sys/link
+-edit \$MOCKADIR/sys/edit
+-list \$MOCKADIR/sys/list
+-asm \$MOCKADIR/sys/asm
+-syslib \$MOCKADIR/lib
+-index
+-range
+$*
+
+\
+\
+\
+\
+\
+\
+\
+\
+
+The link script is contained in the le $MOCKADIR/sys/link and could contain the shell script:
+program=$1 ; shift ; modules="$*"
+/bin/ld \
+-g \
+-o $program \
+/usr/lib/crt0.o \
+$MOCKADIR/sys/M2RTS.o $modules \
+-lc
+
+/bin/ld contains the system linker ld, /lib/crt0.o the C runtime system, M2RTS.o the root module generated
+by the MOCKA binder (and deleted immediately after linking is nished), the shell variable $program contains
+(during execution of the script) the name of the executable object le to be created by the linker, the shell
+variable $modules contains the names of the object les of the modules that constitute the program. -g, and
+-lc are arguments for the system linker ld.
+The edit script is contained in le $MOCKADIR/sys/edit and could contain the shell script:
+vi $1
+
+The le vi contains the system editor that is invoked when a d or i command is entered in session mode.
+The list script is contained in le $MOCKADIR/sys/list and could contain the shell script:
+$MOCKADIR/sys/Lister $1
+vi LISTING
+$MOCKADRIR/sys/Unlister $1
+
+MOCKA - Modula-2 Compiler System
+
+32
+
+The le $MOCKADIR/sys/Lister contains the listing generator that is invoked during session mode if errors
+are detected during a compilation. The listing generator merges the source le and the le containing the error
+messages ( le modulename.md_errors resp. modulename.mi_errors located in the actual working directory) and
+generates the listing le LISTING (also located in the actual working directory). The editor stored in le vi is
+invoked with the listing le so that the errors can be corrected in the listing. Afterwards the unlister contained
+in le $MOCKADIR/sys/Unlister removes the error messages from the listing le and copies the listing to the
+source le.
+
+E Example 5: Use of Compiler Pragmas in a Source Program
+The following example shows how to use compiler pragmas to control special aspects of compilation. It should
+be noted that pragmas should be used very carefully.
+The rst pragma enables code generation for runtime range checking for the whole compilation unit, because
+the pragma is declared at level 0. Therefore, range checking is enabled for the module body and the body of
+p1. The second and third pragma make the rst pragma inecious and disable range checking in p2 and p3.
+The fourth pragma makes the third pragma inecious, so range checking is enabled for the body of q1.
+MODULE PragmaDemo;
+% range
+VAR x: CARDINAL; y: INTEGER;
+PROCEDURE p1;
+
+(* 1st pragma *)
+
+BEGIN
+x := y;
+
+(* => range check *)
+
+END p1;
+PROCEDURE p2;
+% norange
+
+(* 2nd pragma *)
+
+BEGIN
+x := y;
+
+(* => no range check *)
+
+END p2;
+PROCEDURE p3;
+% norange
+PROCEDURE q1;
+% range
+
+(* 3rd pragma *)
+(* 4th pragma *)
+
+BEGIN (* q1 *)
+x := y;
+
+(* => range check *)
+
+END q1;
+BEGIN (* p3 *)
+x := y;
+
+(* => no range check *)
+
+END p3;
+BEGIN (* PragmaDemo *)
+x := y;
+END PragmaDemo.
+
+(* => range check *)
+
+MOCKA - Modula-2 Compiler System
+
+33
+
+References
+[Wir85] Niklaus Wirth. Programming in Modula-2. Springer Verlag, Berlin, Heidelberg, New York, Tokyo,
+third, corrected edition, 1985.
+
+
