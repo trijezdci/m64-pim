@@ -1,0 +1,21 @@
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
+
+DEFINITION MODULE ZType; (* 32-bit Variant *)
+
+(* ---------------------------------------------------------------------------
+ * Integer type to be used for ConstExpr evaluation
+ * ------------------------------------------------------------------------ *)
+
+IMPORT INT64;
+
+
+(* ---------------------------------------------------------------------------
+ * Type Aliases
+ * ------------------------------------------------------------------------ *)
+
+TYPE Status = INT64.Status;
+
+TYPE ZTypeT = INT64.INT64T;
+
+
+END ZType.

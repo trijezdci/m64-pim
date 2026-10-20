@@ -1,8 +1,8 @@
-(*!m2pim*) (* Copyright (c) 2026 Modula-2 Software Foundation. *)
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
 
 DEFINITION MODULE INT128;
 
-(* 128-bit Integer Type *)
+(* 128-bit Integer Type for 64-bit Compiler *)
 
 
 (* ---------------------------------------------------------------------------
@@ -80,6 +80,7 @@ PROCEDURE FromCard ( n : CARDINAL; VAR res : INT128T );
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE FromLongCard ( n : CARDINAL; VAR res : INT128T );
+
 
 (* --------------------------------------------------------------------------
  * Procedure:  INT128.FromInt(i, res)
@@ -259,6 +260,24 @@ PROCEDURE Div ( left, right : INT128T; VAR res : INT128T; VAR stat : Status );
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Mod ( left, right : INT128T; VAR res : INT128T; VAR stat : Status );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  INT128.Shl(i, shift, res, stat)
+ * --------------------------------------------------------------------------
+ * Shifts i left by shift bits. Passes result in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Shl ( i : INT128T; shift : CARDINAL; VAR res : INT128T; VAR stat : Status );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  INT128.AShr(i, shift, res)
+ * --------------------------------------------------------------------------
+ * Arithmetic shift right of i by shift bits. Passes result in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE AShr ( i : INT128T; shift : CARDINAL; VAR res : INT128T );
 
 
 END INT128.
