@@ -284,12 +284,12 @@ PROCEDURE Mod ( left, right : INT64T; VAR res : INT64T; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.Shl(i, shift, res, stat)
+ * Procedure:  INT64.Shl(i, shift, res)
  * --------------------------------------------------------------------------
  * Shifts i left by shift bits. Passes result in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Shl ( i : INT64T; shift : CARDINAL; VAR res : INT64T; VAR stat : Status );
+PROCEDURE Shl ( i : INT64T; shift : CARDINAL; VAR res : INT64T );
 
 
 (* --------------------------------------------------------------------------
