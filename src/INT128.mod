@@ -692,7 +692,7 @@ END AShr;
 
 PROCEDURE TwosComplement ( i : INT128T; VAR res : INT128T; VAR stat : Status );
 BEGIN
-  IF (n.highBits = MIN(LONGINT)) AND (n.lowBits = 0) THEN
+  IF (i.highBits = MIN(LONGINT)) AND (i.lowBits = 0) THEN
     stat := Overflow;
     RETURN
   END; (* IF *)
