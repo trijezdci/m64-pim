@@ -1067,18 +1067,16 @@ VAR
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  Pow2(n, res, stat)
+ * Procedure:  Pow2(n, res)
  * --------------------------------------------------------------------------
- * Passes the n-th power of 2 in res, and status in stat.
+ * Passes the n-th power of 2 in res.  No result if n >= Bitwidth.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Pow2 ( n : CARDINAL; VAR res : INT128; VAR stat : Status );
+PROCEDURE Pow2 ( n : CARDINAL; VAR res : INT128; );
 BEGIN
   IF n < Bitwidth THEN
     stat := Success;
-    res := powerOf2[n];
-  ELSE
-    stat := Overflow;
+    res := powerOf2[n]
   END (* IF *)
 END Pow2;
 
