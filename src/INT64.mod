@@ -2,8 +2,6 @@
 
 IMPLEMENTATION MODULE INT64;
 
-FROM CARD64 IMPORT CARD64T;
-
 (* 64-bit Integer Type *)
 
 
@@ -18,7 +16,15 @@ TYPE Status = ( Success, Underflow, Overflow, DivByZero );
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.SetZero(res)
+ * bit width
+ * ----------------------------------------------------------------------- *)
+
+CONST
+  Bitwidth = TSIZE(INT64T);
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  INT64T.SetZero(res)
  * --------------------------------------------------------------------------
  * Passes the INT64T value of zero in res.
  * ----------------------------------------------------------------------- *)
@@ -31,7 +37,7 @@ END SetZero;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.SetMax(res)
+ * Procedure:  INT64T.SetMax(res)
  * --------------------------------------------------------------------------
  * Passes the largest value of type INT64T in res.
  * ----------------------------------------------------------------------- *)
@@ -39,25 +45,25 @@ END SetZero;
 PROCEDURE SetMax ( VAR res : INT64T );
 BEGIN
   res.highBits := MAX(LONGINT); (* 0x7FFFFFFF:FFFFFFFF *)
-  res.lowBits := MAX(LONGCARD)  (* 0xFFFFFFFFFFFFFFFF *)
+  res.lowBits := MAX(LONGCARD)  (* 0xFFFFFFFF:FFFFFFFF *)
 END SetMax;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.SetMin(res)
+ * Procedure:  INT64T.SetMin(res)
  * --------------------------------------------------------------------------
  * Passes the smallest value of type INT64T in res.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE SetMin ( VAR res : INT64T );
 BEGIN
-  res.highBits := MIN(LONGINT); (* 0x80000000:00000000 *)
-  res.lowBits := 0
+  res.highBits := MIN(LONGINT); (* 0x7FFFFFFF:FFFFFFFF *)
+  res.lowBits := MAX(LONGCARD)  (* 0xFFFFFFFF:FFFFFFFF *)
 END SetMin;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.FromCard(n, res)
+ * Procedure:  INT64T.FromCard(n, res)
  * --------------------------------------------------------------------------
  * Passes the INT64T value of CARDINAL n in res.
  * ----------------------------------------------------------------------- *)
@@ -70,7 +76,7 @@ END FromCard;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.FromLongCard(n, res)
+ * Procedure:  INT64T.FromLongCard(n, res)
  * --------------------------------------------------------------------------
  * Passes the INT64T value of LONGCARD n in res.
  * ----------------------------------------------------------------------- *)
@@ -83,61 +89,59 @@ END FromLongCard;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.FromCard64(n, res, stat)
- * --------------------------------------------------------------------------
- * Converts unsigned CARD64T n to signed INT64T res.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE FromCard64 ( n : CARD64T; VAR res : INT64T; VAR stat : Status );
-BEGIN
-  IF n.highBits > VAL(LONGCARD, MAX(LONGINT)) THEN
-    stat := Overflow;
-    RETURN
-  END;
-  res.highBits := VAL(LONGINT, n.highBits);
-  res.lowBits := n.lowBits;
-  stat := Success
-END FromCard64;
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  INT64.FromInt(i, res)
+ * Procedure: INT64T.FromInt(i, res)
  * --------------------------------------------------------------------------
  * Passes the INT64T value of INTEGER i in res.
  * ----------------------------------------------------------------------- *)
-
 PROCEDURE FromInt ( i : INTEGER; VAR res : INT64T );
+VAR
+  ignore : Status;
 BEGIN
-  IF i < 0 THEN
-    res.highBits := (-1); (* sign extension *)
-    res.lowBits := MAX(LONGCARD) - VAL(LONGCARD, -(i + 1))
-  ELSE (* i >= 0 *)
-    res.highBits := 0;
+  IF i = MIN(INTEGER) THEN
+    res.highBits := -1;
+    (* 64-bit sign extension *)
+    res.lowBits := VAL(LONGCARD, VAL(LONGINT, i));
+    RETURN
+  END; (* IF *)
+  
+  res.highBits := 0;
+  IF i >= 0 THEN
     res.lowBits := VAL(LONGCARD, i)
+  ELSE
+    res.lowBits := VAL(LONGCARD, ABS(i));
+    TwosComplement(res, res, ignore)
   END (* IF *)
 END FromInt;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.FromLongInt(i, res)
+ * Procedure: INT64T.FromLongInt(i, res)
  * --------------------------------------------------------------------------
  * Passes the INT64T value of LONGINT i in res.
  * ----------------------------------------------------------------------- *)
-
-PROCEDURE FromLongInt ( i : LONGINT;  VAR res : INT64T );
+PROCEDURE FromLongInt ( i : LONGINT; VAR res : INT64T );
+VAR
+  ignore : Status;
 BEGIN
-  IF i < 0 THEN
-    res.highBits := (-1); (* sign extension *)
-    res.lowBits := MAX(LONGCARD) - VAL(LONGCARD, -(i + 1))
-  ELSE (* i >= 0 *)
-    res.highBits := 0;
+  IF i = MIN(LONGINT) THEN
+    res.highBits := -1;
+    res.lowBits := 080000000H; (* MIN(LONGINT) = -2^31 *)
+    RETURN
+  END; (* IF *)
+  
+  res.highBits := 0;
+  IF i >= 0 THEN
     res.lowBits := VAL(LONGCARD, i)
+  ELSE
+    res.lowBits := VAL(LONGCARD, ABS(i));
+    TwosComplement(res, res, ignore)
   END (* IF *)
 END FromLongInt;
 
 
+
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.ToCard(i, res, stat)
+ * Procedure:  INT64T.ToCard(i, res, stat)
  * --------------------------------------------------------------------------
  * Passes the CARDINAL value of INT64T i in res.
  * ----------------------------------------------------------------------- *)
@@ -147,23 +151,23 @@ BEGIN
   IF i.highBits > 0 THEN
     stat := Overflow;
     RETURN
-  ELSIF i.highBits < 0 THEN
-    stat := Underflow;
-    RETURN
-  ELSE (* i.highBits = 0 *)
-    IF i.lowBits > VAL(LONGCARD, MAX(CARDINAL)) THEN
+  ELSIF i.highBits = 0 THEN
+    IF i.lowBits > 0FFFFFFFFH THEN
       stat := Overflow;
       RETURN
     ELSE (* in range *)
       res := VAL(CARDINAL, i.lowBits);
       stat := Success
-    END (* IF *)
+    END
+  ELSE (* i.highBits < 0 *)
+    stat := Underflow;
+    RETURN
   END (* IF *)
 END ToCard;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.ToLongCard(i, res, stat)
+ * Procedure:  INT64T.ToLongCard(i, res, stat)
  * --------------------------------------------------------------------------
  * Passes the LONGCARD value of INT64T i in res.
  * ----------------------------------------------------------------------- *)
@@ -173,36 +177,18 @@ BEGIN
   IF i.highBits > 0 THEN
     stat := Overflow;
     RETURN
-  ELSIF i.highBits < 0 THEN
-    stat := Underflow;
-    RETURN
-  ELSE (* in range *)
+  ELSIF i.highBits = 0 THEN
     res := i.lowBits;
     stat := Success
+  ELSE (* i.highBits < 0 *)
+    stat := Underflow;
+    RETURN
   END (* IF *)
 END ToLongCard;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.ToCard64(i, res, stat)
- * --------------------------------------------------------------------------
- * Converts signed INT64T i to unsigned CARD64T res.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE ToCard64 ( i : INT64T; VAR res : CARD64T; VAR stat : Status );
-BEGIN
-  IF i.highBits < 0 THEN
-    stat := Underflow;
-    RETURN
-  END;
-  res.highBits := VAL(LONGCARD, i.highBits);
-  res.lowBits := i.lowBits;
-  stat := Success
-END ToCard64;
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  INT64.ToInt(i, res, stat)
+ * Procedure:  INT64T.ToInt(i, res, stat)
  * --------------------------------------------------------------------------
  * Passes the INTEGER value of INT64T i in res.
  * ----------------------------------------------------------------------- *)
@@ -214,73 +200,79 @@ BEGIN
   IF i.highBits > 0 THEN
     stat := Overflow;
     RETURN
-  ELSIF i.highBits < (-1) THEN
-    stat := Underflow;
-    RETURN
-  ELSIF i.highBits = (-1) THEN
-    magnitude := (MAX(LONGCARD) - i.lowBits) + 1;
-    IF i.lowBits = 080000000H THEN
-      res := MIN(INTEGER);
-      stat := Success;
-      RETURN
-    ELSIF magnitude > VAL(LONGCARD, MAX(INTEGER)) THEN
-      stat := Underflow;
-      RETURN
-    ELSE (* in range *)
-      res := -VAL(INTEGER, magnitude);
-      stat := Success
-    END (* IF *)
-  ELSE (* i.highBits = 0 *)
-    IF i.lowBits > VAL(LONGCARD, MAX(INTEGER)) THEN
+  ELSIF i.highBits = 0 THEN
+    IF i.lowBits > 07FFFFFFFH THEN
       stat := Overflow;
       RETURN
     ELSE (* in range *)
       res := VAL(INTEGER, i.lowBits);
       stat := Success
+    END
+  ELSIF i.highBits = (-1) THEN
+    IF i.lowBits = 0 THEN
+      stat := Underflow;
+      RETURN
+    ELSE
+      magnitude := (MAX(LONGCARD) - i.lowBits) + 1;
+      IF magnitude > 080000000H THEN
+        stat := Underflow;
+        RETURN
+      ELSE (* in range *)
+        res := - VAL(INTEGER, magnitude);
+        stat := Success
+      END (* IF *)
     END (* IF *)
-  END (* IF *)
+  ELSE (* i.highBits < (-1) *)
+    stat := Underflow;
+    RETURN
+  END (* IF *)   
 END ToInt;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.ToLongInt(i, res, stat)
+ * Procedure:  INT64T.ToLongInt(i, res, stat)
  * --------------------------------------------------------------------------
  * Passes the LONGINT value of INT64T i in res.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE ToLongInt ( i : INT64T; VAR res : LONGINT; VAR stat : Status );
+VAR
+  magnitude : LONGCARD;
 BEGIN
   IF i.highBits > 0 THEN
     stat := Overflow;
     RETURN
-  ELSIF i.highBits < (-1) THEN
-    stat := Underflow;
-    RETURN
-  ELSIF i.highBits = (-1) THEN
-    IF i.lowBits < (* MIN(LONGINT) *) 080000000H THEN
-      stat := Underflow;
-      RETURN
-    ELSIF i.lowBits = (* MIN(LONGINT) *) 080000000H THEN
-      res := MIN(LONGINT);
-      stat := Success
-    ELSE (* in range *)
-      (* res := MIN(LONGINT) + i.lowBits - MIN(LONGINT) => res := i.lowBits *)
-      res := MIN(LONGINT) + VAL(LONGINT, i.lowBits - 080000000H);
-      stat := Success
-    END (* IF *)
-  ELSE (* i.highBits = 0 *)
-    IF i.lowBits > VAL(LONGCARD, MAX(LONGINT)) THEN
+  ELSIF i.highBits = 0 THEN
+    IF i.lowBits > 07FFFFFFFH THEN
       stat := Overflow;
       RETURN
     ELSE (* in range *)
       res := VAL(LONGINT, i.lowBits);
       stat := Success
     END (* IF *)
+  ELSIF i.highBits = (-1) THEN
+    IF i.lowBits = 0 THEN
+      stat := Underflow;
+      RETURN
+    ELSE
+      magnitude := (MAX(LONGCARD) - i.lowBits) + 1;
+      IF magnitude > 080000000H THEN
+        stat := Underflow;
+        RETURN
+      ELSE (* in range *)
+        res := - VAL(LONGINT, magnitude);
+        stat := Success
+      END (* IF *)
+    END (* IF *)
+  ELSE (* i.highBits < (-1) *)
+    stat := Underflow;
+    RETURN
   END (* IF *)
 END ToLongInt;
 
+
 (* --------------------------------------------------------------------------
- * Function:  INT64.odd(i)
+ * Function:  INT64T.odd(i)
  * --------------------------------------------------------------------------
  * Returns TRUE if i is odd, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
@@ -292,7 +284,7 @@ END odd;
 
 
 (* --------------------------------------------------------------------------
- * function:  INT64.eq(left, right)
+ * function:  INT64T.eq(left, right)
  * --------------------------------------------------------------------------
  * Returns TRUE if left = right, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
@@ -304,7 +296,7 @@ END eq;
 
 
 (* --------------------------------------------------------------------------
- * Function:  INT64.neq(left, right)
+ * Function:  INT64T.neq(left, right)
  * --------------------------------------------------------------------------
  * Returns TRUE if left # right, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
@@ -316,7 +308,7 @@ END neq;
 
 
 (* --------------------------------------------------------------------------
- * Function:  INT64.gt(left, right)
+ * Function:  INT64T.gt(left, right)
  * --------------------------------------------------------------------------
  * Returns TRUE if left > right, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
@@ -329,7 +321,7 @@ END gt;
 
 
 (* --------------------------------------------------------------------------
- * Function:  INT64.gteq(left, right)
+ * Function:  INT64T.gteq(left, right)
  * --------------------------------------------------------------------------
  * Returns TRUE if left >= right, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
@@ -338,11 +330,11 @@ PROCEDURE gteq ( left, right : INT64T ) : BOOLEAN;
 BEGIN
   RETURN (left.highBits > right.highBits)
     OR ((left.highBits = right.highBits) AND (left.lowBits >= right.lowBits))
-END gteq;
+END gtEq;
 
 
 (* --------------------------------------------------------------------------
- * Function:  INT64.lt(left, right)
+ * Function:  INT64T.lt(left, right)
  * --------------------------------------------------------------------------
  * Returns TRUE if left < right, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
@@ -355,7 +347,7 @@ END lt;
 
 
 (* --------------------------------------------------------------------------
- * Function:  INT64.lteq(left, right)
+ * Function:  INT64T.lteq(left, right)
  * --------------------------------------------------------------------------
  * Returns TRUE if left <= right, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
@@ -364,60 +356,40 @@ PROCEDURE lteq ( left, right : INT64T ) : BOOLEAN;
 BEGIN
   RETURN (left.highBits < right.highBits)
     OR ((left.highBits = right.highBits) AND (left.lowBits <= right.lowBits))
-END lteq;
+END ltEq;
 
 
 (* --------------------------------------------------------------------------
- * Function:  INT64.Abs(i, res, stat)
+ * Function:  INT64T.Abs(i, res, stat)
  * --------------------------------------------------------------------------
  * Passes the absolute value of i in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Abs ( i : INT64T; VAR res : INT64T; VAR stat : Status );
+PROCEDURE Abs ( i : INT128T; VAR res : INT64T; VAR stat : Status );
 BEGIN
   IF i.highBits >= 0 THEN
     res := i;
-    stat := Success;
-    RETURN
-  ELSIF (i.highBits = MIN(LONGINT)) AND (i.lowBits = 0) THEN
-    stat := Overflow;
-    RETURN
-  ELSE (* MIN(INT64T) < i < 0 *)
-    res.lowBits := 0 - i.lowBits; (* complement *)
-    IF i.lowBits = 0 THEN
-      res.highBits := -i.highBits
-    ELSE
-      res.highBits := -i.highBits - 1
-    END (* IF *)
-  END; (* IF *)
-  stat := Success
+    stat := Success
+  ELSE (* i is negative *)
+    TwosComplement( i, res, stat )
+  END
 END Abs;
 
 
 (* --------------------------------------------------------------------------
- * Function:  INT64.Neg(i, res, stat)
+ * Function:  INT64T.Neg(i, res, stat)
  * --------------------------------------------------------------------------
  * Passes the sign inversed value of i in res.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Neg ( i : INT64T; VAR res : INT64T; VAR stat : Status );
 BEGIN
-  IF (i.highBits = MIN(LONGINT)) AND (i.lowBits = 0) THEN
-    stat := Overflow; (* MIN(INT64T) has no positive counterpart *)
-    RETURN
-  ELSE
-    res.lowBits := 0 - i.lowBits; (* complement *)
-    IF i.lowBits = 0 THEN
-      res.highBits := -i.highBits
-    ELSE
-      res.highBits := -i.highBits - 1
-    END (* IF *)
-  END; (* IF *)
-  stat := Success
+  TwosComplement( i, res, stat )
 END Neg;
 
+
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.Add(left, right, res, stat)
+ * Procedure:  INT128.Add(left, right, res, stat)
  * --------------------------------------------------------------------------
  * Passes the sum left + right in res.
  * ----------------------------------------------------------------------- *)
@@ -467,7 +439,7 @@ END Add;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.Sub(left, right, res, stat)
+ * Procedure:  INT64T.Sub(left, right, res, stat)
  * --------------------------------------------------------------------------
  * Passes the difference left - right in res.
  * ----------------------------------------------------------------------- *)
@@ -489,7 +461,6 @@ BEGIN
 
   (* both operands non-negative *)
   IF (left.highBits >= 0) AND (right.highBits >= 0) THEN
-    (* Subtracting like signs is mathematically guaranteed to fit within 64 bits *)
     resHigh := left.highBits - right.highBits - VAL(LONGINT, lowBorrow);
 
   (* left operand non-negative, right operand negative *)
@@ -521,7 +492,7 @@ END Sub;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.Mul(left, right, res, stat)
+ * Procedure:  INT64T.Mul(left, right, res, stat)
  * --------------------------------------------------------------------------
  * Passes the product left * right in res.
  * ----------------------------------------------------------------------- *)
@@ -543,7 +514,7 @@ END Mul;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.Div(left, right, res, stat)
+ * Procedure:  INT64T.Div(left, right, res, stat)
  * --------------------------------------------------------------------------
  * Passes the truncated integer division quotient left DIV right in res.
  * ----------------------------------------------------------------------- *)
@@ -565,7 +536,7 @@ BEGIN
   Abs(right, absRight, stat);
   IF stat # Success THEN RETURN END;
 
-  DivMod64(absLeft, absRight, quot, rem, stat);
+  DivMod128(absLeft, absRight, quot, rem, stat);
   IF stat # Success THEN RETURN END;
 
   IF resIsNeg THEN
@@ -578,7 +549,7 @@ END Div;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.Mod(left, right, res, stat)
+ * Procedure:  INT64T.Mod(left, right, res, stat)
  * --------------------------------------------------------------------------
  * Passes the truncated integer division modulus left MOD right in res.
  * ----------------------------------------------------------------------- *)
@@ -600,7 +571,7 @@ BEGIN
   Abs(right, absRight, stat);
   IF stat # Success THEN RETURN END;
 
-  DivMod64(absLeft, absRight, quot, rem, stat);
+  DivMod128(absLeft, absRight, quot, rem, stat);
   IF stat # Success THEN RETURN END;
 
   IF leftIsNeg THEN
@@ -613,62 +584,46 @@ END Mod;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.Shl(i, shift, res, stat)
+ * Procedure:  INT64T.Shl(i, shift, res)
  * --------------------------------------------------------------------------
  * Shifts i left by shift bits. Passes result in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Shl ( i : INT64T; shift : CARDINAL; VAR res : INT64T; VAR stat : Status );
+PROCEDURE Shl ( i : INT64T; shift : CARDINAL; VAR res : INT64T );
 VAR
   s : CARDINAL;
-  carryBits : LONGCARD;
-  powS, powInv : LONGCARD;
-  highBits : LONGCARD;
-  isNegative : BOOLEAN;
+  powS, powInv, carryBits : LONGCARD;
 BEGIN
-  isNegative := i.highBits < 0;
   IF shift = 0 THEN
     res := i;
-    stat := Success;
     RETURN
-  ELSIF shift >= 64 THEN
+  ELSIF shift >= 128 THEN
     res.highBits := 0;
     res.lowBits := 0;
-    IF (i.highBits # 0) OR (i.lowBits # 0) THEN
-      stat := Overflow
-    ELSE
-      stat := Success
-    END; (* IF *)
     RETURN
-  ELSIF shift >= 32 THEN
-    s := shift - 32;
-    IF i.highBits # 0 THEN
-      stat := Overflow
+  ELSIF shift >= 64 THEN
+    res.lowBits := 0;
+    s := shift - 64;
+    IF s >= 64 THEN
+      res.highBits := 0
     ELSE
-      stat := Success
-    END; (* IF *)
-    powS := Pow2(s);
-    res.highBits := VAL(LONGINT, i.lowBits * powS);
-    res.lowBits := 0
-  ELSE (* 1 <= shift < 32 *)
-    s := shift;
-    powS := Pow2(s);
-    powInv := Pow2(32 - s);
+      powS := PowerOfTwo(s);
+      res.highBits := LONGINT(i.lowBits * powS)
+    END;
+    RETURN
+  ELSE (* 1 <= shift < 64 *)
+    powS := PowerOfTwo(shift);
+    powInv := PowerOfTwo(64 - shift);
     carryBits := i.lowBits DIV powInv;
-    highBits := VAL(LONGCARD, i.highBits) * powS + carryBits;
-    res.highBits := VAL(LONGINT, highBits);
-    res.lowBits := i.lowBits * powS
-  END; (* IF *)
-  IF (res.highBits < 0) # isNegative THEN
-    stat := Overflow
-  ELSE
-    stat := Success
+    res.highBits := LONGINT((LONGCARD(i.highBits) * powS) + carryBits);
+    res.lowBits := i.lowBits * powS;
+    RETURN
   END (* IF *)
 END Shl;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64.Shr(i, shift, res)
+ * Procedure:  INT64T.Shr(i, shift, res)
  * --------------------------------------------------------------------------
  * Arithmetic shift right of i by shift bits. Passes result in res.
  * ----------------------------------------------------------------------- *)
@@ -676,50 +631,58 @@ END Shl;
 PROCEDURE AShr ( i : INT64T; shift : CARDINAL; VAR res : INT64T );
 VAR
   s : CARDINAL;
-  carryBits : LONGCARD;
-  powS, powInv : LONGCARD;
+  powS, powInv, carryBits, mask : LONGCARD;
 BEGIN
   IF shift = 0 THEN
     res := i;
     RETURN
-  ELSIF shift >= 64 THEN
+  ELSIF shift >= 128 THEN
     IF i.highBits < 0 THEN
       res.highBits := -1;
-      res.lowBits := MAX(LONGCARD)
+      res.lowBits := 0FFFFFFFFHINT64T
     ELSE
       res.highBits := 0;
       res.lowBits := 0
-    END; (* IF *)
-    RETURN
-  ELSIF shift >= 32 THEN
-    s := shift - 32;
-    powS := Pow2(s);
-    IF i.highBits < 0 THEN
-      res.highBits := -1;
-      IF s = 31 THEN
-        res.lowBits := MAX(LONGCARD)
-      ELSE
-        res.lowBits := VAL(LONGCARD, i.highBits DIV VAL(LONGINT, powS))
-      END
-    ELSE
-      res.highBits := 0;
-      res.lowBits := VAL(LONGCARD, i.highBits) DIV powS
-    END (* IF *)
-  ELSE (* 1 <= shift < 32 *)
-    s := shift;
-    powS := Pow2(s);
-    powInv := Pow2(32 - s);
-    carryBits := (VAL(LONGCARD, i.highBits) MOD powS) * powInv;
-    IF s = 31 THEN
-      IF i.highBits < 0 THEN
-        res.highBits := -1
-      ELSE
-        res.highBits := 0
-      END
-    ELSE
-      res.highBits := i.highBits DIV VAL(LONGINT, powS)
     END;
-    res.lowBits := (i.lowBits DIV powS) + carryBits
+    RETURN
+  ELSIF shift >= 64 THEN
+    s := shift - 64;
+    IF s >= 64 THEN
+      res.lowBits := 0
+    ELSE
+      powS := PowerOfTwo(s);
+      IF i.highBits < 0 THEN
+        res.highBits := -1;
+        
+        (* compute mask to set high bits *)
+        res.lowBits := LONGCARD(i.highBits) DIV powS;
+        mask := 0FFFFFFFFINT64TH DIV powS;
+        mask := mask * powS;
+        res.lowBits := res.lowBits + (0FFFFFFFFH - mask)
+      ELSE
+        res.highBits := 0;
+        res.lowBits := LONGCARD(i.highBits) DIV powS
+      END
+    END;
+    RETURN
+  ELSE (* 1 <= shift < 64 *)
+    powS := PowerOfTwo(shift);
+    powInv := PowerOfTwo(64 - shift);
+    
+    carryBits := LONGCARD(i.highBits) MOD powS;
+    res.lowBits := (i.lowBits DIV powS) + (carryBits * powInv);
+    
+    IF i.highBits < 0 THEN
+      res.highBits := LONGINT(LONGCARD(i.highBits) DIV powS);
+      
+      (* compute mask to set high bits *)
+      mask := 0FFFFFFFFH DIV powS;
+      mask := mask * powS;
+      res.highBits := LONGINT(LONGCARD(res.highBits) + (0FFFFFFFFH - mask))
+    ELSE
+      res.highBits := LONGINT(LONGCARD(i.highBits) DIV powS)
+    END;
+    RETURN
   END (* IF *)
 END AShr;
 
@@ -727,6 +690,30 @@ END AShr;
 (* **************************************************************************
  * P R I V A T E   P R O C E D U R E S
  * *********************************************************************** *)
+
+(* --------------------------------------------------------------------------
+ * Procedure: TwosComplement(i, res)
+ * --------------------------------------------------------------------------
+ * Computes the two's complement of i, passes result in res, status in stat.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE TwosComplement ( i : INT64T; VAR res : INT64T; VAR stat : Status );
+BEGIN
+  IF (i.highBits = MIN(LONGINT)) AND (i.lowBits = 0) THEN
+    stat := Overflow;
+    RETURN
+  END; (* IF *)
+  
+  stat := Success;
+  res.lowBits := MAX(LONGCARD) - i.lowBits + 1;
+  
+  IF res.lowBits = 0 THEN
+    res.highBits := 0 - i.highBits
+  ELSE (* borrow occurred *)
+    res.highBits := 0 - i.highBits - 1
+  END (* IF *)  
+END TwosComplement;
+
 
 (* --------------------------------------------------------------------------
  * Function:  sumOverflowsLC(n, m)
@@ -750,7 +737,7 @@ PROCEDURE sumOverflowsLI ( i, j : LONGINT; carry : LONGCARD ) : BOOLEAN;
 VAR
   c : LONGINT;
 BEGIN
-  IF (i > 0) AND (j > 0) THEN
+  IF (i > 0) AND (j >= 0) THEN
     c := VAL(LONGINT, carry);
     (* test i+c > MAX(LONGINT) *)
     IF (i > (MAX(LONGINT) - c)) THEN
@@ -873,7 +860,7 @@ BEGIN
   IF ((i > 0) AND (j > 0)) OR ((i < 0) AND (j < 0)) THEN
     IF (i = MIN(LONGINT)) OR (j = MIN(LONGINT)) THEN
       RETURN TRUE
-    ELSE (* i # MIN(LONGINT) AND (j # MIN(LONGINE)) *)
+    ELSE (* i # MIN(LONGINT) AND (j # MIN(LONGINT)) *)
       IF i < 0 THEN absI := -i ELSE absI := i END;
       IF j < 0 THEN absJ := -j ELSE absJ := j END;
       RETURN absI > (MAX(LONGINT) DIV absJ)
@@ -973,65 +960,66 @@ END LongMul;
  * Logical shift right of i by shift bits. Passes result in res.
  * ----------------------------------------------------------------------- *)
 
+
 PROCEDURE Shr ( i : INT64T; shift : CARDINAL; VAR res : INT64T );
 VAR
   s : CARDINAL;
-  carryBits : LONGCARD;
-  powS, powInv : LONGCARD;
-  uHigh : LONGCARD;
+  powS, powInv, carryBits : LONGCARD;
 BEGIN
   IF shift = 0 THEN
     res := i;
     RETURN
-  ELSIF shift >= 64 THEN
+  ELSIF shift >= 128 THEN
     res.highBits := 0;
     res.lowBits := 0;
     RETURN
-  ELSIF shift >= 32 THEN
-    s := shift - 32;
-    powS := Pow2(s);
+  ELSIF shift >= 64 THEN
     res.highBits := 0;
-    res.lowBits := VAL(LONGCARD, i.highBits) DIV powS
-  ELSE (* 1 <= shift < 32 *)
-    s := shift;
-    powS := Pow2(s);
-    powInv := Pow2(32 - s);
-    uHigh := VAL(LONGCARD, i.highBits);
-    carryBits := (uHigh MOD powS) * powInv;
-    res.highBits := VAL(LONGINT, uHigh DIV powS);
-    res.lowBits := (i.lowBits DIV powS) + carryBits
+    s := shift - 64;
+    IF s >= 64 THEN
+      res.lowBits := 0
+    ELSE
+      powS := PowerOfTwo(s);
+      res.lowBits := LONGCARD(i.highBits) DIV powS
+    END;
+    RETURN
+  ELSE (* 1 <= shift < 64 *)
+    powS := PowerOfTwo(shift);
+    powInv := PowerOfTwo(64 - shift);
+    carryBits := LONGCARD(i.highBits) MOD powS;
+    res.highBits := LONGINT(LONGCARD(i.highBits) DIV powS);
+    res.lowBits := (i.lowBits DIV powS) + (carryBits * powInv);
+    RETURN
   END (* IF *)
 END Shr;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  DivMod(left, right, quot, rem, stat)
+ * Procedure:  DivMod(i, j, quot, rem, stat)
  * --------------------------------------------------------------------------
  * Passes quotient and remainder in quot and rem respectively.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE DivMod64 ( left, right : INT64T; VAR quot, rem : INT64T; VAR stat : Status );
+PROCEDURE DivMod ( i, j : INT64T; VAR quot, rem : INT64T; VAR stat : Status );
 VAR
-  bit : CARDINAL;
-  zero64 : INT64T;
-  tempStat : Status;
+  bitIndex : CARDINAL;
+  zero : INT128T;
+  ignore : Status;
 BEGIN
-  SetZero(zero64);
-  IF eq(right, zero64) THEN
+  SetZero(zero);
+  IF eq(j, zero) THEN
     stat := DivByZero;
-    SetZero(quot);
-    SetZero(rem);
     RETURN
   END; (* IF *)
 
-  IF lt(left, right) THEN
+  IF lt(i, j) THEN
     SetZero(quot);
-    rem := left;
+    rem := i;
     stat := Success;
     RETURN
   END; (* IF *)
 
-  IF eq(left, right) THEN
+  IF eq(i, j) THEN
     FromCard(1, quot);
     SetZero(rem);
     stat := Success;
@@ -1041,54 +1029,54 @@ BEGIN
   SetZero(quot);
   SetZero(rem);
 
-  bit := 64;
+  bitIndex := Bitwidth;
   REPEAT
-    DEC(bit);
-    Shl(rem, 1, rem, tempStat);
-    IF bit >= 32 THEN
-      IF (VAL(LONGCARD, left.highBits) DIV Pow2(bit - 32)) MOD 2 = 1 THEN
+    DEC(bitIndex);
+    Shl(rem, 1, rem, ignore);
+    IF bitIndex >= 64 THEN
+      IF (VAL(LONGCARD, i.highBits) DIV Pow2(bitIndex - 64)) MOD 2 = 1 THEN
         rem.lowBits := rem.lowBits + 1
-      END; (* IF *)
+      END (* IF *)
     ELSE
-      IF (left.lowBits DIV Pow2(bit)) MOD 2 = 1 THEN
+      IF (i.lowBits DIV Pow2(bitIndex)) MOD 2 = 1 THEN
         rem.lowBits := rem.lowBits + 1
-      END; (* IF *)
+      END (* IF *)
     END; (* IF *)
 
-    IF gteq(rem, right) THEN
-      Sub(rem, right, rem, tempStat);
-      IF bit >= 32 THEN
-        quot.highBits := quot.highBits + VAL(LONGINT, Pow2(bit - 32))
+    IF gteq(rem, j) THEN
+      Sub(rem, j, rem, ignore);
+      IF bitIndex >= 64 THEN
+        quot.highBits := quot.highBits + VAL(LONGINT, Pow2(bitIndex - 64))
       ELSE
-        quot.lowBits := quot.lowBits + Pow2(bit)
+        quot.lowBits := quot.lowBits + Pow2(bitIndex)
       END (* IF *)
     END (* IF *)
-  UNTIL bit = 0;
+  UNTIL bitIndex = 0;
 
   stat := Success
-END DivMod64;
+END DivMod;
 
 
 (* --------------------------------------------------------------------------
  * Data table for powers of 2
  * ----------------------------------------------------------------------- *)
 
-CONST
-  Bitwidth = 32;
-
 VAR
-  powerOf2 : ARRAY [0..Bitwidth-1] OF LONGCARD;
+  powerOf2 : ARRAY [0..Bitwidth-1] OF INT64T;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  Pow2(n, res, stat)
+ * Procedure:  Pow2(n, res)
  * --------------------------------------------------------------------------
- * Passes the n-th power of 2 in res, and status in stat.
+ * Passes the n-th power of 2 in res.  No result if n >= Bitwidth.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Pow2 ( n : CARDINAL ) : LONGCARD;
+PROCEDURE Pow2 ( n : CARDINAL; VAR res : INT64T; );
 BEGIN
-  RETURN powerOf2[n]
+  IF n < Bitwidth THEN
+    stat := Success;
+    res := powerOf2[n]
+  END (* IF *)
 END Pow2;
 
 
@@ -1104,9 +1092,15 @@ VAR
   index : CARDINAL;
 
 BEGIN
-  powerOf2[0] := 1;
+  factor.lowBits := 2;
+  
+  (* powerOf2[0] := 1; *)
+  powerOf2[0].highBits := 0;
+  powerOf2[0].lowBits := 1;
+  
+  (* powerOf2[index] := factor * powerOf2[index-1]; *)
   FOR index := 1 TO Bitwidth-1 DO
-    powerOf2[index] := powerOf2[index-1] * 2
+    Shl(powerOf2[index-1], 1, powerOf2[index]);
   END (* FOR *)
 END InitPow2Table;
 
@@ -1115,4 +1109,4 @@ END InitPow2Table;
 
 BEGIN
   InitPow2Table
-END INT64.
+END INT64T.
