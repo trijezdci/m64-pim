@@ -89,43 +89,55 @@ END FromLongCard;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT128.FromInt(i, res)
+ * Procedure: INT128.FromInt(i, res)
  * --------------------------------------------------------------------------
  * Passes the INT128T value of INTEGER i in res.
  * ----------------------------------------------------------------------- *)
-
 PROCEDURE FromInt ( i : INTEGER; VAR res : INT128T );
+VAR
+  ignore : Status;
 BEGIN
-  IF i < 0 THEN
-    res.highBits := (-1); (* sign extension *)
-    res.lowBits := 0 - VAL(LONGCARD, ABS(i)) (* complement *)
-  ELSE (* i >= 0 *)
-    res.highBits := 0;
+  IF i = MIN(INTEGER) THEN
+    res.highBits := -1;
+    (* 64-bit sign extension *)
+    res.lowBits := VAL(LONGCARD, VAL(LONGINT, i));
+    RETURN
+  END; (* IF *)
+  
+  res.highBits := 0;
+  IF i >= 0 THEN
     res.lowBits := VAL(LONGCARD, i)
+  ELSE
+    res.lowBits := VAL(LONGCARD, ABS(i));
+    TwosComplement(res, res, ignore)
   END (* IF *)
 END FromInt;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT128.FromLongInt(i, res)
+ * Procedure: INT128.FromLongInt(i, res)
  * --------------------------------------------------------------------------
  * Passes the INT128T value of LONGINT i in res.
  * ----------------------------------------------------------------------- *)
-
-PROCEDURE FromLongInt ( i : LONGINT;  VAR res : INT128T );
+PROCEDURE FromLongInt ( i : LONGINT; VAR res : INT128T );
+VAR
+  ignore : Status;
 BEGIN
-  IF i < 0 THEN
-    res.highBits := (-1); (* sign extension *)
-    IF i = MIN(LONGINT) THEN
-      res.lowBits := 08000000000000000H (* 2^63 *)
-    ELSE
-      res.lowBits := 0 - VAL(LONGCARD, ABS(i)) (* complement *)
-    END (* IF *)
-  ELSE (* i >= 0 *)
-    res.highBits := 0;
+  IF i = MIN(LONGINT) THEN
+    res.highBits := -1;
+    res.lowBits := 08000000000000000H; (* MIN(LONGINT) = -2^63 *)
+    RETURN
+  END; (* IF *)
+  
+  res.highBits := 0;
+  IF i >= 0 THEN
     res.lowBits := VAL(LONGCARD, i)
+  ELSE
+    res.lowBits := VAL(LONGCARD, ABS(i));
+    TwosComplement(res, res, ignore)
   END (* IF *)
 END FromLongInt;
+
 
 
 (* --------------------------------------------------------------------------
@@ -249,6 +261,7 @@ BEGIN
   END (* IF *)
 END ToLongInt;
 
+
 (* --------------------------------------------------------------------------
  * Function:  INT128.odd(i)
  * --------------------------------------------------------------------------
@@ -347,20 +360,10 @@ PROCEDURE Abs ( i : INT128T; VAR res : INT128T; VAR stat : Status );
 BEGIN
   IF i.highBits >= 0 THEN
     res := i;
-    stat := Success;
-    RETURN
-  ELSIF (i.highBits = MIN(LONGINT)) AND (i.lowBits = MAX(LONGCARD)) THEN
-    stat := Overflow;
-    RETURN
-  ELSE (* MIN(INT128T) < i < 0 *)
-    res.lowBits := 0 - i.lowBits; (* complement *)
-    IF i.lowBits = 0 THEN
-      res.highBits := -i.highBits
-    ELSE
-      res.highBits := -i.highBits - 1
-    END (* IF *)
-  END; (* IF *)
-  stat := Success
+    stat := Success
+  ELSE (* i is negative *)
+    TwosComplement( i, res, stat )
+  END
 END Abs;
 
 
@@ -372,19 +375,9 @@ END Abs;
 
 PROCEDURE Neg ( i : INT128T; VAR res : INT128T; VAR stat : Status );
 BEGIN
-  IF (i.highBits = MIN(LONGINT)) AND (i.lowBits = MAX(LONGCARD)) THEN
-    stat := Overflow; (* MIN(INT128T) has no positive counterpart *)
-    RETURN
-  ELSE
-    res.lowBits := 0 - i.lowBits; (* complement *)
-    IF i.lowBits = 0 THEN
-      res.highBits := -i.highBits
-    ELSE
-      res.highBits := -i.highBits - 1
-    END (* IF *)
-  END; (* IF *)
-  stat := Success
+  TwosComplement( i, res, stat )
 END Neg;
+
 
 (* --------------------------------------------------------------------------
  * Procedure:  INT128.Add(left, right, res, stat)
