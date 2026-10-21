@@ -1,4 +1,4 @@
-(*!m2pim*) (* Copyright (c) 2026 Modula-2 Software Foundation. *)
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
 
 IMPLEMENTATION MODULE INT128;
 
@@ -675,6 +675,30 @@ END AShr;
 (* **************************************************************************
  * P R I V A T E   P R O C E D U R E S
  * *********************************************************************** *)
+
+(* --------------------------------------------------------------------------
+ * Procedure: TwosComplement(i, res)
+ * --------------------------------------------------------------------------
+ * Computes the two's complement of i, passes result in res, status in stat.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE TwosComplement ( i : INT128T; VAR res : INT128T; VAR stat : Status );
+BEGIN
+  IF (n.highBits = MIN(LONGINT)) AND (n.lowBits = 0) THEN
+    stat := Overflow;
+    RETURN
+  END; (* IF *)
+  
+  stat := Success;
+  res.lowBits := MAX(LONGCARD) - i.lowBits + 1;
+  
+  IF res.lowBits = 0 THEN
+    res.highBits := 0 - i.highBits
+  ELSE (* borrow occurred *)
+    res.highBits := 0 - i.highBits - 1
+  END (* IF *)  
+END TwosComplement;
+
 
 (* --------------------------------------------------------------------------
  * Function:  sumOverflowsLC(n, m)
