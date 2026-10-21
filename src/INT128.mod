@@ -151,17 +151,17 @@ BEGIN
   IF i.highBits > 0 THEN
     stat := Overflow;
     RETURN
-  ELSIF i.highBits < 0 THEN
-    stat := Underflow;
-    RETURN
-  ELSE (* i.highBits = 0 *)
-    IF i.lowBits > VAL(LONGCARD, MAX(CARDINAL)) THEN
+  ELSIF i.highBits = 0 THEN
+    IF i.lowBits > 0FFFFFFFFH THEN
       stat := Overflow;
       RETURN
     ELSE (* in range *)
       res := VAL(CARDINAL, i.lowBits);
       stat := Success
-    END (* IF *)
+    END
+  ELSE (* i.highBits < 0 *)
+    stat := Underflow;
+    RETURN
   END (* IF *)
 END ToCard;
 
@@ -177,12 +177,12 @@ BEGIN
   IF i.highBits > 0 THEN
     stat := Overflow;
     RETURN
-  ELSIF i.highBits < 0 THEN
-    stat := Underflow;
-    RETURN
-  ELSE (* in range *)
+  ELSIF i.highBits = 0 THEN
     res := i.lowBits;
     stat := Success
+  ELSE (* i.highBits < 0 *)
+    stat := Underflow;
+    RETURN
   END (* IF *)
 END ToLongCard;
 
@@ -200,27 +200,32 @@ BEGIN
   IF i.highBits > 0 THEN
     stat := Overflow;
     RETURN
-  ELSIF i.highBits < (-1) THEN
-    stat := Underflow;
-    RETURN
-  ELSIF i.highBits = (-1) THEN
-    magnitude := (MAX(LONGCARD) - i.lowBits) + 1;
-    If magnitude > VAL(LONGCARD, ABS(MIN(INTEGER))) THEN
-      stat := Underflow;
-      RETURN
-    ELSE (* in range *)
-      res := -VAL(INTEGER, magnitude);
-      stat := Success
-    END (* IF *)
-  ELSE (* i.highBits = 0 *)
-    IF i.lowBits > VAL(LONGCARD, MAX(INTEGER)) THEN
+  ELSIF i.highBits = 0 THEN
+    IF i.lowBits > 07FFFFFFFH THEN
       stat := Overflow;
       RETURN
     ELSE (* in range *)
       res := VAL(INTEGER, i.lowBits);
       stat := Success
+    END
+  ELSIF i.highBits = (-1) THEN
+    IF i.lowBits = 0 THEN
+      stat := Underflow;
+      RETURN
+    ELSE
+      magnitude := (MAX(LONGCARD) - i.lowBits) + 1;
+      IF magnitude > 080000000H THEN
+        stat := Underflow;
+        RETURN
+      ELSE (* in range *)
+        res := - VAL(INTEGER, magnitude);
+        stat := Success
+      END (* IF *)
     END (* IF *)
-  END (* IF *)
+  ELSE (* i.highBits < (-1) *)
+    stat := Underflow;
+    RETURN
+  END (* IF *)   
 END ToInt;
 
 
@@ -231,33 +236,37 @@ END ToInt;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE ToLongInt ( i : INT128T; VAR res : LONGINT; VAR stat : Status );
+VAR
+  magnitude : LONGCARD;
 BEGIN
   IF i.highBits > 0 THEN
     stat := Overflow;
     RETURN
-  ELSIF i.highBits < (-1) THEN
-    stat := Underflow;
-    RETURN
-  ELSIF i.highBits = (-1) THEN
-    IF i.lowBits < (* MIN(LONGINT) *) 08000000000000000H THEN
-      stat := Underflow;
-      RETURN
-    ELSIF i.lowBits = (* MIN(LONGINT) *) 08000000000000000H THEN
-      res := MIN(LONGINT);
-      stat := Success
-    ELSE (* in range *)
-      (* res := MIN(LONGINT) + i.lowBits - MIN(LONGINT) => res := i.lowBits *)
-      res := MIN(LONGINT) + VAL(LONGINT, i.lowBits - 08000000000000000H);
-      stat := Success
-    END (* IF *)
-  ELSE (* i.highBits = 0 *)
-    IF i.lowBits > VAL(LONGCARD, MAX(LONGINT)) THEN
+  ELSIF i.highBits = 0 THEN
+    IF i.lowBits > 07FFFFFFFFFFFFFFFH THEN
       stat := Overflow;
       RETURN
     ELSE (* in range *)
       res := VAL(LONGINT, i.lowBits);
       stat := Success
     END (* IF *)
+  ELSIF i.highBits = (-1) THEN
+    IF i.lowBits = 0 THEN
+      stat := Underflow;
+      RETURN
+    ELSE
+      magnitude := (MAX(LONGCARD) - i.lowBits) + 1;
+      IF magnitude > 08000000000000000H THEN
+        stat := Underflow;
+        RETURN
+      ELSE (* in range *)
+        res := - VAL(LONGINT, magnitude);
+        stat := Success
+      END (* IF *)
+    END (* IF *)
+  ELSE (* i.highBits < (-1) *)
+    stat := Underflow;
+    RETURN
   END (* IF *)
 END ToLongInt;
 
@@ -576,54 +585,40 @@ END Mod;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT128.Shl(i, shift, res, stat)
+ * Procedure:  INT128.Shl(i, shift, res)
  * --------------------------------------------------------------------------
  * Shifts i left by shift bits. Passes result in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Shl ( i : INT128T; shift : CARDINAL; VAR res : INT128T; VAR stat : Status );
+PROCEDURE Shl ( i : INT128T; shift : CARDINAL; VAR res : INT128T );
 VAR
   s : CARDINAL;
-  carryBits : LONGCARD;
-  powS, powInv : LONGCARD;
-  isNegative : BOOLEAN;
+  powS, powInv, carryBits : LONGCARD;
 BEGIN
-  isNegative := i.highBits < 0;
   IF shift = 0 THEN
     res := i;
-    stat := Success;
     RETURN
   ELSIF shift >= 128 THEN
     res.highBits := 0;
     res.lowBits := 0;
-    IF (i.highBits # 0) OR (i.lowBits # 0) THEN
-      stat := Overflow
-    ELSE
-      stat := Success
-    END; (* IF *)
     RETURN
   ELSIF shift >= 64 THEN
+    res.lowBits := 0;
     s := shift - 64;
-    IF i.highBits # 0 THEN
-      stat := Overflow
+    IF s >= 64 THEN
+      res.highBits := 0
     ELSE
-      stat := Success
-    END; (* IF *)
-    powS := Pow2(s);
-    res.highBits := VAL(LONGINT, i.lowBits * powS);
-    res.lowBits := 0
+      powS := PowerOfTwo(s);
+      res.highBits := LONGINT(i.lowBits * powS)
+    END;
+    RETURN
   ELSE (* 1 <= shift < 64 *)
-    s := shift;
-    powS := Pow2(s);
-    powInv := Pow2(64 - s);
+    powS := PowerOfTwo(shift);
+    powInv := PowerOfTwo(64 - shift);
     carryBits := i.lowBits DIV powInv;
-    res.highBits := (i.highBits * VAL(LONGINT, powS)) + VAL(LONGINT, carryBits);
-    res.lowBits := i.lowBits * powS
-  END; (* IF *)
-  IF (res.highBits < 0) # isNegative THEN
-    stat := Overflow
-  ELSE
-    stat := Success
+    res.highBits := LONGINT((LONGCARD(i.highBits) * powS) + carryBits);
+    res.lowBits := i.lowBits * powS;
+    RETURN
   END (* IF *)
 END Shl;
 
@@ -637,8 +632,7 @@ END Shl;
 PROCEDURE AShr ( i : INT128T; shift : CARDINAL; VAR res : INT128T );
 VAR
   s : CARDINAL;
-  carryBits : LONGCARD;
-  powS, powInv : LONGCARD;
+  powS, powInv, carryBits, mask : LONGCARD;
 BEGIN
   IF shift = 0 THEN
     res := i;
@@ -646,29 +640,50 @@ BEGIN
   ELSIF shift >= 128 THEN
     IF i.highBits < 0 THEN
       res.highBits := -1;
-      res.lowBits := MAX(LONGCARD)
+      res.lowBits := 0FFFFFFFFFFFFFFFFH
     ELSE
       res.highBits := 0;
       res.lowBits := 0
-    END; (* IF *)
+    END;
     RETURN
   ELSIF shift >= 64 THEN
     s := shift - 64;
-    powS := Pow2(s);
-    IF i.highBits < 0 THEN
-      res.highBits := -1;
-      res.lowBits := VAL(LONGCARD, i.highBits DIV VAL(LONGINT, powS))
+    IF s >= 64 THEN
+      res.lowBits := 0
     ELSE
-      res.highBits := 0;
-      res.lowBits := VAL(LONGCARD, i.highBits) DIV powS
-    END (* IF *)
+      powS := PowerOfTwo(s);
+      IF i.highBits < 0 THEN
+        res.highBits := -1;
+        
+        (* compute mask to set high bits *)
+        res.lowBits := LONGCARD(i.highBits) DIV powS;
+        mask := 0FFFFFFFFFFFFFFFFH DIV powS;
+        mask := mask * powS;
+        res.lowBits := res.lowBits + (0FFFFFFFFFFFFFFFFH - mask)
+      ELSE
+        res.highBits := 0;
+        res.lowBits := LONGCARD(i.highBits) DIV powS
+      END
+    END;
+    RETURN
   ELSE (* 1 <= shift < 64 *)
-    s := shift;
-    powS := Pow2(s);
-    powInv := Pow2(64 - s);
-    carryBits := (VAL(LONGCARD, i.highBits) MOD powS) * powInv;
-    res.highBits := i.highBits DIV VAL(LONGINT, powS);
-    res.lowBits := (i.lowBits DIV powS) + carryBits
+    powS := PowerOfTwo(shift);
+    powInv := PowerOfTwo(64 - shift);
+    
+    carryBits := LONGCARD(i.highBits) MOD powS;
+    res.lowBits := (i.lowBits DIV powS) + (carryBits * powInv);
+    
+    IF i.highBits < 0 THEN
+      res.highBits := LONGINT(LONGCARD(i.highBits) DIV powS);
+      
+      (* compute mask to set high bits *)
+      mask := 0FFFFFFFFFFFFFFFFH DIV powS;
+      mask := mask * powS;
+      res.highBits := LONGINT(LONGCARD(res.highBits) + (0FFFFFFFFFFFFFFFFH - mask))
+    ELSE
+      res.highBits := LONGINT(LONGCARD(i.highBits) DIV powS)
+    END;
+    RETURN
   END (* IF *)
 END AShr;
 
@@ -723,7 +738,7 @@ PROCEDURE sumOverflowsLI ( i, j : LONGINT; carry : LONGCARD ) : BOOLEAN;
 VAR
   c : LONGINT;
 BEGIN
-  IF (i > 0) AND (j > 0) THEN
+  IF (i > 0) AND (j >= 0) THEN
     c := VAL(LONGINT, carry);
     (* test i+c > MAX(LONGINT) *)
     IF (i > (MAX(LONGINT) - c)) THEN
@@ -846,7 +861,7 @@ BEGIN
   IF ((i > 0) AND (j > 0)) OR ((i < 0) AND (j < 0)) THEN
     IF (i = MIN(LONGINT)) OR (j = MIN(LONGINT)) THEN
       RETURN TRUE
-    ELSE (* i # MIN(LONGINT) AND (j # MIN(LONGINE)) *)
+    ELSE (* i # MIN(LONGINT) AND (j # MIN(LONGINT)) *)
       IF i < 0 THEN absI := -i ELSE absI := i END;
       IF j < 0 THEN absJ := -j ELSE absJ := j END;
       RETURN absI > (MAX(LONGINT) DIV absJ)
@@ -946,12 +961,11 @@ END LongMul;
  * Logical shift right of i by shift bits. Passes result in res.
  * ----------------------------------------------------------------------- *)
 
+
 PROCEDURE Shr ( i : INT128T; shift : CARDINAL; VAR res : INT128T );
 VAR
   s : CARDINAL;
-  carryBits : LONGCARD;
-  powS, powInv : LONGCARD;
-  uHigh : LONGCARD;
+  powS, powInv, carryBits : LONGCARD;
 BEGIN
   IF shift = 0 THEN
     res := i;
@@ -961,18 +975,22 @@ BEGIN
     res.lowBits := 0;
     RETURN
   ELSIF shift >= 64 THEN
-    s := shift - 64;
-    powS := Pow2(s);
     res.highBits := 0;
-    res.lowBits := VAL(LONGCARD, i.highBits) DIV powS
+    s := shift - 64;
+    IF s >= 64 THEN
+      res.lowBits := 0
+    ELSE
+      powS := PowerOfTwo(s);
+      res.lowBits := LONGCARD(i.highBits) DIV powS
+    END;
+    RETURN
   ELSE (* 1 <= shift < 64 *)
-    s := shift;
-    powS := Pow2(s);
-    powInv := Pow2(64 - s);
-    uHigh := VAL(LONGCARD, i.highBits);
-    carryBits := (uHigh MOD powS) * powInv;
-    res.highBits := VAL(LONGINT, uHigh DIV powS);
-    res.lowBits := (i.lowBits DIV powS) + carryBits
+    powS := PowerOfTwo(shift);
+    powInv := PowerOfTwo(64 - shift);
+    carryBits := LONGCARD(i.highBits) MOD powS;
+    res.highBits := LONGINT(LONGCARD(i.highBits) DIV powS);
+    res.lowBits := (i.lowBits DIV powS) + (carryBits * powInv);
+    RETURN
   END (* IF *)
 END Shr;
 
@@ -1074,7 +1092,6 @@ END Pow2;
 PROCEDURE InitPow2Table;
 
 VAR
-  stat : Status;
   index : CARDINAL;
 
 BEGIN
@@ -1086,7 +1103,7 @@ BEGIN
   
   (* powerOf2[index] := factor * powerOf2[index-1]; *)
   FOR index := 1 TO Bitwidth-1 DO
-    Shl(powerOf2[index-1], 1, powerOf2[index], stat);
+    Shl(powerOf2[index-1], 1, powerOf2[index]);
   END (* FOR *)
 END InitPow2Table;
 
