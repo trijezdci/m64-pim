@@ -16,6 +16,14 @@ TYPE Status = ( Success, Underflow, Overflow, DivByZero );
 
 
 (* --------------------------------------------------------------------------
+ * bit width
+ * ----------------------------------------------------------------------- *)
+
+CONST
+  Bitwidth = TSIZE(INT128T);
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  INT128.SetZero(res)
  * --------------------------------------------------------------------------
  * Passes the INT128T value of zero in res.
@@ -977,33 +985,31 @@ END Shr;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  DivMod(left, right, quot, rem, stat)
+ * Procedure:  DivMod(i, j, quot, rem, stat)
  * --------------------------------------------------------------------------
  * Passes quotient and remainder in quot and rem respectively.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE DivMod ( left, right : INT128T; VAR quot, rem : INT128T; VAR stat : Status );
+PROCEDURE DivMod ( i, j : INT128T; VAR quot, rem : INT128T; VAR stat : Status );
 VAR
-  bit : CARDINAL;
-  zero128 : INT128T;
-  tempStat : Status;
+  bitIndex : CARDINAL;
+  zero : INT128T;
+  ignore : Status;
 BEGIN
-  SetZero(zero128);
-  IF eq(right, zero128) THEN
+  SetZero(zero);
+  IF eq(j, zero) THEN
     stat := DivByZero;
-    SetZero(quot);
-    SetZero(rem);
     RETURN
   END; (* IF *)
 
-  IF lt(left, right) THEN
+  IF lt(i, j) THEN
     SetZero(quot);
-    rem := left;
+    rem := i;
     stat := Success;
     RETURN
   END; (* IF *)
 
-  IF eq(left, right) THEN
+  IF eq(i, j) THEN
     FromCard(1, quot);
     SetZero(rem);
     stat := Success;
@@ -1013,29 +1019,29 @@ BEGIN
   SetZero(quot);
   SetZero(rem);
 
-  bit := 128;
+  bitIndex := Bitwidth;
   REPEAT
-    DEC(bit);
-    Shl(rem, 1, rem, tempStat);
-    IF bit >= 64 THEN
-      IF (VAL(LONGCARD, left.highBits) DIV Pow2(bit - 64)) MOD 2 = 1 THEN
+    DEC(bitIndex);
+    Shl(rem, 1, rem, ignore);
+    IF bitIndex >= 64 THEN
+      IF (VAL(LONGCARD, i.highBits) DIV Pow2(bitIndex - 64)) MOD 2 = 1 THEN
         rem.lowBits := rem.lowBits + 1
-      END; (* IF *)
+      END (* IF *)
     ELSE
-      IF (left.lowBits DIV Pow2(bit)) MOD 2 = 1 THEN
+      IF (i.lowBits DIV Pow2(bitIndex)) MOD 2 = 1 THEN
         rem.lowBits := rem.lowBits + 1
-      END; (* IF *)
+      END (* IF *)
     END; (* IF *)
 
-    IF gteq(rem, right) THEN
-      Sub(rem, right, rem, tempStat);
-      IF bit >= 64 THEN
-        quot.highBits := quot.highBits + VAL(LONGINT, Pow2(bit - 64))
+    IF gteq(rem, j) THEN
+      Sub(rem, j, rem, ignore);
+      IF bitIndex >= 64 THEN
+        quot.highBits := quot.highBits + VAL(LONGINT, Pow2(bitIndex - 64))
       ELSE
-        quot.lowBits := quot.lowBits + Pow2(bit)
+        quot.lowBits := quot.lowBits + Pow2(bitIndex)
       END (* IF *)
     END (* IF *)
-  UNTIL bit = 0;
+  UNTIL bitIndex = 0;
 
   stat := Success
 END DivMod;
@@ -1044,9 +1050,6 @@ END DivMod;
 (* --------------------------------------------------------------------------
  * Data table for powers of 2
  * ----------------------------------------------------------------------- *)
-
-CONST
-  Bitwidth = TSIZE(INT128T);
 
 VAR
   powerOf2 : ARRAY [0..Bitwidth-1] OF INT128T;
@@ -1065,7 +1068,7 @@ BEGIN
     res := powerOf2[n];
   ELSE
     stat := Overflow;
-  END; (* IF *)
+  END (* IF *)
 END Pow2;
 
 
