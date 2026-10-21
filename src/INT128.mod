@@ -757,7 +757,7 @@ BEGIN
   IF (i < 0) AND (j < 0) THEN
     c := VAL(LONGINT, carry);
     (* test i+j+c < MIN(LONGINT) *)
-    RETURN (i + c) > (MIN(LONGINT) - j))
+    RETURN (i + c) < (MIN(LONGINT) - j)
   ELSE (* (i >= 0) OR (j >= 0) *)
     RETURN FALSE
   END (* IF *)
