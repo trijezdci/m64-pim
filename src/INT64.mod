@@ -89,6 +89,27 @@ END FromLongCard;
 
 
 (* --------------------------------------------------------------------------
+* Procedure: INT64.FromCard64(n, res, stat)
+* --------------------------------------------------------------------------
+* Converts unsigned 64-bit CARD64T n to signed INT64T res.
+* ----------------------------------------------------------------------- *)
+PROCEDURE FromCard64 ( n : CARD64T; VAR res : INT64T; VAR stat : Status );
+BEGIN
+  (* any CARD64T value with the high bit set overflows INT64T *)
+  IF n.highBits > 07FFFFFFFH THEN
+    stat := Overflow;
+    res.highBits := 0;
+    res.lowBits := 0;
+    RETURN
+  ELSE
+    res.highBits := VAL(LONGINT, n.highBits);
+    res.lowBits := n.lowBits;
+    stat := Success
+  END
+END FromCard64;
+
+
+(* --------------------------------------------------------------------------
  * Procedure: INT64T.FromInt(i, res)
  * --------------------------------------------------------------------------
  * Passes the INT64T value of INTEGER i in res.
@@ -185,6 +206,28 @@ BEGIN
     RETURN
   END (* IF *)
 END ToLongCard;
+
+
+(* --------------------------------------------------------------------------
+* Procedure: INT64.ToCard64(i, res, stat)
+* --------------------------------------------------------------------------
+* Converts signed INT64T i to unsigned CARD64T res.
+* ----------------------------------------------------------------------- *)
+
+PROCEDURE ToCard64 ( i : INT64T; VAR res : CARD64T; VAR stat : Status );
+BEGIN
+  (* any negative INT64T value underflows CARD64T *)
+  IF i.highBits < 0 THEN
+    stat := Underflow;
+    res.highBits := 0;
+    res.lowBits := 0;
+    RETURN
+  ELSE
+    res.highBits := VAL(LONGCARD, i.highBits);
+    res.lowBits := i.lowBits;
+    stat := Success
+  END
+END ToCard64;
 
 
 (* --------------------------------------------------------------------------
