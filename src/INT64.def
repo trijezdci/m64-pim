@@ -52,7 +52,7 @@ PROCEDURE SetZero ( VAR res : INT64T );
 (* --------------------------------------------------------------------------
  * Procedure:  INT64.SetMax(res)
  * --------------------------------------------------------------------------
- * Passes the largest value of type INT64T (0x7FFFFFFFFFFFFFFF) in res.
+ * Passes the largest value of type INT64T (0x7FFFFFFF) in res.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE SetMax ( VAR res : INT64T );
@@ -61,7 +61,7 @@ PROCEDURE SetMax ( VAR res : INT64T );
 (* --------------------------------------------------------------------------
  * Procedure:  INT64.SetMin(res)
  * --------------------------------------------------------------------------
- * Passes the smallest value of type INT64T (0x8000000000000000) in res.
+ * Passes the smallest value of type INT64T (0x80000000) in res.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE SetMin ( VAR res : INT64T );
