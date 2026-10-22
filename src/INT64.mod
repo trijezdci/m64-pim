@@ -1134,9 +1134,7 @@ PROCEDURE InitPow2Table;
 VAR
   index : CARDINAL;
 
-BEGIN
-  factor.lowBits := 2;
-  
+BEGIN  
   (* powerOf2[0] := 1; *)
   powerOf2[0].highBits := 0;
   powerOf2[0].lowBits := 1;

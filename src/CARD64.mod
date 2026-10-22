@@ -104,11 +104,11 @@ END ToCard;
 
 PROCEDURE ToLongCard ( n : CARD64T; VAR res : LONGCARD; VAR stat : Status );
 BEGIN
-  IF c.highBits # 0 THEN
+  IF n.highBits # 0 THEN
     stat := Overflow;
     RETURN
   ELSE
-    res := c.lowBits;
+    res := n.lowBits;
     stat := Success
   END (* IF *)
 END ToLongCard;
@@ -122,7 +122,7 @@ END ToLongCard;
 
 PROCEDURE odd ( n : CARD64T ) : BOOLEAN;
 BEGIN
-  RETURN ODD(c.lowBits)
+  RETURN ODD(n.lowBits)
 END odd;
 
 
@@ -458,9 +458,7 @@ PROCEDURE InitPow2Table;
 VAR
   index : CARDINAL;
 
-BEGIN
-  factor.lowBits := 2;
-  
+BEGIN  
   (* powerOf2[0] := 1; *)
   powerOf2[0].highBits := 0;
   powerOf2[0].lowBits := 1;
