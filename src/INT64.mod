@@ -365,7 +365,7 @@ END ltEq;
  * Passes the absolute value of i in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Abs ( i : INT128T; VAR res : INT64T; VAR stat : Status );
+PROCEDURE Abs ( i : INT64T; VAR res : INT64T; VAR stat : Status );
 BEGIN
   IF i.highBits >= 0 THEN
     res := i;
@@ -389,7 +389,7 @@ END Neg;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT128.Add(left, right, res, stat)
+ * Procedure:  INT64.Add(left, right, res, stat)
  * --------------------------------------------------------------------------
  * Passes the sum left + right in res.
  * ----------------------------------------------------------------------- *)
@@ -597,23 +597,23 @@ BEGIN
   IF shift = 0 THEN
     res := i;
     RETURN
-  ELSIF shift >= 128 THEN
+  ELSIF shift >= 64 THEN
     res.highBits := 0;
     res.lowBits := 0;
     RETURN
-  ELSIF shift >= 64 THEN
+  ELSIF shift >= 32 THEN
     res.lowBits := 0;
-    s := shift - 64;
-    IF s >= 64 THEN
+    s := shift - 32;
+    IF s >= 32 THEN
       res.highBits := 0
     ELSE
       powS := PowerOfTwo(s);
       res.highBits := LONGINT(i.lowBits * powS)
     END;
     RETURN
-  ELSE (* 1 <= shift < 64 *)
+  ELSE (* 1 <= shift < 32 *)
     powS := PowerOfTwo(shift);
-    powInv := PowerOfTwo(64 - shift);
+    powInv := PowerOfTwo(32 - shift);
     carryBits := i.lowBits DIV powInv;
     res.highBits := LONGINT((LONGCARD(i.highBits) * powS) + carryBits);
     res.lowBits := i.lowBits * powS;
@@ -636,18 +636,18 @@ BEGIN
   IF shift = 0 THEN
     res := i;
     RETURN
-  ELSIF shift >= 128 THEN
+  ELSIF shift >= 64 THEN
     IF i.highBits < 0 THEN
       res.highBits := -1;
-      res.lowBits := 0FFFFFFFFHINT64T
+      res.lowBits := 0FFFFFFFFH
     ELSE
       res.highBits := 0;
       res.lowBits := 0
     END;
     RETURN
-  ELSIF shift >= 64 THEN
-    s := shift - 64;
-    IF s >= 64 THEN
+  ELSIF shift >= 32 THEN
+    s := shift - 32;
+    IF s >= 32 THEN
       res.lowBits := 0
     ELSE
       powS := PowerOfTwo(s);
@@ -656,7 +656,7 @@ BEGIN
         
         (* compute mask to set high bits *)
         res.lowBits := LONGCARD(i.highBits) DIV powS;
-        mask := 0FFFFFFFFINT64TH DIV powS;
+        mask := 0FFFFFFFFH DIV powS;
         mask := mask * powS;
         res.lowBits := res.lowBits + (0FFFFFFFFH - mask)
       ELSE
@@ -665,9 +665,9 @@ BEGIN
       END
     END;
     RETURN
-  ELSE (* 1 <= shift < 64 *)
+  ELSE (* 1 <= shift < 32 *)
     powS := PowerOfTwo(shift);
-    powInv := PowerOfTwo(64 - shift);
+    powInv := PowerOfTwo(32 - shift);
     
     carryBits := LONGCARD(i.highBits) MOD powS;
     res.lowBits := (i.lowBits DIV powS) + (carryBits * powInv);
@@ -969,23 +969,23 @@ BEGIN
   IF shift = 0 THEN
     res := i;
     RETURN
-  ELSIF shift >= 128 THEN
+  ELSIF shift >= 64 THEN
     res.highBits := 0;
     res.lowBits := 0;
     RETURN
-  ELSIF shift >= 64 THEN
+  ELSIF shift >= 32 THEN
     res.highBits := 0;
-    s := shift - 64;
-    IF s >= 64 THEN
+    s := shift - 32;
+    IF s >= 32 THEN
       res.lowBits := 0
     ELSE
       powS := PowerOfTwo(s);
       res.lowBits := LONGCARD(i.highBits) DIV powS
     END;
     RETURN
-  ELSE (* 1 <= shift < 64 *)
+  ELSE (* 1 <= shift < 32 *)
     powS := PowerOfTwo(shift);
-    powInv := PowerOfTwo(64 - shift);
+    powInv := PowerOfTwo(32 - shift);
     carryBits := LONGCARD(i.highBits) MOD powS;
     res.highBits := LONGINT(LONGCARD(i.highBits) DIV powS);
     res.lowBits := (i.lowBits DIV powS) + (carryBits * powInv);
@@ -1003,7 +1003,7 @@ END Shr;
 PROCEDURE DivMod ( i, j : INT64T; VAR quot, rem : INT64T; VAR stat : Status );
 VAR
   bitIndex : CARDINAL;
-  zero : INT128T;
+  zero : INT64T;
   ignore : Status;
 BEGIN
   SetZero(zero);
