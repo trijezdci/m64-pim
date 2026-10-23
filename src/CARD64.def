@@ -39,6 +39,15 @@ PROCEDURE SetZero ( VAR res : CARD64T );
 
 
 (* --------------------------------------------------------------------------
+ * Procedure:  CARD64.SetOne(res)
+ * --------------------------------------------------------------------------
+ * Passes the CARD64T value of 1 in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE SetOne ( VAR res : CARD64T );
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  CARD64.SetMax(res)
  * --------------------------------------------------------------------------
  * Passes the largest value of type CARD64T (0xFFFFFFFFFFFFFFFF) in res.
@@ -81,6 +90,33 @@ PROCEDURE ToCard ( c : CARD64T; VAR res : CARDINAL; VAR stat : Status );
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE ToLongCard ( n : CARD64T; VAR res : LONGCARD; VAR stat : Status );
+
+
+(* --------------------------------------------------------------------------
+ * Function:  CARD64T.isZero(value)
+ * --------------------------------------------------------------------------
+ * Returns TRUE if value is 0, otherwise FALSE.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE isZero( n : CARD64T ) : BOOLEAN;
+
+
+(* --------------------------------------------------------------------------
+ * Function:  CARD64T.isOne(value)
+ * --------------------------------------------------------------------------
+ * Returns TRUE if value is 1, otherwise FALSE.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE IsOne( n : CARD64T ) : BOOLEAN;
+
+
+(* --------------------------------------------------------------------------
+ * Function:  CARD64T.isMax(value)
+ * --------------------------------------------------------------------------
+ * Returns TRUE if value is MAX(CARD64T), otherwise FALSE.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE isMax( n : CARD64T ) : BOOLEAN;
 
 
 (* --------------------------------------------------------------------------
@@ -192,12 +228,12 @@ PROCEDURE Mod ( left, right : CARD64T; VAR res : CARD64T; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  CARD64.Shl(n, shift, res, stat)
+ * Procedure:  CARD64.Shl(n, shift, res)
  * --------------------------------------------------------------------------
  * Shifts n left by shift bits. Passes result in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Shl ( n : CARD64T; shift : CARDINAL; VAR res : CARD64T; VAR stat : Status );
+PROCEDURE Shl ( n : CARD64T; shift : CARDINAL; VAR res : CARD64T );
 
 
 (* --------------------------------------------------------------------------
