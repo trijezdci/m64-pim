@@ -53,22 +53,9 @@ END SetOne;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64T.SetMax(res)
+ * Procedure:  INT64.SetMin(res)
  * --------------------------------------------------------------------------
- * Passes the largest value of type INT64T in res.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE SetMax ( VAR res : INT64T );
-BEGIN
-  res.highBits := MAX(LONGINT); (* 0x7FFFFFFF *)
-  res.lowBits := MAX(LONGCARD)  (* 0xFFFFFFFF *)
-END SetMax;
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  INT64T.SetMin(res)
- * --------------------------------------------------------------------------
- * Passes the smallest value of type INT64T in res.
+ * Passes the smallest value of type INT64T (0x80000000:0x00000000) in res.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE SetMin ( VAR res : INT64T );
@@ -76,6 +63,19 @@ BEGIN
   res.highBits := MIN(LONGINT); (* 0x80000000 *)
   res.lowBits := 0              (* 0x00000000 *)
 END SetMin;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  INT64.SetMax(res)
+ * --------------------------------------------------------------------------
+ * Passes the largest value of type INT64T (0x7FFFFFFF:0xFFFFFFFF) in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE SetMax ( VAR res : INT64T );
+BEGIN
+  res.highBits := MAX(LONGINT); (* 0x7FFFFFFF *)
+  res.lowBits := MAX(LONGCARD)  (* 0xFFFFFFFF *)
+END SetMax;
 
 
 (* --------------------------------------------------------------------------

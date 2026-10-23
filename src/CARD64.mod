@@ -52,13 +52,13 @@ END SetOne;
 (* --------------------------------------------------------------------------
  * Procedure:  CARD64.SetMax(res)
  * --------------------------------------------------------------------------
- * Passes the largest value of type CARD64T (0xFFFFFFFFFFFFFFFF) in res.
+ * Passes the largest value of type CARD64T (0xFFFFFFFF:0xFFFFFFFF) in res.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE SetMax ( VAR res : CARD64T );
 BEGIN
-  res.highBits := MAX(LONGCARD);
-  res.lowBits := MAX(LONGCARD)
+  res.highBits := MAX(LONGCARD); (* 0xFFFFFFFF *)
+  res.lowBits := MAX(LONGCARD)   (* 0xFFFFFFFF *)
 END SetMax;
 
 
