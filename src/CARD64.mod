@@ -37,6 +37,19 @@ END SetZero;
 
 
 (* --------------------------------------------------------------------------
+ * Procedure:  CARD64.SetOne(res)
+ * --------------------------------------------------------------------------
+ * Passes the CARD64T value of 1 in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE SetOne ( VAR res : CARD64T );
+BEGIN
+  res.highBits := 0;
+  res.lowBits := 1
+END SetOne;
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  CARD64.SetMax(res)
  * --------------------------------------------------------------------------
  * Passes the largest value of type CARD64T (0xFFFFFFFFFFFFFFFF) in res.
@@ -112,6 +125,42 @@ BEGIN
     stat := Success
   END (* IF *)
 END ToLongCard;
+
+
+(* --------------------------------------------------------------------------
+ * Function:  CARD64T.isZero(value)
+ * --------------------------------------------------------------------------
+ * Returns TRUE if value is 0, otherwise FALSE.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE isZero( n : CARD64T ) : BOOLEAN;
+BEGIN
+  RETURN (n.highBits = 0) AND (n.lowBits = 0)
+END isZero;
+
+
+(* --------------------------------------------------------------------------
+ * Function:  CARD64T.isOne(value)
+ * --------------------------------------------------------------------------
+ * Returns TRUE if value is 1, otherwise FALSE.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE IsOne( n : CARD64T ) : BOOLEAN;
+BEGIN
+  RETURN (i.highBits = 0) AND (i.lowBits = 1)
+END isOne;
+
+
+(* --------------------------------------------------------------------------
+ * Function:  CARD64T.isMax(value)
+ * --------------------------------------------------------------------------
+ * Returns TRUE if value is MAX(CARD64T), otherwise FALSE.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE isMax( n : CARD64T ) : BOOLEAN;
+BEGIN
+  RETURN (n.highBits = 0FFFFFFFFH) AND (n.lowBits = 0FFFFFFFFH)
+END isMax;
 
 
 (* --------------------------------------------------------------------------

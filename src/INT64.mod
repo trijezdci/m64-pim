@@ -5,6 +5,9 @@ IMPLEMENTATION MODULE INT64;
 (* 64-bit Integer Type *)
 
 
+IMPORT CARD64;
+FROM CARD64 IMPORT CARD64T;
+
 (*
 TYPE INT64T = RECORD
   highBits : LONGINT;
@@ -34,6 +37,19 @@ BEGIN
   res.highBits := 0;
   res.lowBits := 0
 END SetZero;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  INT64T.SetOne(res)
+ * --------------------------------------------------------------------------
+ * Passes the INT64T value of 1 in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE SetOne ( VAR res : INT64T );
+BEGIN
+  res.highBits := 0;
+  res.lowBits := 1
+END SetOne;
 
 
 (* --------------------------------------------------------------------------
@@ -333,7 +349,7 @@ END isZero;
 
 PROCEDURE isOne( i : INT64T ) : BOOLEAN;
 BEGIN
-  RETURN (i.highBits = 0H) AND (i.lowBits = 1)
+  RETURN (i.highBits = 0) AND (i.lowBits = 1)
 END isOne;
 
 
@@ -347,6 +363,18 @@ PROCEDURE isMin( i : INT64T ) : BOOLEAN;
 BEGIN
   RETURN (i.highBits = 080000000H) AND (i.lowBits = 0)
 END isMin;
+
+
+(* --------------------------------------------------------------------------
+ * Function:  INT64.isMax(value)
+ * --------------------------------------------------------------------------
+ * Returns TRUE if value is MAX(INT64), otherwise FALSE.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE isMax( i : INT64T ) : BOOLEAN;
+BEGIN
+  RETURN (i.highBits = 07FFFFFFFH) AND (i.lowBits = 0FFFFFFFFH)
+END isMax;
 
 
 (* --------------------------------------------------------------------------
@@ -1029,53 +1057,6 @@ BEGIN
     RETURN FALSE
   END (* IF *)
 END prodUnderflowsLI;
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  LongMul(i, j, res, stat)
- * --------------------------------------------------------------------------
- * Returns the long multiplication product i * j in res.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE LongMul ( i, j : INT64T; VAR res : INT64T; VAR stat : Status );
-VAR
-  resIsNegative : BOOLEAN;
-  absI, absJ, prod : INT64T;
-  tempStat : Status;
-BEGIN
-  resIsNegative := (i.highBits < 0) # (j.highBits < 0);
-
-  Abs(i, absI, stat);
-  IF stat # Success THEN RETURN END;
-
-  Abs(j, absJ, stat);
-  IF stat # Success THEN RETURN END;
-
-  SetZero(prod);
-
-  WHILE (absJ.lowBits # 0) OR (absJ.highBits # 0) DO
-    IF ODD(absJ.lowBits) THEN
-      Add(prod, absI, prod, stat);
-      IF stat # Success THEN
-        IF resIsNegative THEN
-          stat := Underflow
-        ELSE
-          stat := Overflow
-        END; (* IF *)
-        RETURN
-      END (* IF *)
-    END; (* IF *)
-    Shl(absI, 1, absI, tempStat);
-    Shr(absJ, 1, absJ)
-  END; (* WHILE *)
-
-  IF resIsNegative THEN
-    Neg(prod, res, stat)
-  ELSE
-    res := prod;
-    stat := Success
-  END (* IF *)
-END LongMul;
 
 
 (* --------------------------------------------------------------------------
