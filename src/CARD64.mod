@@ -290,9 +290,11 @@ BEGIN
   END; (* IF *)
 
   IF left.highBits > (MAX(LONGCARD) - right.highBits) THEN
-    stat := Overflow
+    stat := Overflow;
+    RETURN
   ELSIF (carry = 1) AND (left.highBits + right.highBits = MAX(LONGCARD)) THEN
-    stat := Overflow
+    stat := Overflow;
+    RETURN
   ELSE
     stat := Success
   END; (* IF *)
@@ -315,8 +317,6 @@ VAR
 BEGIN
   IF lt(left, right) THEN
     stat := Overflow;
-    res.highBits := 0;
-    res.lowBits := 0;
     RETURN
   END; (* IF *)
 
@@ -441,10 +441,10 @@ END Pow2;
 (* --------------------------------------------------------------------------
  * Procedure:  CARD64.Log2(n, res, stat)
  * --------------------------------------------------------------------------
- * the integral part of the logarithm of 2 for argument n in res.
+ * the integral part of the binary logarithm of n in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Log2 ( n : CARDINAL; VAR res : CARD64T; stat : Status );
+PROCEDURE Log2 ( n : CARD64T; VAR res : CARD64T; VAR stat : Status );
 BEGIN
   IF isZero(n) THEN
     stat := DivByZero;
@@ -470,7 +470,7 @@ END Log2;
 PROCEDURE Shl ( n : CARD64T; shift : CARDINAL; VAR res : CARD64T );
 VAR
   s : CARDINAL;
-  powS, powInv, carryBits : LONGCARD;
+  p, powS, powInv, carryBits : LONGCARD;
 BEGIN
   IF shift = 0 THEN
     res := n;
@@ -482,14 +482,27 @@ BEGIN
   ELSIF shift >= 32 THEN
     res.lowBits := 0;
     s := shift - 32;
-    powS := powerOf2[s];
+    powS := powerOf2[s].lowBits;
+    IF prodOverflowsLC(n.lowBits, powS) THEN
+      stat := Overflow;
+      RETURN
+    END; (* IF *)
     res.highBits := n.lowBits * powS;
     RETURN
   ELSE (* 1 <= shift < 32 *)
-    powS := powerOf2(shift);
-    powInv := powerOfT2(32 - shift);
+    powS := powerOf2[shift].lowBits;
+    powInv := powerOf2[32 - shift].lowBits;
     carryBits := n.lowBits DIV powInv;
-    res.highBits := n.highBits * powS + carryBits;
+    IF prodOverflowsLC(n.highBits, powS) THEN
+      stat := Overflow;
+      RETURN
+    END; (* IF *)
+    p := n.highBits * powS;
+    IF sumOverflowsLC(p, carryBits) THEN
+      stat := Overflow;
+      RETURN
+    END; (* IF *)
+    res.highBits := p + carryBits;
     res.lowBits := n.lowBits * powS;
     RETURN
   END (* IF *)
@@ -536,17 +549,19 @@ END Shr;
  * *********************************************************************** *)
 
 (* --------------------------------------------------------------------------
- * Procedure: TwosComplement(n, res)
+ * Procedure: TwosComplement(n, res, stat)
  * --------------------------------------------------------------------------
  * Computes the two's complement of n, passes result in res, status in stat.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE TwosComplement ( n : CARD64T; VAR res : CARD64T; VAR stat : Status );
 VAR
-  maxCard64 : CARD64T;
+  one, maxCard64 : CARD64T;
 BEGIN
+  SetOne(one);
   SetMax(maxCard64);
-  Sub(maxCard64, n, res, stat)
+  Sub(maxCard64, n, res, stat);
+  Add(res, one, res, stat);
 END TwosComplement;
 
 
@@ -563,19 +578,20 @@ END sumOverflowsLC;
 
 
 (* --------------------------------------------------------------------------
- * Function:  sumOverflowsC64(n, m)
+ * Function:  sumOverflows(n, m)
  * --------------------------------------------------------------------------
  * Returns TRUE if the sum of n and m would overflow CARD64T, else FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE sumOverflowsC64 ( n, m : CARD64T ) : BOOLEAN;
+PROCEDURE sumOverflows ( n, m : CARD64T ) : BOOLEAN;
 VAR
+  ignore : Status;
   diff, maxCard64 : CARD64T;
 BEGIN
   SetMax(maxCard64);
-  Sub(maxCard64, m, diff);
+  Sub(maxCard64, m, diff, ignore);
   RETURN gt(n, diff)
-END sumOverflowsC64;
+END sumOverflows;
 
 
 (* --------------------------------------------------------------------------
@@ -603,7 +619,7 @@ END prodOverflowsLC;
 PROCEDURE prodOverflows ( n, m : CARD64T ) : BOOLEAN;
 BEGIN
   (* If both upper 32-bit cardinal words are populated, the product overflows *)
-  IF (n.lowBits # 0) AND (m.highBits # 0) THEN
+  IF (n.highBits # 0) AND (m.highBits # 0) THEN
     RETURN TRUE
   END;
 
@@ -704,7 +720,7 @@ END CrossProdMul;
 (* --------------------------------------------------------------------------
  * Procedure:  DivMod(n, m, quot, rem)
  * --------------------------------------------------------------------------
- * Passes quotient and remainder in quot and rem.  Remainder must not be 0.
+ * Passes quotient and remainder in quot and rem.  Divisor must not be zero.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE DivMod ( n, m : CARD64T; VAR quot, rem : CARD64T );
@@ -760,7 +776,7 @@ BEGIN
 
   denLen := 4;
   WHILE v[denLen-1] = 0 DO
-    DEC(numLen)
+    DEC(denLen)
   END; (* WHILE *)
 
   FOR i := 0 TO 3 DO
@@ -873,8 +889,7 @@ BEGIN
   quot.lowBits := q[0] + q[1] * Base;
   quot.highBits := q[2] + q[3] * Base;
   rem.lowBits := r[0] + r[1] * Base;
-  rem.highBits := r[2] + r[3] * Base;
-  stat := Success
+  rem.highBits := r[2] + r[3] * Base
 END DivMod;
 
 
