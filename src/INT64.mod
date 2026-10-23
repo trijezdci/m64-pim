@@ -160,7 +160,6 @@ BEGIN
 END FromLongInt;
 
 
-
 (* --------------------------------------------------------------------------
  * Procedure:  INT64T.ToCard(i, res, stat)
  * --------------------------------------------------------------------------
@@ -312,6 +311,42 @@ BEGIN
     RETURN
   END (* IF *)
 END ToLongInt;
+
+
+(* --------------------------------------------------------------------------
+ * Function:  INT64.isZero(value)
+ * --------------------------------------------------------------------------
+ * Returns TRUE if value is 0, otherwise FALSE.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE isZero( i : INT64T ) : BOOLEAN;
+BEGIN
+  RETURN (i.highBits = 0) AND (i.lowBits = 0)
+END isZero;
+
+
+(* --------------------------------------------------------------------------
+ * Function:  INT64.isOne(value)
+ * --------------------------------------------------------------------------
+ * Returns TRUE if value is 1, otherwise FALSE.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE isOne( i : INT64T ) : BOOLEAN;
+BEGIN
+  RETURN (i.highBits = 0H) AND (i.lowBits = 1)
+END isOne;
+
+
+(* --------------------------------------------------------------------------
+ * Function:  INT64.isMin(value)
+ * --------------------------------------------------------------------------
+ * Returns TRUE if value is MIN(INT64), otherwise FALSE.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE isMin( i : INT64T ) : BOOLEAN;
+BEGIN
+  RETURN (i.highBits = 080000000H) AND (i.lowBits = 0)
+END isMin;
 
 
 (* --------------------------------------------------------------------------
@@ -535,24 +570,70 @@ END Sub;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64T.Mul(left, right, res, stat)
+ * Procedure:  INT64.Mul(left, right, res, stat)
  * --------------------------------------------------------------------------
- * Passes the product left * right in res.
+ * Passes the product left * right in res, status in stat.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Mul ( left, right : INT64T; VAR res : INT64T; VAR stat : Status );
+VAR
+  resIsNegative : BOOLEAN;
+  absLeft, absRight : INT64T;
+  cardLeft, cardRight, cardProd : CARD64T;
 BEGIN
-  IF (left.highBits = 0) AND (left.lowBits = 0) THEN
+  (* left = 0 OR right = 0 *)
+  IF ((left.highBits = 0) AND (left.lowBits = 0)) OR 
+     ((right.highBits = 0) AND (right.lowBits = 0)) THEN
     SetZero(res);
     stat := Success;
     RETURN
   END; (* IF *)
-  IF (right.highBits = 0) AND (right.lowBits = 0) THEN
-    SetZero(res);
+      
+  (* left = MIN(INT64T) AND right = 1 *)
+  IF isMin(left) AND isOne(right) THEN
+    res := left;
     stat := Success;
     RETURN
   END; (* IF *)
-  LongMul(left, right, res, stat)
+  
+  (* right = MIN(INT64T) AND left = 1 *)
+  IF isMin(right) AND isOne(left) THEN
+    res := right;
+    stat := Success;
+    RETURN
+  END; (* IF *)
+  
+  resIsNegative := (left.highBits < 0) # (right.highBits < 0);
+  
+  Abs(left, absLeft, stat);
+  IF stat # Success THEN RETURN END;
+  Abs(right, absRight, stat);
+  IF stat # Success THEN RETURN END;
+
+  ToCard64(absLeft, cardLeft, stat);
+  ToCard64(absRight, cardRight, stat);
+
+  CARD64.Mul(cardLeft, cardRight, cardProd, stat);
+  IF stat # Success THEN RETURN END;
+
+  IF resIsNegative THEN
+    IF (cardProd.highBits > 080000000H) OR 
+       ((cardProd.highBits = 080000000H) AND (cardProd.lowBits # 0)) THEN
+      stat := Underflow
+      RETURN
+    ELSE
+      FromCard64(cardProd, res, stat);
+      Neg(res, res, stat)
+    END (* IF *)
+  ELSE (* not negative *)
+    IF cardProd.highBits > 07FFFFFFFH THEN
+      stat := Overflow
+      RETURN
+    ELSE
+      FromCard64(cardProd, res, stat);
+      stat := Success
+    END (* IF *)
+  END (* IF *)
 END Mul;
 
 

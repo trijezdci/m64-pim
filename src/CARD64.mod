@@ -292,8 +292,20 @@ END Sub;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Mul ( left, right : CARD64T; VAR res : CARD64T; VAR stat : Status );
+VAR
+  prod : CARD64T;
 BEGIN
-
+  IF ((left.highBits = 0) AND (left.lowBits = 0)) OR 
+     ((right.highBits = 0) AND (right.lowBits = 0)) THEN
+    SetZero(res);
+    stat := Success;
+    RETURN;
+  END; (* IF *)
+  
+  CrossProdMul(left, right, prod, stat);
+  IF stat = Success THEN
+    res := prod
+  END (* IF *)
 END Mul;
 
 
@@ -455,15 +467,109 @@ END prodOverflowsLC;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  LongMul(n, m, res, stat)
+ * Function:  prodOverflows(n, m)
  * --------------------------------------------------------------------------
- * Returns the long multiplication product n * m in res.
+ * Returns TRUE if the product n * m would overflow CARD64T, else FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE LongMul ( n, m : CARD64T; VAR res : CARD64T; VAR stat : Status );
+PROCEDURE prodOverflows ( n, m : CARD64T ) : BOOLEAN;
 BEGIN
+  (* If both upper 32-bit cardinal words are populated, the product overflows *)
+  IF (n.lowBits # 0) AND (m.highBits # 0) THEN
+    RETURN TRUE
+  END;
 
-END LongMul;
+  IF (m.highBits # 0) AND (n.lowBits > (MAX(LONGCARD) DIV m.highBits)) THEN
+    RETURN TRUE
+  END;
+  
+  IF (n.highBits # 0) AND (m.lowBits > (MAX(LONGCARD) DIV n.highBits)) THEN
+    RETURN TRUE
+  END; (*IF *)
+  
+  RETURN FALSE
+END prodOverflows;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure: CrossProdMulLC(n, m, res)
+ * --------------------------------------------------------------------------
+ * Calculates the LONGCARD product n * m, using cross product multiplication,
+ * passes the result in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE CrossProdMulLC ( n, m : LONGCARD; VAR res : CARD64T );
+VAR
+  sumOfLHandHL, carry,
+  nLow, nHigh, mLow, mHigh,
+  prodLL, prodLH, prodHL, prodHH : LONGCARD;
+BEGIN
+  (* Split 32-bit factors into 16-bit halves *)
+  nLow  := n MOD 010000H;
+  nHigh := n DIV 010000H;
+  mLow  := m MOD 010000H;
+  mHigh := m DIV 010000H;
+
+  (* Calculate 16-bit cross products *)
+  prodLL := nLow * mLow;
+  prodLH := nLow * mHigh;
+  prodHL := nHigh * mLow;
+  prodHH := nHigh * mHigh;
+
+  (* LH + HL *)
+  sumOfLHandHL := prodLH + prodHL;
+  IF sumOfLHandHL < prodLH THEN
+    carry := 010000H;
+  ELSE
+    carry := 0;
+  END;
+
+  (* nLow * mLow + nLow * mHigh + nHigh * mLow *)
+  res.lowBits := prodLL + ((sumOfLHandHL MOD 010000H) * 010000H);
+  IF res.lowBits < prodLL THEN
+    carry := carry + 1
+  END; (* IF *)
+  
+  res.highBits := prodHH + (sumOfLHandHL DIV 010000H) + carry;
+END CrossProdMulLC;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure: CrossProdMul ( n, m, res, stat )
+ * --------------------------------------------------------------------------
+ * Calculates the LONGCARD product n * m, using cross product multiplication,
+ * passes the result in res, and the status in stat.
+ * ----------------------------------------------------------------------- *)
+PROCEDURE CrossProdMul ( n, m : CARD64T; VAR res : CARD64T; VAR stat : Status );
+VAR
+  prodLH, prodHL, resHigh : LONGCARD;
+  prodLL : CARD64T;
+BEGIN
+  IF prodOverflows(n, m) THEN
+    stat := Overflow;
+    RETURN
+  END; (* IF *)
+  
+  prodLH := n.lowBits * m.highBits;
+  prodHL := n.highBits * m.lowBits;
+  CrossProdMulLC(n.lowBits, m.lowBits, prodLL);
+
+  IF (MAX(LONGCARD) - prodLL.highBits) < prodLH THEN
+    stat := Overflow;
+    RETURN;
+  END; (* IF *)
+  resHigh := prodLL.highBits + prodLH;
+
+  IF (MAX(LONGCARD) - resHigh) < prodHL THEN
+    stat := Overflow;
+    RETURN;
+  END;
+  resHigh := resHigh + prodHL;
+
+  res.lowBits  := prodLL.lowBits;
+  res.highBits := resHigh;
+  stat         := Success;
+END CrossProdMul;
 
 
 (* --------------------------------------------------------------------------
