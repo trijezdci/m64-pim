@@ -355,8 +355,11 @@ END Shr;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE TwosComplement ( n : CARD64T; VAR res : CARD64T; VAR stat : Status );
+VAR
+  maxCard64 : CARD64T;
 BEGIN
-
+  SetMax(maxCard64);
+  Sub(maxCard64, n, res, stat)
 END TwosComplement;
 
 
@@ -373,15 +376,19 @@ END sumOverflowsLC;
 
 
 (* --------------------------------------------------------------------------
- * Function:  diffUnderflowsLC(n, m, borrow)
+ * Function:  sumOverflowsC64(n, m)
  * --------------------------------------------------------------------------
- * Returns TRUE if i-j-borrow would underflow LONGRACE, otherwise FALSE.
+ * Returns TRUE if the sum of n and m would overflow CARD64T, else FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE diffUnderflowsLC ( n, m : LONGINT; borrow : LONGCARD ) : BOOLEAN;
+PROCEDURE sumOverflowsC64 ( n, m : CARD64T ) : BOOLEAN;
+VAR
+  diff, maxCard64 : CARD64T;
 BEGIN
-
-END diffUnderflowsLC;
+  SetMax(maxCard64);
+  Sub(maxCard64, m, diff);
+  RETURN gt(n, diff)
+END sumOverflowsC64;
 
 
 (* --------------------------------------------------------------------------
