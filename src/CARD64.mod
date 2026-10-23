@@ -327,9 +327,33 @@ END Mod;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Shl ( n : CARD64T; shift : CARDINAL; VAR res : CARD64T );
+VAR
+  s : CARDINAL;
+  powS, powInv, carryBits : LONGCARD;
 BEGIN
-
+  IF shift = 0 THEN
+    res := n;
+    RETURN
+  ELSIF shift >= 64 THEN
+    res.highBits := 0;
+    res.lowBits := 0;
+    RETURN
+  ELSIF shift >= 32 THEN
+    res.lowBits := 0;
+    s := shift - 32;
+    powS := PowerOfTwo(s);
+    res.highBits := n.lowBits * powS;
+    RETURN
+  ELSE (* 1 <= shift < 32 *)
+    powS := PowerOfTwo(shift);
+    powInv := PowerOfTwo(32 - shift);
+    carryBits := n.lowBits DIV powInv;
+    res.highBits := n.highBits * powS + carryBits;
+    res.lowBits := n.lowBits * powS;
+    RETURN
+  END (* IF *)
 END Shl;
+
 
 
 (* --------------------------------------------------------------------------
@@ -339,8 +363,31 @@ END Shl;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Shr ( n : CARD64T; shift : CARDINAL; VAR res : CARD64T );
+VAR
+  s : CARDINAL;
+  powS, powInv, carryBits : LONGCARD;
 BEGIN
-
+  IF shift = 0 THEN
+    res := n;
+    RETURN
+  ELSIF shift >= 64 THEN
+    res.highBits := 0;
+    res.lowBits := 0;
+    RETURN
+  ELSIF shift >= 32 THEN
+    res.highBits := 0;
+    s := shift - 32;
+    powS := PowerOfTwo(s);
+    res.lowBits := n.highBits DIV powS;
+    RETURN
+  ELSE (* 1 <= shift < 32 *)
+    powS := PowerOfTwo(shift);
+    powInv := PowerOfTwo(32 - shift);
+    carryBits := n.highBits MOD powS;
+    res.highBits := n.highBits DIV powS;
+    res.lowBits := (n.lowBits DIV powS) + (carryBits * powInv);
+    RETURN
+  END (* IF *)
 END Shr;
 
 
