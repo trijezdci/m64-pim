@@ -181,7 +181,7 @@ PROCEDURE isZero( i : INT64T ) : BOOLEAN;
  * Returns TRUE if value is 1, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE IsOne( i : INT64T ) : BOOLEAN;
+PROCEDURE isOne( i : INT64T ) : BOOLEAN;
 
 
 (* --------------------------------------------------------------------------

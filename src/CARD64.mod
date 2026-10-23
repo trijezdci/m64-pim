@@ -128,7 +128,7 @@ END ToLongCard;
 
 
 (* --------------------------------------------------------------------------
- * Function:  CARD64T.isZero(value)
+ * Function:  CARD64.isZero(value)
  * --------------------------------------------------------------------------
  * Returns TRUE if value is 0, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
@@ -140,19 +140,19 @@ END isZero;
 
 
 (* --------------------------------------------------------------------------
- * Function:  CARD64T.isOne(value)
+ * Function:  CARD64.isOne(value)
  * --------------------------------------------------------------------------
  * Returns TRUE if value is 1, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE IsOne ( n : CARD64T ) : BOOLEAN;
+PROCEDURE isOne ( n : CARD64T ) : BOOLEAN;
 BEGIN
-  RETURN (i.highBits = 0) AND (i.lowBits = 1)
+  RETURN (n.highBits = 0) AND (n.lowBits = 1)
 END isOne;
 
 
 (* --------------------------------------------------------------------------
- * Function:  CARD64T.isMax(value)
+ * Function:  CARD64.isMax(value)
  * --------------------------------------------------------------------------
  * Returns TRUE if value is MAX(CARD64T), otherwise FALSE.
  * ----------------------------------------------------------------------- *)
@@ -365,9 +365,29 @@ END Mul;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Div ( left, right : CARD64T; VAR res : CARD64T; VAR stat : Status );
+VAR
+  ignore : CARD64T;
 BEGIN
-
+  IF isZero(right) THEN
+    stat := DivByZero;
+    RETURN
+  END; (* IF *)
+    
+  IF isZero(left) THEN
+    res := left
+  ELSIF isOne(right) THEN
+    res := left
+  ELSIF isOne(left) THEN
+    SetZero(res)
+  ELSIF eq(left, right) THEN
+    SetOne(res)
+  ELSE
+    DivMod(left, right, res, ignore)
+  END; (* IF *)
+  
+  stat := Success
 END Div;
+
 
 (* --------------------------------------------------------------------------
  * Procedure:  CARD64.Mod(left, right, res, stat)
@@ -376,8 +396,27 @@ END Div;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Mod ( left, right : CARD64T; VAR res : CARD64T; VAR stat : Status );
+VAR
+  ignore : CARD64T;
 BEGIN
-
+  IF isZero(right) THEN
+    stat := DivByZero;
+    RETURN
+  END; (* IF *)
+    
+  IF isZero(left) THEN
+    res := left
+  ELSIF isOne(right) THEN
+    SetZero(res)
+  ELSIF isOne(left) THEN
+    res := left
+  ELSIF eq(left, right) THEN
+    SetZero(res)
+  ELSE
+    DivMod(left, right, ignore, res)
+  END; (* IF *)
+  
+  stat := Success
 END Mod;
 
 
@@ -414,7 +453,6 @@ BEGIN
     RETURN
   END (* IF *)
 END Shl;
-
 
 
 (* --------------------------------------------------------------------------
@@ -589,6 +627,7 @@ END CrossProdMulLC;
  * Calculates the LONGCARD product n * m, using cross product multiplication,
  * passes the result in res, and the status in stat.
  * ----------------------------------------------------------------------- *)
+
 PROCEDURE CrossProdMul ( n, m : CARD64T; VAR res : CARD64T; VAR stat : Status );
 VAR
   prodLH, prodHL, resHigh : LONGCARD;
@@ -622,14 +661,179 @@ END CrossProdMul;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  DivMod(n, m, quot, rem, stat)
+ * Procedure:  DivMod(n, m, quot, rem)
  * --------------------------------------------------------------------------
- * Passes quotient and remainder in quot and rem respectively.
+ * Passes quotient and remainder in quot and rem.  Remainder must not be 0.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE DivMod ( n, m : CARD64T; VAR quot, rem : CARD64T; VAR stat : Status );
-BEGIN
+PROCEDURE DivMod ( n, m : CARD64T; VAR quot, rem : CARD64T );
 
+(* Implements Knuth's Algorithm D (TAoCP Vol 2, 4.3.1) with digit base 2^16,
+ * so that every intermediate product and sum fits into a 32-bit LONGCARD.
+ * Digit arrays are little endian: index 0 is the least significant digit. *)
+
+CONST
+  Base = 010000H; (* 2^16 *)
+
+VAR
+  u, v, q, r : ARRAY [0..3] OF LONGCARD; (* dividend, divisor, quot, rem *)
+  un : ARRAY [0..4] OF LONGCARD;         (* normalised dividend, 1 extra *)
+  vn : ARRAY [0..3] OF LONGCARD;         (* normalised divisor *)
+  numLen, denLen, i, j, k : CARDINAL;
+  qhat, rhat, cur, prod, carry, borrow, mulS, divS, vTop : LONGCARD;
+  done : BOOLEAN;
+
+BEGIN
+  (* dividend < divisor *)
+  IF lt(n, m) THEN
+    rem := n;
+    SetZero(quot);
+    RETURN
+  END; (* IF *)
+
+  (* both operands fit into 32 bits *)
+  IF (n.highBits = 0) AND (m.highBits = 0) THEN
+    quot.highBits := 0;
+    quot.lowBits := n.lowBits DIV m.lowBits;
+    rem.highBits := 0;
+    rem.lowBits := n.lowBits MOD m.lowBits;
+    RETURN
+  END; (* IF *)
+
+  (* split into 16-bit digits *)
+  u[0] := n.lowBits MOD Base;
+  u[1] := n.lowBits DIV Base;
+  u[2] := n.highBits MOD Base;
+  u[3] := n.highBits DIV Base;
+
+  v[0] := m.lowBits MOD Base;
+  v[1] := m.lowBits DIV Base;
+  v[2] := m.highBits MOD Base;
+  v[3] := m.highBits DIV Base;
+
+  (* count significant digits; n >= m > 0 here so both loops terminate *)
+  numLen := 4;
+  WHILE u[numLen-1] = 0 DO
+    DEC(numLen)
+  END; (* WHILE *)
+
+  denLen := 4;
+  WHILE v[denLen-1] = 0 DO
+    DEC(numLen)
+  END; (* WHILE *)
+
+  FOR i := 0 TO 3 DO
+    q[i] := 0;
+    r[i] := 0
+  END; (* FOR *)
+
+  IF denLen = 1 THEN
+    (* single-digit divisor: short division *)
+    rhat := 0;
+    FOR i := 0 TO numLen-1 DO
+      j := numLen - 1 - i;
+      cur := rhat * Base + u[j];
+      q[j] := cur DIV v[0];
+      rhat := cur MOD v[0]
+    END; (* FOR *)
+    r[0] := rhat
+
+  ELSE
+    (* D1: normalise so that the top divisor digit is >= Base/2 *)
+    mulS := 1;
+    vTop := v[denLen-1];
+    WHILE vTop < 08000H DO
+      vTop := vTop * 2;
+      mulS := mulS * 2
+    END; (* WHILE *)
+    divS := Base DIV mulS;
+
+    vn[0] := (v[0] * mulS) MOD Base;
+    FOR i := 1 TO denLen-1 DO
+      vn[i] := (v[i] * mulS) MOD Base + v[i-1] DIV divS
+    END; (* FOR *)
+
+    un[0] := (u[0] * mulS) MOD Base;
+    FOR i := 1 TO numLen-1 DO
+      un[i] := (u[i] * mulS) MOD Base + u[i-1] DIV divS
+    END; (* FOR *)
+    un[numLen] := u[numLen-1] DIV divS;
+
+    (* D2: loop over quotient digits, most significant first *)
+    FOR k := 0 TO numLen-denLen DO
+      j := numLen - denLen - k;
+
+      (* D3: estimate quotient digit *)
+      cur := un[j+denLen] * Base + un[j+denLen-1];
+      qhat := cur DIV vn[denLen-1];
+      rhat := cur MOD vn[denLen-1];
+      done := FALSE;
+      WHILE NOT done DO
+        (* short-circuit evaluation guarantees no 32-bit overflow *)
+        IF (qhat >= Base) OR
+           (qhat * vn[denLen-2] > Base * rhat + un[j+denLen-2]) THEN
+          qhat := qhat - 1;
+          rhat := rhat + vn[denLen-1];
+          done := rhat >= Base
+        ELSE
+          done := TRUE
+        END (* IF *)
+      END; (* WHILE *)
+
+      (* D4: multiply and subtract: un[j..j+denLen] -= qhat * vn *)
+      carry := 0;
+      borrow := 0;
+      FOR i := 0 TO denLen-1 DO
+        prod := qhat * vn[i] + carry;
+        carry := prod DIV Base;
+        prod := prod MOD Base + borrow;
+        IF un[i+j] >= prod THEN
+          un[i+j] := un[i+j] - prod;
+          borrow := 0
+        ELSE
+          un[i+j] := un[i+j] + Base - prod;
+          borrow := 1
+        END (* IF *)
+      END; (* FOR *)
+
+      prod := carry + borrow;
+      IF un[j+denLen] >= prod THEN
+        un[j+denLen] := un[j+denLen] - prod;
+        borrow := 0
+      ELSE
+        un[j+denLen] := un[j+denLen] + Base - prod;
+        borrow := 1
+      END; (* IF *)
+
+(* D5/D6: borrow out of the top digit means the subtraction underflowed,
+   ie. qhat was one too large. Decrement qhat and add divisor back,
+   which wraps the window around to the correct remainder. *)
+      IF borrow = 1 THEN
+        qhat := qhat - 1;
+        carry := 0;
+        FOR i := 0 TO denLen-1 DO
+          cur := un[i+j] + vn[i] + carry;
+          un[i+j] := cur MOD Base;
+          carry := cur DIV Base
+        END; (* FOR *)
+        un[j+denLen] := (un[j+denLen] + carry) MOD Base
+      END; (* IF *)
+
+      q[j] := qhat
+    END; (* FOR *)
+
+    (* D8: denormalise remainder *)
+    FOR i := 0 TO denLen-1 DO
+      r[i] := un[i] DIV mulS + (un[i+1] MOD mulS) * divS
+    END (* FOR *)
+  END; (* IF *)
+
+  (* pass result *)
+  quot.lowBits := q[0] + q[1] * Base;
+  quot.highBits := q[2] + q[3] * Base;
+  rem.lowBits := r[0] + r[1] * Base;
+  rem.highBits := r[2] + r[3] * Base;
+  stat := Success
 END DivMod;
 
 

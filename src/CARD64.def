@@ -93,7 +93,7 @@ PROCEDURE ToLongCard ( n : CARD64T; VAR res : LONGCARD; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------
- * Function:  CARD64T.isZero(value)
+ * Function:  CARD64.isZero(value)
  * --------------------------------------------------------------------------
  * Returns TRUE if value is 0, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
@@ -102,16 +102,16 @@ PROCEDURE isZero ( n : CARD64T ) : BOOLEAN;
 
 
 (* --------------------------------------------------------------------------
- * Function:  CARD64T.isOne(value)
+ * Function:  CARD64.isOne(value)
  * --------------------------------------------------------------------------
  * Returns TRUE if value is 1, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE IsOne ( n : CARD64T ) : BOOLEAN;
+PROCEDURE isOne ( n : CARD64T ) : BOOLEAN;
 
 
 (* --------------------------------------------------------------------------
- * Function:  CARD64T.isMax(value)
+ * Function:  CARD64.isMax(value)
  * --------------------------------------------------------------------------
  * Returns TRUE if value is MAX(CARD64T), otherwise FALSE.
  * ----------------------------------------------------------------------- *)
