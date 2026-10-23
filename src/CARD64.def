@@ -228,6 +228,24 @@ PROCEDURE Mod ( left, right : CARD64T; VAR res : CARD64T; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------
+ * Procedure:  CARD64.Pow2(n, res, stat)
+ * --------------------------------------------------------------------------
+ * Passes the n-th power of 2 in res, status in stat.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Pow2 ( n : CARDINAL; VAR res : CARD64T; stat : Status );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  CARD64.Log2(n, res, stat)
+ * --------------------------------------------------------------------------
+ * the integral part of the logarithm of 2 for argument n in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Log2 ( n : CARDINAL; VAR res : CARD64T; stat : Status );
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  CARD64.Shl(n, shift, res)
  * --------------------------------------------------------------------------
  * Shifts n left by shift bits. Passes result in res.

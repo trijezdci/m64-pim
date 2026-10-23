@@ -421,6 +421,47 @@ END Mod;
 
 
 (* --------------------------------------------------------------------------
+ * Procedure:  CARD64.Pow2(n, res, stat)
+ * --------------------------------------------------------------------------
+ * Passes the n-th power of 2 in res, status in stat.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Pow2 ( n : CARDINAL; VAR res : CARD64T; VAR stat : Status );
+BEGIN
+  IF n >= Bitwidth THEN
+    stat := Overflow;
+    RETURN
+  END; (* IF *)
+  
+  res := powerOf2[n];
+  stat := Success
+END Pow2;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  CARD64.Log2(n, res, stat)
+ * --------------------------------------------------------------------------
+ * the integral part of the logarithm of 2 for argument n in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Log2 ( n : CARDINAL; VAR res : CARD64T; stat : Status );
+BEGIN
+  IF isZero(n) THEN
+    stat := DivByZero;
+    RETURN
+  END; (* IF *)
+
+  IF n.highBits # 0 THEN
+    res := 32 + log2LC(n.highBits)
+  ELSE
+    res := log2LC(n.lowBits)
+  END; (* IF *)
+
+  stat := Success
+END Log2;
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  CARD64.Shl(n, shift, res)
  * --------------------------------------------------------------------------
  * Shifts n left by shift bits. Passes result in res.
@@ -441,12 +482,12 @@ BEGIN
   ELSIF shift >= 32 THEN
     res.lowBits := 0;
     s := shift - 32;
-    powS := PowerOfTwo(s);
+    powS := powerOf2[s];
     res.highBits := n.lowBits * powS;
     RETURN
   ELSE (* 1 <= shift < 32 *)
-    powS := PowerOfTwo(shift);
-    powInv := PowerOfTwo(32 - shift);
+    powS := powerOf2(shift);
+    powInv := powerOfT2(32 - shift);
     carryBits := n.lowBits DIV powInv;
     res.highBits := n.highBits * powS + carryBits;
     res.lowBits := n.lowBits * powS;
@@ -476,12 +517,12 @@ BEGIN
   ELSIF shift >= 32 THEN
     res.highBits := 0;
     s := shift - 32;
-    powS := PowerOfTwo(s);
+    powS := powerOf2(s);
     res.lowBits := n.highBits DIV powS;
     RETURN
   ELSE (* 1 <= shift < 32 *)
-    powS := PowerOfTwo(shift);
-    powInv := PowerOfTwo(32 - shift);
+    powS := powerOf2(shift);
+    powInv := powerOf2(32 - shift);
     carryBits := n.highBits MOD powS;
     res.highBits := n.highBits DIV powS;
     res.lowBits := (n.lowBits DIV powS) + (carryBits * powInv);
@@ -838,26 +879,51 @@ END DivMod;
 
 
 (* --------------------------------------------------------------------------
+ * Function: log2LC(n)
+ * --------------------------------------------------------------------------
+ * Returns the integral part of the base-2 logarithm of non-zero n.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE log2LC ( n : LONGCARD ) : CARDINAL;
+VAR
+  res : CARDINAL;
+BEGIN
+  res := 0;
+
+  IF n >= 010000H THEN
+    n := n DIV 010000H;
+    res := res + 16
+  END; (* IF *)
+
+  IF n >= 0100H THEN
+    n := n DIV 0100H;
+    res := res + 8
+  END; (* IF *)
+
+  IF n >= 010H THEN
+    n := n DIV 010H;
+    res := res + 4
+  END; (* IF *)
+
+  IF n >= 04H THEN
+    n := n DIV 04H;
+    res := res + 2
+  END; (* IF *)
+
+  IF n >= 02H THEN
+    res := res + 1
+  END; (* IF *)
+
+  RETURN res
+END log2LC;
+
+
+(* --------------------------------------------------------------------------
  * Data table for powers of 2
  * ----------------------------------------------------------------------- *)
 
 VAR
   powerOf2 : ARRAY [0..Bitwidth-1] OF CARD64T;
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  Pow2(n, res)
- * --------------------------------------------------------------------------
- * Passes the n-th power of 2 in res.  No result if n >= Bitwidth.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE Pow2 ( n : CARDINAL; VAR res : CARD64T; );
-BEGIN
-  IF n < Bitwidth THEN
-    stat := Success;
-    res := powerOf2[n]
-  END (* IF *)
-END Pow2;
 
 
 (* --------------------------------------------------------------------------
@@ -867,18 +933,23 @@ END Pow2;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE InitPow2Table;
-
 VAR
   index : CARDINAL;
-
-BEGIN  
-  (* powerOf2[0] := 1; *)
+BEGIN
   powerOf2[0].highBits := 0;
   powerOf2[0].lowBits := 1;
-  
-  (* powerOf2[index] := factor * powerOf2[index-1]; *)
-  FOR index := 1 TO Bitwidth-1 DO
-    Shl(powerOf2[index-1], 1, powerOf2[index]);
+
+  FOR index := 1 TO 31 DO
+    powerOf2[index].highBits := 0;
+    powerOf2[index].lowBits := powerOf2[index-1].lowBits * 2
+  END; (* FOR *)
+
+  powerOf2[32].highBits := 1;
+  powerOf2[32].lowBits := 0;
+
+  FOR index := 33 TO 63 DO
+    powerOf2[index].highBits := powerOf2[index-1].highBits * 2;
+    powerOf2[index].lowBits := 0
   END (* FOR *)
 END InitPow2Table;
 
