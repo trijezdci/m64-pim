@@ -335,7 +335,7 @@ END ToLongInt;
  * Returns TRUE if value is 0, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE isZero( i : INT64T ) : BOOLEAN;
+PROCEDURE isZero ( i : INT64T ) : BOOLEAN;
 BEGIN
   RETURN (i.highBits = 0) AND (i.lowBits = 0)
 END isZero;
@@ -347,7 +347,7 @@ END isZero;
  * Returns TRUE if value is 1, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE isOne( i : INT64T ) : BOOLEAN;
+PROCEDURE isOne ( i : INT64T ) : BOOLEAN;
 BEGIN
   RETURN (i.highBits = 0) AND (i.lowBits = 1)
 END isOne;
@@ -359,9 +359,9 @@ END isOne;
  * Returns TRUE if value is MIN(INT64), otherwise FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE isMin( i : INT64T ) : BOOLEAN;
+PROCEDURE isMin ( i : INT64T ) : BOOLEAN;
 BEGIN
-  RETURN (i.highBits = MAX(LONGCARD) DIV 2 + 1) AND (i.lowBits = 0)
+  RETURN (i.highBits = MIN(LONGINT)) AND (i.lowBits = 0)
 END isMin;
 
 
@@ -371,9 +371,9 @@ END isMin;
  * Returns TRUE if value is MAX(INT64), otherwise FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE isMax( i : INT64T ) : BOOLEAN;
+PROCEDURE isMax ( i : INT64T ) : BOOLEAN;
 BEGIN
-  RETURN (i.highBits = MIN(LONGINT)) AND (i.lowBits = MAX(LONGCARD))
+  RETURN (i.highBits = MAX(LONGINT)) AND (i.lowBits = MAX(LONGCARD))
 END isMax;
 
 
