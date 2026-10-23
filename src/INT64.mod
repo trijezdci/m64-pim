@@ -60,8 +60,8 @@ END SetOne;
 
 PROCEDURE SetMax ( VAR res : INT64T );
 BEGIN
-  res.highBits := MAX(LONGINT); (* 0x7FFFFFFF:FFFFFFFF *)
-  res.lowBits := MAX(LONGCARD)  (* 0xFFFFFFFF:FFFFFFFF *)
+  res.highBits := MAX(LONGINT); (* 0x7FFFFFFF *)
+  res.lowBits := MAX(LONGCARD)  (* 0xFFFFFFFF *)
 END SetMax;
 
 
@@ -73,8 +73,8 @@ END SetMax;
 
 PROCEDURE SetMin ( VAR res : INT64T );
 BEGIN
-  res.highBits := MIN(LONGINT); (* 0x7FFFFFFF *)
-  res.lowBits := MAX(LONGCARD)  (* 0xFFFFFFFF *)
+  res.highBits := MIN(LONGINT); (* 0x80000000 *)
+  res.lowBits := 0              (* 0x00000000 *)
 END SetMin;
 
 
