@@ -112,7 +112,7 @@ END FromLongCard;
 PROCEDURE FromCard64 ( n : CARD64T; VAR res : INT64T; VAR stat : Status );
 BEGIN
   (* any CARD64T value with the high bit set overflows INT64T *)
-  IF n.highBits > 07FFFFFFFH THEN
+  IF n.highBits > (MAX(LONGCARD) DIV 2) THEN
     stat := Overflow;
     res.highBits := 0;
     res.lowBits := 0;
@@ -162,7 +162,7 @@ VAR
 BEGIN
   IF i = MIN(LONGINT) THEN
     res.highBits := -1;
-    res.lowBits := 080000000H; (* MIN(LONGINT) = -2^31 *)
+    res.lowBits := 080000000H; (* equivalent to MIN(LONGINT) = -2^31 *)
     RETURN
   END; (* IF *)
   
@@ -188,7 +188,7 @@ BEGIN
     stat := Overflow;
     RETURN
   ELSIF i.highBits = 0 THEN
-    IF i.lowBits > 0FFFFFFFFH THEN
+    IF i.lowBits > MAX(CARDINAL) THEN
       stat := Overflow;
       RETURN
     ELSE (* in range *)
@@ -259,7 +259,7 @@ BEGIN
     stat := Overflow;
     RETURN
   ELSIF i.highBits = 0 THEN
-    IF i.lowBits > 07FFFFFFFH THEN
+    IF i.lowBits > (MAX(CARDINAL) DIV 2) THEN
       stat := Overflow;
       RETURN
     ELSE (* in range *)
@@ -301,7 +301,7 @@ BEGIN
     stat := Overflow;
     RETURN
   ELSIF i.highBits = 0 THEN
-    IF i.lowBits > 07FFFFFFFH THEN
+    IF i.lowBits > (MAX(LONGCARD) DIV 2) THEN
       stat := Overflow;
       RETURN
     ELSE (* in range *)
@@ -373,7 +373,7 @@ END isMin;
 
 PROCEDURE isMax( i : INT64T ) : BOOLEAN;
 BEGIN
-  RETURN (i.highBits = 07FFFFFFFH) AND (i.lowBits = 0FFFFFFFFH)
+  RETURN (i.highBits = MIN(LONGINT)) AND (i.lowBits = MAX(LONGCARD))
 END isMax;
 
 
@@ -654,7 +654,7 @@ BEGIN
       Neg(res, res, stat)
     END (* IF *)
   ELSE (* not negative *)
-    IF cardProd.highBits > 07FFFFFFFH THEN
+    IF cardProd.highBits > (MAX(LONGCARD) DIV 2) THEN
       stat := Overflow
       RETURN
     ELSE
@@ -723,7 +723,7 @@ BEGIN
   Abs(right, absRight, stat);
   IF stat # Success THEN RETURN END;
 
-  DivMod128(absLeft, absRight, quot, rem, stat);
+  DivMod(absLeft, absRight, quot, rem, stat);
   IF stat # Success THEN RETURN END;
 
   IF leftIsNeg THEN
@@ -791,7 +791,7 @@ BEGIN
   ELSIF shift >= 64 THEN
     IF i.highBits < 0 THEN
       res.highBits := -1;
-      res.lowBits := 0FFFFFFFFH
+      res.lowBits := MAX(LONGCARD)
     ELSE
       res.highBits := 0;
       res.lowBits := 0
@@ -808,9 +808,9 @@ BEGIN
         
         (* compute mask to set high bits *)
         res.lowBits := LONGCARD(i.highBits) DIV powS;
-        mask := 0FFFFFFFFH DIV powS;
+        mask := MAX(LONGCARD) DIV powS;
         mask := mask * powS;
-        res.lowBits := res.lowBits + (0FFFFFFFFH - mask)
+        res.lowBits := res.lowBits + (MAX(LONGCARD) - mask)
       ELSE
         res.highBits := 0;
         res.lowBits := LONGCARD(i.highBits) DIV powS
@@ -830,7 +830,7 @@ BEGIN
       (* compute mask to set high bits *)
       mask := 0FFFFFFFFH DIV powS;
       mask := mask * powS;
-      res.highBits := LONGINT(LONGCARD(res.highBits) + (0FFFFFFFFH - mask))
+      res.highBits := LONGINT(LONGCARD(res.highBits) + (MAX(LONGCARD) - mask))
     ELSE
       res.highBits := LONGINT(LONGCARD(i.highBits) DIV powS)
     END;
