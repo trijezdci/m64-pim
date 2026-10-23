@@ -73,8 +73,8 @@ END SetMax;
 
 PROCEDURE SetMin ( VAR res : INT64T );
 BEGIN
-  res.highBits := MIN(LONGINT); (* 0x7FFFFFFF:FFFFFFFF *)
-  res.lowBits := MAX(LONGCARD)  (* 0xFFFFFFFF:FFFFFFFF *)
+  res.highBits := MIN(LONGINT); (* 0x7FFFFFFF *)
+  res.lowBits := MAX(LONGCARD)  (* 0xFFFFFFFF *)
 END SetMin;
 
 
@@ -112,7 +112,7 @@ END FromLongCard;
 PROCEDURE FromCard64 ( n : CARD64T; VAR res : INT64T; VAR stat : Status );
 BEGIN
   (* any CARD64T value with the high bit set overflows INT64T *)
-  IF n.highBits > (MAX(LONGCARD) DIV 2) THEN
+  IF n.highBits > MAX(LONGCARD) DIV 2 THEN
     stat := Overflow;
     res.highBits := 0;
     res.lowBits := 0;
@@ -162,7 +162,7 @@ VAR
 BEGIN
   IF i = MIN(LONGINT) THEN
     res.highBits := -1;
-    res.lowBits := 080000000H; (* equivalent to MIN(LONGINT) = -2^31 *)
+    res.lowBits := MAX(LONGCARD) DIV 2 + 1; (* => MIN(LONGINT) = -2^31 *)
     RETURN
   END; (* IF *)
   
@@ -272,7 +272,7 @@ BEGIN
       RETURN
     ELSE
       magnitude := (MAX(LONGCARD) - i.lowBits) + 1;
-      IF magnitude > 080000000H THEN
+      IF magnitude > MAX(LONGCARD) DIV 2 + 1 THEN
         stat := Underflow;
         RETURN
       ELSE (* in range *)
@@ -301,7 +301,7 @@ BEGIN
     stat := Overflow;
     RETURN
   ELSIF i.highBits = 0 THEN
-    IF i.lowBits > (MAX(LONGCARD) DIV 2) THEN
+    IF i.lowBits > MAX(LONGCARD) DIV 2 THEN
       stat := Overflow;
       RETURN
     ELSE (* in range *)
@@ -313,8 +313,8 @@ BEGIN
       stat := Underflow;
       RETURN
     ELSE
-      magnitude := (MAX(LONGCARD) - i.lowBits) + 1;
-      IF magnitude > 080000000H THEN
+      magnitude := MAX(LONGCARD) - i.lowBits + 1;
+      IF magnitude > MAX(LONGCARD) DIV 2 + 1 THEN
         stat := Underflow;
         RETURN
       ELSE (* in range *)
@@ -361,7 +361,7 @@ END isOne;
 
 PROCEDURE isMin( i : INT64T ) : BOOLEAN;
 BEGIN
-  RETURN (i.highBits = 080000000H) AND (i.lowBits = 0)
+  RETURN (i.highBits = MAX(LONGCARD) DIV 2 + 1) AND (i.lowBits = 0)
 END isMin;
 
 
@@ -645,8 +645,8 @@ BEGIN
   IF stat # Success THEN RETURN END;
 
   IF resIsNegative THEN
-    IF (cardProd.highBits > 080000000H) OR 
-       ((cardProd.highBits = 080000000H) AND (cardProd.lowBits # 0)) THEN
+    IF (cardProd.highBits > MAX(LONGCARD) DIV 2 + 1) OR 
+       ((cardProd.highBits = MAX(LONGCARD) DIV 2 + 1) AND (cardProd.lowBits # 0)) THEN
       stat := Underflow
       RETURN
     ELSE
@@ -654,7 +654,7 @@ BEGIN
       Neg(res, res, stat)
     END (* IF *)
   ELSE (* not negative *)
-    IF cardProd.highBits > (MAX(LONGCARD) DIV 2) THEN
+    IF cardProd.highBits > MAX(LONGCARD) DIV 2 THEN
       stat := Overflow
       RETURN
     ELSE
@@ -994,7 +994,7 @@ BEGIN
     RETURN FALSE
   END;
   (* test n * m > MAX(LONGCARD) *)
-  RETURN n > (MAX(LONGCARD) DIV m)
+  RETURN n > MAX(LONGCARD) DIV m
 END prodOverflowsLC;
 
 
