@@ -133,7 +133,7 @@ END ToLongCard;
  * Returns TRUE if value is 0, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE isZero( n : CARD64T ) : BOOLEAN;
+PROCEDURE isZero ( n : CARD64T ) : BOOLEAN;
 BEGIN
   RETURN (n.highBits = 0) AND (n.lowBits = 0)
 END isZero;
@@ -145,7 +145,7 @@ END isZero;
  * Returns TRUE if value is 1, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE IsOne( n : CARD64T ) : BOOLEAN;
+PROCEDURE IsOne ( n : CARD64T ) : BOOLEAN;
 BEGIN
   RETURN (i.highBits = 0) AND (i.lowBits = 1)
 END isOne;
@@ -157,7 +157,7 @@ END isOne;
  * Returns TRUE if value is MAX(CARD64T), otherwise FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE isMax( n : CARD64T ) : BOOLEAN;
+PROCEDURE isMax ( n : CARD64T ) : BOOLEAN;
 BEGIN
   RETURN (n.highBits = 0FFFFFFFFH) AND (n.lowBits = 0FFFFFFFFH)
 END isMax;
