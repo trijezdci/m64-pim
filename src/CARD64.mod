@@ -57,8 +57,8 @@ END SetOne;
 
 PROCEDURE SetMax ( VAR res : CARD64T );
 BEGIN
-  res.highBits := Max32Card;
-  res.lowBits := Max32Card
+  res.highBits := MAX(LONGCARD);
+  res.lowBits := MAX(LONGCARD)
 END SetMax;
 
 
@@ -159,7 +159,7 @@ END isOne;
 
 PROCEDURE isMax ( n : CARD64T ) : BOOLEAN;
 BEGIN
-  RETURN (n.highBits = 0FFFFFFFFH) AND (n.lowBits = 0FFFFFFFFH)
+  RETURN (n.highBits = MAX(LONGCARD)) AND (n.lowBits = MAX(LONGCARD))
 END isMax;
 
 
