@@ -565,6 +565,26 @@ BEGIN
 END TwosComplement;
 
 
+PROCEDURE TwosComplement ( n : CARD64T; VAR res : CARD64T; VAR stat : Status );
+BEGIN
+  IF (n.highBits = MAX(LONGCARD) DIV 2 + 1) AND (n.lowBits = 0) THEN
+    stat := Overflow;
+    RETURN
+  END; (* IF *)
+
+  res.highBits := MAX(LONGCARD) - n.highBits;
+  res.lowBits  := MAX(LONGCARD) - n.lowBits;
+  
+  IF res.lowBits = MAX(LONGCARD) THEN
+    res.lowBits := 0;
+    INC(res.highBits)
+  ELSE (* borrow occurred *)
+    INC(res.lowBits)
+  END;
+  stat := Success;
+END TwosComplement;
+
+
 (* --------------------------------------------------------------------------
  * Function:  sumOverflowsLC(n, m)
  * --------------------------------------------------------------------------

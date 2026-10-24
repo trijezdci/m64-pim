@@ -910,19 +910,19 @@ END AShr;
 
 PROCEDURE TwosComplement ( i : INT64T; VAR res : INT64T; VAR stat : Status );
 BEGIN
+  (* i = MIN(INT64T) *)
   IF (i.highBits = MIN(LONGINT)) AND (i.lowBits = 0) THEN
     stat := Overflow;
     RETURN
   END; (* IF *)
-  
-  stat := Success;
-  res.lowBits := MAX(LONGCARD) - i.lowBits + 1;
-  
+    
   IF res.lowBits = 0 THEN
     res.highBits := 0 - i.highBits
   ELSE (* borrow occurred *)
+    res.lowBits := MAX(LONGCARD) - i.lowBits + 1;
     res.highBits := 0 - i.highBits - 1
-  END (* IF *)  
+  END; (* IF *)  
+  stat := Success
 END TwosComplement;
 
 
