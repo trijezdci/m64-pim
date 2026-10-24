@@ -23,7 +23,7 @@ TYPE Status = ( Success, Underflow, Overflow, DivByZero );
  * ----------------------------------------------------------------------- *)
 
 CONST
-  Bitwidth = TSIZE(INT64T);
+  Bitwidth = TSIZE(INT64T) * 8;
 
 
 (* --------------------------------------------------------------------------
