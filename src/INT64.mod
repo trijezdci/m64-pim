@@ -818,13 +818,13 @@ BEGIN
     IF s >= 32 THEN
       res.highBits := 0
     ELSE
-      powS := PowerOfTwo(s);
+      powS := powerOf2[s];
       res.highBits := LONGINT(i.lowBits * powS)
     END;
     RETURN
   ELSE (* 1 <= shift < 32 *)
-    powS := PowerOfTwo(shift);
-    powInv := PowerOfTwo(32 - shift);
+    powS := powerOf2[shift];
+    powInv := powerOf2[32 - shift];
     carryBits := i.lowBits DIV powInv;
     res.highBits := LONGINT((LONGCARD(i.highBits) * powS) + carryBits);
     res.lowBits := i.lowBits * powS;
@@ -834,7 +834,7 @@ END Shl;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  INT64T.Shr(i, shift, res)
+ * Procedure:  INT64T.AShr(i, shift, res)
  * --------------------------------------------------------------------------
  * Arithmetic shift right of i by shift bits. Passes result in res.
  * ----------------------------------------------------------------------- *)
@@ -861,7 +861,7 @@ BEGIN
     IF s >= 32 THEN
       res.lowBits := 0
     ELSE
-      powS := PowerOfTwo(s);
+      powS := powerOf2[s];
       IF i.highBits < 0 THEN
         res.highBits := -1;
         
@@ -877,8 +877,8 @@ BEGIN
     END;
     RETURN
   ELSE (* 1 <= shift < 32 *)
-    powS := PowerOfTwo(shift);
-    powInv := PowerOfTwo(32 - shift);
+    powS := powerOf2[shift];
+    powInv := powerOf2[32 - shift];
     
     carryBits := LONGCARD(i.highBits) MOD powS;
     res.lowBits := (i.lowBits DIV powS) + (carryBits * powInv);
@@ -1119,129 +1119,11 @@ END prodUnderflowsLI;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  Shr(i, shift, res)
- * --------------------------------------------------------------------------
- * Logical shift right of i by shift bits. Passes result in res.
- * ----------------------------------------------------------------------- *)
-
-
-PROCEDURE Shr ( i : INT64T; shift : CARDINAL; VAR res : INT64T );
-VAR
-  s : CARDINAL;
-  powS, powInv, carryBits : LONGCARD;
-BEGIN
-  IF shift = 0 THEN
-    res := i;
-    RETURN
-  ELSIF shift >= 64 THEN
-    res.highBits := 0;
-    res.lowBits := 0;
-    RETURN
-  ELSIF shift >= 32 THEN
-    res.highBits := 0;
-    s := shift - 32;
-    IF s >= 32 THEN
-      res.lowBits := 0
-    ELSE
-      powS := PowerOfTwo(s);
-      res.lowBits := LONGCARD(i.highBits) DIV powS
-    END;
-    RETURN
-  ELSE (* 1 <= shift < 32 *)
-    powS := PowerOfTwo(shift);
-    powInv := PowerOfTwo(32 - shift);
-    carryBits := LONGCARD(i.highBits) MOD powS;
-    res.highBits := LONGINT(LONGCARD(i.highBits) DIV powS);
-    res.lowBits := (i.lowBits DIV powS) + (carryBits * powInv);
-    RETURN
-  END (* IF *)
-END Shr;
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  DivMod(i, j, quot, rem, stat)
- * --------------------------------------------------------------------------
- * Passes quotient and remainder in quot and rem respectively.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE DivMod ( i, j : INT64T; VAR quot, rem : INT64T; VAR stat : Status );
-VAR
-  bitIndex : CARDINAL;
-  zero : INT64T;
-  ignore : Status;
-BEGIN
-  SetZero(zero);
-  IF eq(j, zero) THEN
-    stat := DivByZero;
-    RETURN
-  END; (* IF *)
-
-  IF lt(i, j) THEN
-    SetZero(quot);
-    rem := i;
-    stat := Success;
-    RETURN
-  END; (* IF *)
-
-  IF eq(i, j) THEN
-    FromCard(1, quot);
-    SetZero(rem);
-    stat := Success;
-    RETURN
-  END; (* IF *)
-
-  SetZero(quot);
-  SetZero(rem);
-
-  bitIndex := Bitwidth;
-  REPEAT
-    DEC(bitIndex);
-    Shl(rem, 1, rem, ignore);
-    IF bitIndex >= 64 THEN
-      IF (VAL(LONGCARD, i.highBits) DIV Pow2(bitIndex - 64)) MOD 2 = 1 THEN
-        rem.lowBits := rem.lowBits + 1
-      END (* IF *)
-    ELSE
-      IF (i.lowBits DIV Pow2(bitIndex)) MOD 2 = 1 THEN
-        rem.lowBits := rem.lowBits + 1
-      END (* IF *)
-    END; (* IF *)
-
-    IF gteq(rem, j) THEN
-      Sub(rem, j, rem, ignore);
-      IF bitIndex >= 64 THEN
-        quot.highBits := quot.highBits + VAL(LONGINT, Pow2(bitIndex - 64))
-      ELSE
-        quot.lowBits := quot.lowBits + Pow2(bitIndex)
-      END (* IF *)
-    END (* IF *)
-  UNTIL bitIndex = 0;
-
-  stat := Success
-END DivMod;
-
-
-(* --------------------------------------------------------------------------
  * Data table for powers of 2
  * ----------------------------------------------------------------------- *)
 
 VAR
   powerOf2 : ARRAY [0..Bitwidth-1] OF INT64T;
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  Pow2(n, res)
- * --------------------------------------------------------------------------
- * Passes the n-th power of 2 in res.  No result if n >= Bitwidth.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE Pow2 ( n : CARDINAL; VAR res : INT64T; );
-BEGIN
-  IF n < Bitwidth THEN
-    stat := Success;
-    res := powerOf2[n]
-  END (* IF *)
-END Pow2;
 
 
 (* --------------------------------------------------------------------------
