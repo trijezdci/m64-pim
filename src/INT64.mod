@@ -1133,18 +1133,23 @@ VAR
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE InitPow2Table;
-
 VAR
   index : CARDINAL;
-
-BEGIN  
-  (* powerOf2[0] := 1; *)
+BEGIN
   powerOf2[0].highBits := 0;
   powerOf2[0].lowBits := 1;
-  
-  (* powerOf2[index] := factor * powerOf2[index-1]; *)
-  FOR index := 1 TO Bitwidth-1 DO
-    Shl(powerOf2[index-1], 1, powerOf2[index]);
+
+  FOR index := 1 TO 31 DO
+    powerOf2[index].highBits := 0;
+    powerOf2[index].lowBits := powerOf2[index-1].lowBits * 2
+  END; (* FOR *)
+
+  powerOf2[32].highBits := 1;
+  powerOf2[32].lowBits := 0;
+
+  FOR index := 33 TO 63 DO
+    powerOf2[index].highBits := powerOf2[index-1].highBits * 2;
+    powerOf2[index].lowBits := 0
   END (* FOR *)
 END InitPow2Table;
 
