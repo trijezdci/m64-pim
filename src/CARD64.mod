@@ -4,6 +4,7 @@ IMPLEMENTATION MODULE CARD64;
 
 (* 64-bit Cardinal Type for 32-bit Compiler *)
 
+FROM SYSTEM IMPORT TSIZE;
 
 (*
 TYPE CARD64T = RECORD

@@ -233,7 +233,7 @@ PROCEDURE Mod ( left, right : CARD64T; VAR res : CARD64T; VAR stat : Status );
  * Passes the n-th power of 2 in res, status in stat.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Pow2 ( n : CARDINAL; VAR res : CARD64T; stat : Status );
+PROCEDURE Pow2 ( n : CARDINAL; VAR res : CARD64T; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------
@@ -242,7 +242,7 @@ PROCEDURE Pow2 ( n : CARDINAL; VAR res : CARD64T; stat : Status );
  * the integral part of the logarithm of 2 for argument n in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Log2 ( n : CARDINAL; VAR res : CARD64T; stat : Status );
+PROCEDURE Log2 ( n : CARD64T; VAR res : CARD64T; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------
