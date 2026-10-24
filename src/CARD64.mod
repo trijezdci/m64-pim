@@ -555,17 +555,6 @@ END Shr;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE TwosComplement ( n : CARD64T; VAR res : CARD64T; VAR stat : Status );
-VAR
-  one, maxCard64 : CARD64T;
-BEGIN
-  SetOne(one);
-  SetMax(maxCard64);
-  Sub(maxCard64, n, res, stat);
-  Add(res, one, res, stat);
-END TwosComplement;
-
-
-PROCEDURE TwosComplement ( n : CARD64T; VAR res : CARD64T; VAR stat : Status );
 BEGIN
   IF (n.highBits = MAX(LONGCARD) DIV 2 + 1) AND (n.lowBits = 0) THEN
     stat := Overflow;
