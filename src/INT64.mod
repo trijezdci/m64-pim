@@ -605,33 +605,41 @@ END Sub;
 
 PROCEDURE Mul ( left, right : INT64T; VAR res : INT64T; VAR stat : Status );
 VAR
-  resIsNegative : BOOLEAN;
   absLeft, absRight : INT64T;
   cardLeft, cardRight, cardProd : CARD64T;
 BEGIN
   (* left = 0 OR right = 0 *)
-  IF ((left.highBits = 0) AND (left.lowBits = 0)) OR 
-     ((right.highBits = 0) AND (right.lowBits = 0)) THEN
+  IF isZero(left) OR isZero(right) THEN
     SetZero(res);
     stat := Success;
     RETURN
   END; (* IF *)
-      
-  (* left = MIN(INT64T) AND right = 1 *)
-  IF isMin(left) AND isOne(right) THEN
+
+  (* left # 0 AND right = 1 *)
+  IF isOne(right) THEN
     res := left;
     stat := Success;
     RETURN
   END; (* IF *)
   
-  (* right = MIN(INT64T) AND left = 1 *)
-  IF isMin(right) AND isOne(left) THEN
+  (* right # 0 AND left = 1 *)
+  IF isOne(left) THEN
     res := right;
     stat := Success;
     RETURN
   END; (* IF *)
   
-  resIsNegative := (left.highBits < 0) # (right.highBits < 0);
+  (* both operands fit into 32 bits each *)
+  IF (left.highBits = 0) AND (right.highBits = 0) AND
+     (* and their product will not overflow LONGCARD *)
+     (left.lowBits <= MAX(LONGCARD) DIV right.lowBits) THEN
+    res.highBits := 0;
+    res.lowBits := left.lowBits * right.lowBits;
+    stat := Success;
+    RETURN
+  END; (* IF *)
+
+  resIsNegative := ;
   
   Abs(left, absLeft, stat);
   IF stat # Success THEN RETURN END;
@@ -643,8 +651,9 @@ BEGIN
 
   CARD64.Mul(cardLeft, cardRight, cardProd, stat);
   IF stat # Success THEN RETURN END;
-
-  IF resIsNegative THEN
+  
+  (* operands with different signs determine negative result *)
+  IF (left.highBits < 0) # (right.highBits < 0) THEN
     IF (cardProd.highBits > MAX(LONGCARD) DIV 2 + 1) OR 
        ((cardProd.highBits = MAX(LONGCARD) DIV 2 + 1) AND (cardProd.lowBits # 0)) THEN
       stat := Underflow
@@ -673,29 +682,54 @@ END Mul;
 
 PROCEDURE Div ( left, right : INT64T; VAR res : INT64T; VAR stat : Status );
 VAR
-  resIsNeg : BOOLEAN;
-  absLeft, absRight, quot, rem : INT64T;
+  absLeft, absRight : INT64T;
+  cardLeft, cardRight, cardQuot : CARD64T;
 BEGIN
-  IF (right.highBits = 0) AND (right.lowBits = 0) THEN
+  IF isZero(right) THEN
     stat := DivByZero;
-    SetZero(res);
     RETURN
   END; (* IF *)
 
-  resIsNeg := (left.highBits < 0) # (right.highBits < 0);
+  IF isZero(left) THEN
+    res := left;
+    stat := Success;
+    RETURN
+  END; (* IF *)
+  
+  IF isOne(right) THEN
+    res := left;
+    stat := Success;
+    RETURN
+  END; (* IF *)
+  
+  IF isOne(left) THEN
+    SetZero(res);
+    stat := Success;
+    RETURN
+  END; (* IF *)
+  
+  IF eq(left, right) THEN
+    SetOne(res);
+    stat := success;
+    RETURN
+  END; (* IF *)
+    
   Abs(left, absLeft, stat);
   IF stat # Success THEN RETURN END;
   Abs(right, absRight, stat);
   IF stat # Success THEN RETURN END;
 
-  DivMod128(absLeft, absRight, quot, rem, stat);
+  ToCard64(absLeft, cardLeft, stat);
+  ToCard64(absRight, cardRight, stat);
+
+  CARD64.Div(cardLeft, cardRight, cardQuot, stat);
   IF stat # Success THEN RETURN END;
 
-  IF resIsNeg THEN
-    Neg(quot, res, stat)
-  ELSE
-    res := quot;
-    stat := Success
+  FromCard64(cardQuot, res, stat);
+  
+  (* operands with different signs determine negative result *)
+  IF (left.highBits < 0) # (right.highBits < 0) THEN
+    Neg(res, res, stat)
   END (* IF *)
 END Div;
 
@@ -708,29 +742,54 @@ END Div;
 
 PROCEDURE Mod ( left, right : INT64T; VAR res : INT64T; VAR stat : Status );
 VAR
-  leftIsNeg : BOOLEAN;
-  absLeft, absRight, quot, rem : INT64T;
+  absLeft, absRight : INT64T;
+  cardLeft, cardRight, cardRem : LONGCARD;
 BEGIN
-  IF (right.highBits = 0) AND (right.lowBits = 0) THEN
+  IF isZero(right) THEN
     stat := DivByZero;
+    RETURN
+  END; (* IF *)
+  
+  IF isZero(left) THEN
+    res := left;
+    stat := Success;
+    RETURN
+  END; (* IF *)
+  
+  IF isOne(right) THEN
     SetZero(res);
+    stat := Sucess;
+    RETURN
+  END; (* IF *)
+  
+  IF isOne(left) THEN
+    res := left;
+    stat := Success;
+    RETURN
+  END; (* IF *)
+  
+  IF eq(left, right) THEN
+    SetZero(res);
+    stat := Success;
     RETURN
   END; (* IF *)
 
-  leftIsNeg := left.highBits < 0;
   Abs(left, absLeft, stat);
   IF stat # Success THEN RETURN END;
   Abs(right, absRight, stat);
   IF stat # Success THEN RETURN END;
+  
+  ToCard64(absLeft, cardLeft, stat);
+  ToCard64(absRight, cardRight, stat);
 
-  DivMod(absLeft, absRight, quot, rem, stat);
+  CARD64.Mod(cardLeft, cardRight, cardRem, stat);
   IF stat # Success THEN RETURN END;
 
-  IF leftIsNeg THEN
-    Neg(rem, res, stat)
-  ELSE
-    res := rem;
-    stat := Success
+  FromCard64(cardRem, res, stat);
+  
+  (* left always determines sign of result *)
+  IF left.highBits < 0 THEN
+    Neg(res, res, stat)
   END (* IF *)
 END Mod;
 
