@@ -273,6 +273,30 @@ END lteq;
 
 
 (* --------------------------------------------------------------------------
+ * Procedure:  CARD64.Inc(n, stat)
+ * --------------------------------------------------------------------------
+ * Increments n by 1.  Faster than Add(n, 1, res, stat).
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Inc ( VAR n : CARD64T; VAR stat : Status );
+BEGIN
+  IF (n.highBits = MAX(LONGCARD)) AND (n.lowBits = MAX(LONGCARD)) THEN
+    stat := Overflow;
+    RETURN
+  END; (* IF *)
+  
+  IF n.lowBits = MAX(LONGCARD) THEN
+    n.lowBits := 0;
+    INC(n.highBits)
+  ELSE (* no carry *)
+    INC(n.lowBits)
+  END; (* IF *)
+  
+  stat := Success
+END Inc;
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  CARD64.Add(left, right, res, stat)
  * --------------------------------------------------------------------------
  * Passes the sum left + right in res.
@@ -303,6 +327,30 @@ BEGIN
   res.lowBits := sumLow;
   res.highBits := left.highBits + right.highBits + carry
 END Add;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  CARD64.Dec(n, stat)
+ * --------------------------------------------------------------------------
+ * Decrements n by 1.  Faster than CARD64.Sub().
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Dec ( VAR n : CARD64T; VAR stat : Status );
+BEGIN
+  IF (n.highBits = 0) AND (n.lowBits = 0) THEN
+    stat := Underflow;
+    RETURN
+  END; (* IF *)
+  
+  IF n.lowBits = 0 THEN
+    n.lowBits := MAX(LONGCARD);
+    DEC(n.highBits);
+  ELSE (* no carry *)
+    DEC(n.lowBits)
+  END; (* IF *)
+  
+  stat := Success
+END Dec;
 
 
 (* --------------------------------------------------------------------------

@@ -5,7 +5,7 @@ DEFINITION MODULE INT64;
 (* 64-bit Integer Type for 32-bit Compiler *)
 
 FROM CARD64 IMPORT
-  CARD64T;
+  CARD64T, Status;
 
 
 (* ---------------------------------------------------------------------------
@@ -23,13 +23,6 @@ TYPE INT64T = RECORD  (* requires 32-bit LONGINT and LONGCARD types *)
   highBits : LONGINT;
   lowBits : LONGCARD
 END; (* RECORD *)
-
-
-(* ---------------------------------------------------------------------------
- * Status Type
- * ------------------------------------------------------------------------ *)
-
-TYPE Status = ( Success, Underflow, Overflow, DivByZero );
 
 
 (* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

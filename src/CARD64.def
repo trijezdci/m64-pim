@@ -26,7 +26,7 @@ END; (* RECORD *)
  * Status Type
  * ------------------------------------------------------------------------ *)
 
-TYPE Status = ( Success, Overflow, DivByZero );
+TYPE Status = ( Success, Underflow, Overflow, DivByZero );
 
 
 (* --------------------------------------------------------------------------
@@ -183,12 +183,32 @@ PROCEDURE lteq ( left, right : CARD64T ) : BOOLEAN;
 
 
 (* --------------------------------------------------------------------------
+ * Procedure:  CARD64.Inc(n, stat)
+ * --------------------------------------------------------------------------
+ * Destructively increments n by 1.  Leaves n unchanged on Overflow.
+ * Faster than using procedure CARD64.Add().
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Inc ( VAR n : CARD64T; VAR stat : Status );
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  CARD64.Add(left, right, res, stat)
  * --------------------------------------------------------------------------
  * Passes the sum left + right in res.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Add ( left, right : CARD64T; VAR res : CARD64T; VAR stat : Status );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  CARD64.Dec(n, stat)
+ * --------------------------------------------------------------------------
+ * Destructively decrements n by 1.  Leaves n unchanged on Underflow.
+ * Faster than using procedure CARD64.Sub().
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Dec ( VAR n : CARD64T; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------

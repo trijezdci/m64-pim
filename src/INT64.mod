@@ -8,9 +8,15 @@ IMPLEMENTATION MODULE INT64;
 FROM SYSTEM IMPORT TSIZE;
 
 IMPORT CARD64;
-FROM CARD64 IMPORT CARD64T;
+FROM CARD64 IMPORT
+  CARD64T, Status;
 
 (*
+TYPE CARD64T = RECORD (* Requires 32-bit LONGCARD type *)
+  highBits,
+  lowBits : LONGCARD
+END; (* RECORD *)
+
 TYPE INT64T = RECORD
   highBits : LONGINT;
   lowBits : LONGCARD
@@ -640,8 +646,6 @@ BEGIN
     stat := Success;
     RETURN
   END; (* IF *)
-
-  resIsNegative := (left.highBits < 0) # (right.highBits < 0);
   
   Abs(left, absLeft, stat);
   IF stat # Success THEN RETURN END;
@@ -712,7 +716,7 @@ BEGIN
   
   IF eq(left, right) THEN
     SetOne(res);
-    stat := success;
+    stat := Success;
     RETURN
   END; (* IF *)
     
@@ -760,7 +764,7 @@ BEGIN
   
   IF isOne(right) THEN
     SetZero(res);
-    stat := Sucess;
+    stat := Success;
     RETURN
   END; (* IF *)
   
