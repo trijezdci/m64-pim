@@ -5,6 +5,8 @@ IMPLEMENTATION MODULE INT64;
 (* 64-bit Integer Type *)
 
 
+FROM SYSTEM IMPORT TSIZE;
+
 IMPORT CARD64;
 FROM CARD64 IMPORT CARD64T;
 
@@ -436,7 +438,7 @@ PROCEDURE gteq ( left, right : INT64T ) : BOOLEAN;
 BEGIN
   RETURN (left.highBits > right.highBits)
     OR ((left.highBits = right.highBits) AND (left.lowBits >= right.lowBits))
-END gtEq;
+END gteq;
 
 
 (* --------------------------------------------------------------------------
@@ -462,7 +464,7 @@ PROCEDURE lteq ( left, right : INT64T ) : BOOLEAN;
 BEGIN
   RETURN (left.highBits < right.highBits)
     OR ((left.highBits = right.highBits) AND (left.lowBits <= right.lowBits))
-END ltEq;
+END lteq;
 
 
 (* --------------------------------------------------------------------------
@@ -639,7 +641,7 @@ BEGIN
     RETURN
   END; (* IF *)
 
-  resIsNegative := ;
+  resIsNegative := (left.highBits < 0) # (right.highBits < 0);
   
   Abs(left, absLeft, stat);
   IF stat # Success THEN RETURN END;
@@ -656,7 +658,7 @@ BEGIN
   IF (left.highBits < 0) # (right.highBits < 0) THEN
     IF (cardProd.highBits > MAX(LONGCARD) DIV 2 + 1) OR 
        ((cardProd.highBits = MAX(LONGCARD) DIV 2 + 1) AND (cardProd.lowBits # 0)) THEN
-      stat := Underflow
+      stat := Underflow;
       RETURN
     ELSE
       FromCard64(cardProd, res, stat);
@@ -664,7 +666,7 @@ BEGIN
     END (* IF *)
   ELSE (* not negative *)
     IF cardProd.highBits > MAX(LONGCARD) DIV 2 THEN
-      stat := Overflow
+      stat := Overflow;
       RETURN
     ELSE
       FromCard64(cardProd, res, stat);
@@ -1158,4 +1160,4 @@ END InitPow2Table;
 
 BEGIN
   InitPow2Table
-END INT64T.
+END INT64.
