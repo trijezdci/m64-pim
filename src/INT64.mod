@@ -896,7 +896,7 @@ END Shl;
 PROCEDURE AShr ( i : INT64T; shift : CARDINAL; VAR res : INT64T );
 VAR
   ignore : Status;
-  magnitude : CARD64T;
+  magnitude, cardRes : CARD64T;
   powS, powInv, mask, carryBits, remainingBits : LONGCARD;
 BEGIN
   IF shift = 0 THEN
@@ -907,7 +907,8 @@ BEGIN
   (* i is positive *)
   IF i.highBits >= 0 THEN
     ToCard64(i, magnitude, ignore);
-    CARD64.Shr(magnitude, shift, res);
+    CARD64.Shr(magnitude, shift, cardRes);
+    FromCard64(cardRes, res, ignore);
     RETURN
   END; (* IF *)
   
