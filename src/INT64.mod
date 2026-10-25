@@ -369,7 +369,7 @@ END isOne;
 
 PROCEDURE isMin ( i : INT64T ) : BOOLEAN;
 BEGIN
-  RETURN (i.highBits = MIN(LONGINT)) AND (i.lowBits = 0)
+  RETURN (i.highBits = MIN(LONGINT)) AND (i.lowBits = MAX(LONGCARD))
 END isMin;
 
 
@@ -511,16 +511,16 @@ END Neg;
 
 PROCEDURE Inc ( VAR i : INT64T; VAR stat : Status );
 BEGIN
-  IF (n.highBits = MAX(LONGINT)) AND (n.lowBits = MAX(LONGCARD)) THEN
+  IF (i.highBits = MAX(LONGINT)) AND (i.lowBits = MAX(LONGCARD)) THEN
     stat := Overflow;
     RETURN
   END; (* IF *)
   
-  IF n.lowBits = MAX(LONGCARD) THEN
-    n.lowBits := 0;
-    INC(n.highBits)
+  IF i.lowBits = MAX(LONGCARD) THEN
+    i.lowBits := 0;
+    INC(i.highBits)
   ELSE (* no carry *)
-    INC(n.lowBits)
+    INC(i.lowBits)
   END; (* IF *)
   stat := Success
 END Inc;
@@ -585,7 +585,7 @@ END Add;
 
 PROCEDURE Dec ( VAR i : INT64T; VAR stat : Status );
 BEGIN
-  IF (i.highBits = MIN(LONGINT)) AND (i.lowBits = 0) THEN
+  IF (i.highBits = MIN(LONGINT)) AND (i.lowBits = MAX(LONGCARD)) THEN
     stat := Underflow;
     RETURN
   END; (* IF *)
