@@ -5,7 +5,8 @@ DEFINITION MODULE BitOps32;
 (* 32-bit Bit Operations for 32-bit Compiler *)
 
 
-FROM SYSTEM IMPORT BYTE, ADDRESS;
+FROM SYSTEM IMPORT
+  BYTE, ADDRESS, TSIZE;
 
 
 (* ---------------------------------------------------------------------------
@@ -37,7 +38,7 @@ CONST Bitwidth = TSIZE(WORD32) * 8;
  * Bit Index Type
  * ------------------------------------------------------------------------ *)
 
-TYPE BitIndex : CARDINAL [0..Bitwidth-1];
+TYPE BitIndex = CARDINAL [0..Bitwidth-1];
 
 
 (* --------------------------------------------------------------------------
