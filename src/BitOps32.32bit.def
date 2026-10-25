@@ -21,7 +21,7 @@ TYPE WORD32 = RECORD
   | 4 : real      : REAL
   | 5 : bitset    : BITSET
   | 6 : arrOfByte : ARRAY [0..3] OF BYTE
-  | 7 : ADDRESS
+  | 7 : address   : ADDRESS
   END (* CASE *)
 END; (* RECORD *)
 
@@ -37,7 +37,7 @@ CONST Bitwidth = TSIZE(WORD32) * 8;
  * Bit Index Type
  * ------------------------------------------------------------------------ *)
 
-TYPE BitIndex : [0..Bitwidth-1] OF CARDNAL;
+TYPE BitIndex : CARDINAL [0..Bitwidth-1];
 
 
 (* --------------------------------------------------------------------------
@@ -46,7 +46,7 @@ TYPE BitIndex : [0..Bitwidth-1] OF CARDNAL;
  * Returns TRUE if bit at index in value is set, otherwise FALSE.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE BIT ( VAR value : WORD32; index : BitIndex ) : BOOLEAN;
+PROCEDURE BIT ( value : WORD32; index : BitIndex ) : BOOLEAN;
 
 
 (* --------------------------------------------------------------------------
@@ -157,4 +157,4 @@ PROCEDURE SHR ( value : WORD32; shiftFactor : CARDINAL; VAR res : WORD32 );
 PROCEDURE ASHR ( value : WORD32; shiftFactor : CARDINAL; VAR res : WORD32 );
 
 
-END BitOps.
+END BitOps32.
