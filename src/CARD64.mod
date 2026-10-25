@@ -445,7 +445,7 @@ END Pow2;
  * the integral part of the binary logarithm of n in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Log2 ( n : CARD64T; VAR res : CARD64T; VAR stat : Status );
+PROCEDURE Log2 ( n : CARD64T; VAR res : CARDINAL; VAR stat : Status );
 BEGIN
   IF isZero(n) THEN
     stat := DivByZero;
@@ -470,8 +470,7 @@ END Log2;
 
 PROCEDURE Shl ( n : CARD64T; shift : CARDINAL; VAR res : CARD64T );
 VAR
-  s : CARDINAL;
-  p, powS, powInv, carryBits : LONGCARD;
+  powS, powInv, carryBits : LONGCARD;
 BEGIN
   IF shift = 0 THEN
     res := n;
@@ -480,31 +479,22 @@ BEGIN
     res.highBits := 0;
     res.lowBits := 0;
     RETURN
-  ELSIF shift >= 32 THEN
+  ELSIF shift = 32 THEN
+    res.highBits := n.lowBits;
     res.lowBits := 0;
-    s := shift - 32;
-    powS := powerOf2[s].lowBits;
-    IF prodOverflowsLC(n.lowBits, powS) THEN
-      stat := Overflow;
-      RETURN
-    END; (* IF *)
-    res.highBits := n.lowBits * powS;
+    RETURN
+  ELSIF shift > 32 THEN
+    res.lowBits := 0;
+    powS := powerOf2[shift - 32].lowBits;
+    powInv := powerOf2[64 - shift].lowBits; 
+    res.highBits := (n.lowBits MOD powInv) * powS;
     RETURN
   ELSE (* 1 <= shift < 32 *)
     powS := powerOf2[shift].lowBits;
     powInv := powerOf2[32 - shift].lowBits;
     carryBits := n.lowBits DIV powInv;
-    IF prodOverflowsLC(n.highBits, powS) THEN
-      stat := Overflow;
-      RETURN
-    END; (* IF *)
-    p := n.highBits * powS;
-    IF sumOverflowsLC(p, carryBits) THEN
-      stat := Overflow;
-      RETURN
-    END; (* IF *)
-    res.highBits := p + carryBits;
-    res.lowBits := n.lowBits * powS;
+    res.lowBits := (n.lowBits MOD powInv) * powS;
+    res.highBits := (n.highBits MOD powInv) * powS + carryBits;
     RETURN
   END (* IF *)
 END Shl;
@@ -518,7 +508,6 @@ END Shl;
 
 PROCEDURE Shr ( n : CARD64T; shift : CARDINAL; VAR res : CARD64T );
 VAR
-  s : CARDINAL;
   powS, powInv, carryBits : LONGCARD;
 BEGIN
   IF shift = 0 THEN
@@ -530,13 +519,12 @@ BEGIN
     RETURN
   ELSIF shift >= 32 THEN
     res.highBits := 0;
-    s := shift - 32;
-    powS := powerOf2(s);
+    powS := powerOf2[shift - 32].lowBits;
     res.lowBits := n.highBits DIV powS;
     RETURN
   ELSE (* 1 <= shift < 32 *)
-    powS := powerOf2(shift);
-    powInv := powerOf2(32 - shift);
+    powS := powerOf2[shift].lowBits;
+    powInv := powerOf2[32 - shift].lowBits;
     carryBits := n.highBits MOD powS;
     res.highBits := n.highBits DIV powS;
     res.lowBits := (n.lowBits DIV powS) + (carryBits * powInv);
