@@ -749,7 +749,7 @@ END Div;
 PROCEDURE Mod ( left, right : INT64T; VAR res : INT64T; VAR stat : Status );
 VAR
   absLeft, absRight : INT64T;
-  cardLeft, cardRight, cardRem : LONGCARD;
+  cardLeft, cardRight, cardRem : CARD64T;
 BEGIN
   IF isZero(right) THEN
     stat := DivByZero;
@@ -824,13 +824,13 @@ BEGIN
     IF s >= 32 THEN
       res.highBits := 0
     ELSE
-      powS := powerOf2[s];
+      powS := powerOf2[s].lowBits;
       res.highBits := LONGINT(i.lowBits * powS)
     END;
     RETURN
   ELSE (* 1 <= shift < 32 *)
-    powS := powerOf2[shift];
-    powInv := powerOf2[32 - shift];
+    powS := powerOf2[shift].lowBits;
+    powInv := powerOf2[32 - shift].lowBits;
     carryBits := i.lowBits DIV powInv;
     res.highBits := LONGINT((LONGCARD(i.highBits) * powS) + carryBits);
     res.lowBits := i.lowBits * powS;
@@ -867,7 +867,7 @@ BEGIN
     IF s >= 32 THEN
       res.lowBits := 0
     ELSE
-      powS := powerOf2[s];
+      powS := powerOf2[s].lowBits;
       IF i.highBits < 0 THEN
         res.highBits := -1;
         
@@ -883,8 +883,8 @@ BEGIN
     END;
     RETURN
   ELSE (* 1 <= shift < 32 *)
-    powS := powerOf2[shift];
-    powInv := powerOf2[32 - shift];
+    powS := powerOf2[shift].lowBits;
+    powInv := powerOf2[32 - shift].lowBits;
     
     carryBits := LONGCARD(i.highBits) MOD powS;
     res.lowBits := (i.lowBits DIV powS) + (carryBits * powInv);
