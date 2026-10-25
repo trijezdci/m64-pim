@@ -503,6 +503,30 @@ END Neg;
 
 
 (* --------------------------------------------------------------------------
+ * Procedure:  INT64.Inc(i, stat)
+ * --------------------------------------------------------------------------
+ * Destructively increments i by 1.  Leaves i unchanged on Overflow.
+ * Faster than using procedure INT64.Add().
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Inc ( VAR i : INT64T; VAR stat : Status );
+BEGIN
+  IF (n.highBits = MAX(LONGINT)) AND (n.lowBits = MAX(LONGCARD)) THEN
+    stat := Overflow;
+    RETURN
+  END; (* IF *)
+  
+  IF n.lowBits = MAX(LONGCARD) THEN
+    n.lowBits := 0;
+    INC(n.highBits)
+  ELSE (* no carry *)
+    INC(n.lowBits)
+  END; (* IF *)
+  stat := Success
+END Inc;
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  INT64.Add(left, right, res, stat)
  * --------------------------------------------------------------------------
  * Passes the sum left + right in res.
@@ -550,6 +574,30 @@ BEGIN
   res.highBits := resHigh;
   stat := Success
 END Add;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  INT64.Dec(i, stat)
+ * --------------------------------------------------------------------------
+ * Destructively decrements i by 1.  Leaves i unchanged on Underflow.
+ * Faster than using procedure INT64.Sub().
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Dec ( VAR i : INT64T; VAR stat : Status );
+BEGIN
+  IF (i.highBits = MIN(LONGINT)) AND (i.lowBits = 0) THEN
+    stat := Underflow;
+    RETURN
+  END; (* IF *)
+  
+  IF i.lowBits = 0 THEN
+    i.lowBits := MAX(LONGCARD);
+    DEC(i.highBits)
+  ELSE (* no borrow *)
+    DEC(i.lowBits)
+  END; (* IF *)
+  stat := Success
+END Dec;
 
 
 (* --------------------------------------------------------------------------
@@ -808,7 +856,6 @@ END Mod;
 
 PROCEDURE Shl ( i : INT64T; shift : CARDINAL; VAR res : INT64T );
 VAR
-  s : CARDINAL;
   powS, powInv, carryBits : LONGCARD;
 BEGIN
   IF shift = 0 THEN
@@ -818,22 +865,23 @@ BEGIN
     res.highBits := 0;
     res.lowBits := 0;
     RETURN
-  ELSIF shift >= 32 THEN
+  ELSIF shift = 32 THEN
+    res.highBits := VAL(LONGINT, i.lowBits);
     res.lowBits := 0;
-    s := shift - 32;
-    IF s >= 32 THEN
-      res.highBits := 0
-    ELSE
-      powS := powerOf2[s].lowBits;
-      res.highBits := LONGINT(i.lowBits * powS)
-    END;
+    RETURN
+  ELSIF shift > 32 THEN
+    res.lowBits := 0;
+    powS := powerOf2[shift - 32].lowBits;
+    powInv := powerOf2[64 - shift].lowBits;
+    res.highBits := VAL(LONGINT, (i.lowBits MOD powInv) * powS);
     RETURN
   ELSE (* 1 <= shift < 32 *)
     powS := powerOf2[shift].lowBits;
     powInv := powerOf2[32 - shift].lowBits;
     carryBits := i.lowBits DIV powInv;
-    res.highBits := LONGINT((LONGCARD(i.highBits) * powS) + carryBits);
-    res.lowBits := i.lowBits * powS;
+    res.lowBits := (i.lowBits MOD powInv) * powS;
+    res.highBits := VAL(LONGINT,
+      (VAL(LONGCARD, i.highBits) MOD powInv) * powS + carryBits);
     RETURN
   END (* IF *)
 END Shl;
@@ -847,59 +895,43 @@ END Shl;
 
 PROCEDURE AShr ( i : INT64T; shift : CARDINAL; VAR res : INT64T );
 VAR
-  s : CARDINAL;
-  powS, powInv, carryBits, mask : LONGCARD;
+  ignore : Status;
+  magnitude : CARD64T;
+  powS, powInv, mask, carryBits, remainingBits : LONGCARD;
 BEGIN
   IF shift = 0 THEN
     res := i;
     RETURN
-  ELSIF shift >= 64 THEN
-    IF i.highBits < 0 THEN
-      res.highBits := -1;
-      res.lowBits := MAX(LONGCARD)
-    ELSE
-      res.highBits := 0;
-      res.lowBits := 0
-    END;
+  END; (* IF *)
+  
+  (* i is positive *)
+  IF i.highBits >= 0 THEN
+    ToCard64(i, magnitude, ignore);
+    CARD64.Shr(magnitude, shift, res);
     RETURN
-  ELSIF shift >= 32 THEN
-    s := shift - 32;
-    IF s >= 32 THEN
-      res.lowBits := 0
-    ELSE
-      powS := powerOf2[s].lowBits;
-      IF i.highBits < 0 THEN
-        res.highBits := -1;
-        
-        (* compute mask to set high bits *)
-        res.lowBits := LONGCARD(i.highBits) DIV powS;
-        mask := MAX(LONGCARD) DIV powS;
-        mask := mask * powS;
-        res.lowBits := res.lowBits + (MAX(LONGCARD) - mask)
-      ELSE
-        res.highBits := 0;
-        res.lowBits := LONGCARD(i.highBits) DIV powS
-      END
-    END;
-    RETURN
-  ELSE (* 1 <= shift < 32 *)
+  END; (* IF *)
+  
+  (* i is negative *)
+  IF shift >= 64 THEN
+    res.highBits := MAX(LONGINT);
+    res.lowBits := MAX(LONGCARD)
+  ELSIF shift = 32 THEN
+    res.highBits := MAX(LONGINT);
+    res.lowBits := LONGCARD(i.highBits)
+  ELSIF shift > 32 THEN
+    (* compute mask to set high bits *)
+    res.highBits := MAX(LONGINT);
+    powS := powerOf2[shift - 32].lowBits;
+    mask := (MAX(LONGCARD) DIV powS) * powS;
+    res.lowBits := i.lowBits + (MAX(LONGCARD) - mask)
+  ELSE (* shift > 0 AND shift < 32 *)
     powS := powerOf2[shift].lowBits;
     powInv := powerOf2[32 - shift].lowBits;
-    
     carryBits := LONGCARD(i.highBits) MOD powS;
+    remainingBits := LONGCARD(i.highBits) DIV powS;
+    mask := (MAX(LONGCARD) DIV powS) * powS;
     res.lowBits := (i.lowBits DIV powS) + (carryBits * powInv);
-    
-    IF i.highBits < 0 THEN
-      res.highBits := LONGINT(LONGCARD(i.highBits) DIV powS);
-      
-      (* compute mask to set high bits *)
-      mask := 0FFFFFFFFH DIV powS;
-      mask := mask * powS;
-      res.highBits := LONGINT(LONGCARD(res.highBits) + (MAX(LONGCARD) - mask))
-    ELSE
-      res.highBits := LONGINT(LONGCARD(i.highBits) DIV powS)
-    END;
-    RETURN
+    res.highBits := LONGINT(remainingBits + (MAX(LONGCARD) - mask))
   END (* IF *)
 END AShr;
 

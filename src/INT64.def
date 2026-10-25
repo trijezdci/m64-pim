@@ -277,12 +277,32 @@ PROCEDURE Neg ( i : INT64T; VAR res : INT64T; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------
+ * Procedure:  INT64.Inc(i, stat)
+ * --------------------------------------------------------------------------
+ * Destructively increments i by 1.  Leaves i unchanged on Overflow.
+ * Faster than using procedure INT64.Add().
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Inc ( VAR i : INT64T; VAR stat : Status );
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  INT64.Add(left, right, res, stat)
  * --------------------------------------------------------------------------
  * Passes the sum left + right in res.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Add ( left, right : INT64T; VAR res : INT64T; VAR stat : Status );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  INT64.Dec(i, stat)
+ * --------------------------------------------------------------------------
+ * Destructively decrements i by 1.  Leaves i unchanged on Underflow.
+ * Faster than using procedure INT64.Sub().
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Dec ( VAR i : INT64T; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------

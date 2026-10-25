@@ -275,7 +275,8 @@ END lteq;
 (* --------------------------------------------------------------------------
  * Procedure:  CARD64.Inc(n, stat)
  * --------------------------------------------------------------------------
- * Increments n by 1.  Faster than Add(n, 1, res, stat).
+ * Destructively increments n by 1.  Leaves n unchanged on Overflow.
+ * Faster than using procedure CARD64.Add().
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Inc ( VAR n : CARD64T; VAR stat : Status );
@@ -332,7 +333,8 @@ END Add;
 (* --------------------------------------------------------------------------
  * Procedure:  CARD64.Dec(n, stat)
  * --------------------------------------------------------------------------
- * Decrements n by 1.  Faster than CARD64.Sub().
+ * Destructively decrements n by 1.  Leaves n unchanged on Underflow.
+ * Faster than using procedure CARD64.Sub().
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Dec ( VAR n : CARD64T; VAR stat : Status );
@@ -537,7 +539,7 @@ BEGIN
     powInv := powerOf2[64 - shift].lowBits; 
     res.highBits := (n.lowBits MOD powInv) * powS;
     RETURN
-  ELSE (* 1 <= shift < 32 *)
+  ELSE (* 1 =< shift < 32 *)
     powS := powerOf2[shift].lowBits;
     powInv := powerOf2[32 - shift].lowBits;
     carryBits := n.lowBits DIV powInv;
