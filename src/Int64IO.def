@@ -1,0 +1,43 @@
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
+
+DEFINITION MODULE Int64IO;
+
+(* Console IO library for Type INT64T *)
+
+
+FROM INT64 IMPORT INT64T;
+
+(* --------------------------------------------------------------------------
+ * Procedure:  Int64IO.Read(i)
+ * --------------------------------------------------------------------------
+ * Read unformatted number from console and pass it in i.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Real ( VAR i : INT64T );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  Int64IO.Write(i)
+ * --------------------------------------------------------------------------
+ * Write i unformatted to console.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Write ( i : INT64T );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  Int64IO.WriteF(fmt, i)
+ * --------------------------------------------------------------------------
+ * Write i formatted to console following format fmt.
+ *
+ * fmt | radix    | separation       | digit grouping
+ * ----+----------+------------------+---------------
+ * ',' | decimal  | comma separated  | 3 digits 
+ * '.' | decimal  | period separated | 3 digits
+ * 'x' | radix-16 | colon separated  | 8 digits
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE WriteF ( fmt : CHAR; i : INT64T );
+
+
+END Int64IO.
