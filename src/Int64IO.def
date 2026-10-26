@@ -13,7 +13,7 @@ FROM INT64 IMPORT INT64T;
  * Read unformatted number from console and pass it in i.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Real ( VAR i : INT64T );
+PROCEDURE Read ( VAR i : INT64T );
 
 
 (* --------------------------------------------------------------------------
