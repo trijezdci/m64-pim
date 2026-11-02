@@ -271,12 +271,13 @@ MODULE StabStrings;
     realstr : ARRAY [0..50] OF CHAR;
     ok : BOOLEAN;
   BEGIN
-    LongReal2Str (x, 20, -20, realstr, ok); 
-    IF ok
-      THEN Append (str, realstr)
-      ELSE WriteString ('Warning: No Debugging of Real Constant');
-           WriteLn;
-           Append (str, '0.0')
+    LongReal2Str(x, 20, -20, realstr, ok); 
+    IF ok THEN
+      Append(str, realstr)
+    ELSE
+      WriteString("Warning: No Debugging of Real Constant");
+      WriteLn;
+      Append(str, '0.0')
     END
   END AppendRealToString;
   
@@ -298,7 +299,7 @@ MODULE StabStrings;
 
   CONST
     SubStringLength = 256;
-    KritAssLength   = 800;
+    KritAssLength = 800;
 
   TYPE DynString = POINTER TO SubStringElement;
   
@@ -607,12 +608,22 @@ MODULE ValueConversions;
   (* converts val to LONGINT *)
   BEGIN
     CASE val.class OF
-    | BoolValue     : IF val.BoolVal THEN RETURN 1 ELSE RETURN 0 END;
-    | CardinalValue : RETURN val.CardinalVal;
-    | LongCardValue : RETURN LONGINT (val.LongCardVal);
-    | IntegerValue  : RETURN val.IntegerVal;
-    | LongIntValue  : RETURN val.LongIntVal;
-    | CharValue      : RETURN ORD (val.CharVal);
+    | BoolValue :
+        IF val.BoolVal THEN
+          RETURN 1
+        ELSE
+          RETURN 0
+        END;
+    | CardinalValue :
+        RETURN val.CardinalVal;
+    | LongCardValue :
+        RETURN LONGINT(val.LongCardVal);
+    | IntegerValue :
+        RETURN val.IntegerVal;
+    | LongIntValue :
+        RETURN val.LongIntVal;
+    | CharValue :
+        RETURN ORD(val.CharVal);
     ELSE
       CompilerError ("illegal call to ConvToLongInt");
     END;
@@ -654,27 +665,27 @@ BEGIN
   END; (*IF *)
 
   (* Emit Name of Source File *)
-  AssString ('  .stabs "');
-  AssString (cwd);
+  AssString('  .stabs "');
+  AssString(cwd);
     
   IF Enabled(ElfOption) THEN
-    AssString ('/",100,0,0,.LBB0');
+    AssString('/",100,0,0,.LBB0');
     AssLn;
-    AssString ('  .stabs "');
-    AssString (NameOfSourceFile);
-    AssString ('",100,0,0,.LBB0');
+    AssString('  .stabs "');
+    AssString(NameOfSourceFile);
+    AssString('",100,0,0,.LBB0');
     AssLn;
     AssString ('.LBB0:');
 
   (* the following code is obsolete on 64-bit systems *)
   ELSE (* a.out *)
-    AssString ('/",100,0,0,LBB0');
+    AssString('/",100,0,0,LBB0');
     AssLn;
-    AssString ('  .stabs "');
-    AssString (NameOfSourceFile);
-    AssString ('",100,0,0,LBB0');
+    AssString('  .stabs "');
+    AssString(NameOfSourceFile);
+    AssString('",100,0,0,LBB0');
     AssLn;
-    AssString ('LBB0:');
+    AssString('LBB0:');
   END; (* IF *)
   AssLn;
 
