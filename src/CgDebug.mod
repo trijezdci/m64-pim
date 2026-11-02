@@ -181,11 +181,11 @@ END (* MODULE *) TypeTable;
 MODULE StabStrings;
 
   IMPORT Append, StrEq, LongReal2Str, Ident, GetIdentRepr, WriteString, WriteLn,
-	  ALLOCATE, AssString, AssChar, AssLn, flush;
-	 
+    ALLOCATE, AssString, AssChar, AssLn, flush;
+   
   EXPORT StripAssign, AppendIntToString, AppendRealToString, Equal, DynString,
     EmptyDynString, AssignString, AppendString, AppendChar, AppendInt, AppendIdent,
-	  ConnectDynString, AssStabs;
+    ConnectDynString, AssStabs;
 
   (* -------------------------------------------------------------------------
      Procedure StabStrings.StripAssign(dst, src)
@@ -223,42 +223,42 @@ MODULE StabStrings;
      -------------------------------------------------------------------------
      ------------------------------------------------------------------------- *)
 
-	PROCEDURE AppendIntToString (VAR str: ARRAY OF CHAR; x : LONGINT);
-	VAR
-		i : CARDINAL;
-		z, p : LONGINT;
-	BEGIN
-		i := 0;
-		WHILE str[i] # CHR(0) DO
-			INC(i)
-		END; (* WHILE *)
-		IF x < 0 THEN
-			IF x = -9223372036854775807-1 (* 64-bit LONGINT Minimum *) THEN
-				Append(str, '-9223372036854775808'); 
-				RETURN
-			ELSE
-				str[i] := '-';
-				INC(i);
-				z := - x;
-			END (* IF *)
-		ELSE
-			z := x
-		END; (* IF *)
-		p := 1000000000000000000; (* 19-digit base power *)
-		WHILE p > z DO
-			p := p DIV 10
-		END; (* WHILE *)
-		IF p = 0 THEN
-			p := 1
-		END; (* IF *)
-		WHILE p > 0 DO
-			str[i] := VAL(CHAR, ORD ('0') + z DIV p);
-			z := z MOD p;
-			p := p DIV 10;
-			INC(i)
-		END; (* WHILE *)
-		str[i] := CHR(0)
-	END AppendIntToString;
+  PROCEDURE AppendIntToString (VAR str: ARRAY OF CHAR; x : LONGINT);
+  VAR
+    i : CARDINAL;
+    z, p : LONGINT;
+  BEGIN
+    i := 0;
+    WHILE str[i] # CHR(0) DO
+      INC(i)
+    END; (* WHILE *)
+    IF x < 0 THEN
+      IF x = -9223372036854775807-1 (* 64-bit LONGINT Minimum *) THEN
+        Append(str, '-9223372036854775808'); 
+        RETURN
+      ELSE
+        str[i] := '-';
+        INC(i);
+        z := - x;
+      END (* IF *)
+    ELSE
+      z := x
+    END; (* IF *)
+    p := 1000000000000000000; (* 19-digit base power *)
+    WHILE p > z DO
+      p := p DIV 10
+    END; (* WHILE *)
+    IF p = 0 THEN
+      p := 1
+    END; (* IF *)
+    WHILE p > 0 DO
+      str[i] := VAL(CHAR, ORD ('0') + z DIV p);
+      z := z MOD p;
+      p := p DIV 10;
+      INC(i)
+    END; (* WHILE *)
+    str[i] := CHR(0)
+  END AppendIntToString;
   
   
   (* -------------------------------------------------------------------------
@@ -343,7 +343,7 @@ MODULE StabStrings;
   PROCEDURE AppendString ( VAR dest : DynString; VAR suffix : ARRAY OF CHAR );
   VAR
     suffixpos, suffixhigh, substrpos: CARDINAL;
-	  substring : DynString;
+    substring : DynString;
   BEGIN
     IF suffix[0] = CHR(0) THEN
       RETURN
@@ -359,28 +359,28 @@ MODULE StabStrings;
     ELSE
       substring := dest;
       WHILE substring^.Next # NIL DO
-	      substring := substring^.Next
-	    END; (* WHILE *)
+        substring := substring^.Next
+      END; (* WHILE *)
     END; (* IF *)
     substrpos := substring^.SubStringLength;
     LOOP
-	    IF substrpos = SubStringLength THEN
-	      NEW (substring^.Next);
-		    substring^.SubStringLength := SubStringLength;
-		    substring := substring^.Next;
-		    substring^.Next := NIL;
-		    substrpos := 0
-	    END; (* IF *)
+      IF substrpos = SubStringLength THEN
+        NEW (substring^.Next);
+        substring^.SubStringLength := SubStringLength;
+        substring := substring^.Next;
+        substring^.Next := NIL;
+        substrpos := 0
+      END; (* IF *)
       substring^.SubString[substrpos] := suffix[suffixpos];
       IF suffixpos = suffixhigh THEN
         substring^.SubStringLength := substrpos + 1;
-		    EXIT
-	    END; (* IF *)
+        EXIT
+      END; (* IF *)
       INC (suffixpos);
-	    INC (substrpos);
+      INC (substrpos);
       IF suffix[suffixpos] = CHR(0) THEN
         substring^.SubStringLength := substrpos;
-		    EXIT
+        EXIT
       END; (* IF *)
     END; (* LOOP *)
   END AppendString;
@@ -395,7 +395,7 @@ MODULE StabStrings;
     PROCEDURE ConnectDynString ( VAR dest, src : DynString );
     VAR
       substring : DynString;
-	    i : CARDINAL;
+      i : CARDINAL;
     BEGIN
       IF src = NIL THEN
         RETURN
@@ -405,87 +405,87 @@ MODULE StabStrings;
         dest := src
       ELSE substring := dest;
       
-	    WHILE substring^.Next # NIL DO
-	      substring := substring^.Next;
-	    END (* WHILE *);
-	    
-	    IF (substring^.SubStringLength + src^.SubStringLength
-	       < SubStringLength) AND (src^.Next = NIL)
-	      THEN FOR i:=0 TO src^.SubStringLength DO
-		     substring^.SubString[i+substring^.SubStringLength]
-		       := src^.SubString[i];
-		   END;
-		   INC (substring^.SubStringLength, src^.SubStringLength);
-	      ELSE substring^.Next := src;
-	    END (* IF *);
+      WHILE substring^.Next # NIL DO
+        substring := substring^.Next;
+      END (* WHILE *);
+      
+      IF (substring^.SubStringLength + src^.SubStringLength
+         < SubStringLength) AND (src^.Next = NIL)
+        THEN FOR i:=0 TO src^.SubStringLength DO
+         substring^.SubString[i+substring^.SubStringLength]
+           := src^.SubString[i];
+       END;
+       INC (substring^.SubStringLength, src^.SubStringLength);
+        ELSE substring^.Next := src;
+      END (* IF *);
      END (* IF *);
      src := NIL;
   END ConnectDynString;
 
 
-	(* -------------------------------------------------------------------------
-		 Procedure TypeTable.AppendInt(str, x)
-		 -------------------------------------------------------------------------
-		 ------------------------------------------------------------------------- *)
-	
-	PROCEDURE AppendInt ( VAR str : DynString; x : LONGINT );
-	VAR
-		subStrPos : CARDINAL;
-		z, p : LONGINT;
-		substring : DynString;
-	BEGIN
-		substring := str;
-		IF str = NIL THEN
-			NEW(str);
-			str^.SubStringLength := 0;
-			str^.Next := NIL;
-			substring := str
-		ELSE
-			substring := str;
-			WHILE substring^.Next # NIL DO
-				substring := substring^.Next
-			END (* WHILE *);
-		END (* IF *);
-		subStrPos := substring^.SubStringLength;
-		IF subStrPos + 21 >= SubStringLength THEN
-			NEW(substring^.Next);
-			substring := substring^.Next;
-			substring^.Next := NIL;
-			subStrPos := 0
-		END; (* IF *)
-		IF x < 0 THEN
-			IF x = -9223372036854775807-1 (* 64-bit LONGINT Min *) THEN
-				AppendString(str, '-9223372036854775808'); 
-				RETURN
-			ELSE
-				substring^.SubString[subStrPos] := '-';
-				INC(subStrPos);
-				z := - x;
-			END; (* IF *)
-		ELSE
-			z := x
-		END; (* IF *)
-		p := 1000000000000000000; (* Extended base power up to 19 digits *)
-		WHILE p > z DO
-			p := p DIV 10
-		END; (* WHILE *)
-		IF p = 0 THEN
-			p := 1
-		END; (* IF *)
-		WHILE p > 0 DO
-			substring^.SubString[subStrPos] := VAL (CHAR, ORD ('0') + z DIV p);
-			z := z MOD p;
-			p := p DIV 10;
-			INC(subStrPos);
-		END; (* WHILE *)
-		substring^.SubStringLength := subStrPos;
-	END AppendInt;
+  (* -------------------------------------------------------------------------
+     Procedure TypeTable.AppendInt(str, x)
+     -------------------------------------------------------------------------
+     ------------------------------------------------------------------------- *)
+  
+  PROCEDURE AppendInt ( VAR str : DynString; x : LONGINT );
+  VAR
+    subStrPos : CARDINAL;
+    z, p : LONGINT;
+    substring : DynString;
+  BEGIN
+    substring := str;
+    IF str = NIL THEN
+      NEW(str);
+      str^.SubStringLength := 0;
+      str^.Next := NIL;
+      substring := str
+    ELSE
+      substring := str;
+      WHILE substring^.Next # NIL DO
+        substring := substring^.Next
+      END (* WHILE *);
+    END (* IF *);
+    subStrPos := substring^.SubStringLength;
+    IF subStrPos + 21 >= SubStringLength THEN
+      NEW(substring^.Next);
+      substring := substring^.Next;
+      substring^.Next := NIL;
+      subStrPos := 0
+    END; (* IF *)
+    IF x < 0 THEN
+      IF x = -9223372036854775807-1 (* 64-bit LONGINT Min *) THEN
+        AppendString(str, '-9223372036854775808'); 
+        RETURN
+      ELSE
+        substring^.SubString[subStrPos] := '-';
+        INC(subStrPos);
+        z := - x;
+      END; (* IF *)
+    ELSE
+      z := x
+    END; (* IF *)
+    p := 1000000000000000000; (* Extended base power up to 19 digits *)
+    WHILE p > z DO
+      p := p DIV 10
+    END; (* WHILE *)
+    IF p = 0 THEN
+      p := 1
+    END; (* IF *)
+    WHILE p > 0 DO
+      substring^.SubString[subStrPos] := VAL (CHAR, ORD ('0') + z DIV p);
+      z := z MOD p;
+      p := p DIV 10;
+      INC(subStrPos);
+    END; (* WHILE *)
+    substring^.SubStringLength := subStrPos;
+  END AppendInt;
 
 
-	(* -------------------------------------------------------------------------
-		 Procedure TypeTable.AppendChar(srt, x)
-		 -------------------------------------------------------------------------
-		 ------------------------------------------------------------------------- *)
+  (* -------------------------------------------------------------------------
+     Procedure TypeTable.AppendChar(srt, x)
+     -------------------------------------------------------------------------
+     ------------------------------------------------------------------------- *)
 
   PROCEDURE AppendChar (VAR str: DynString; x : CHAR);
     VAR substring : DynString;
@@ -493,29 +493,29 @@ MODULE StabStrings;
      substring := str;
      IF str = NIL
        THEN NEW (str);
-	    str^.SubStringLength := 0;
-	    str^.Next := NIL;
-	    substring := str;
+      str^.SubStringLength := 0;
+      str^.Next := NIL;
+      substring := str;
        ELSE substring := str;
-	    WHILE substring^.Next # NIL DO
-	      substring := substring^.Next;
-	    END (* WHILE *);
+      WHILE substring^.Next # NIL DO
+        substring := substring^.Next;
+      END (* WHILE *);
      END (* IF *);
      IF substring^.SubStringLength = SubStringLength
        THEN NEW (substring^.Next);
-	    substring := substring^.Next;
-	    substring^.Next := NIL;
-	    substring^.SubStringLength := 0;
+      substring := substring^.Next;
+      substring^.Next := NIL;
+      substring^.SubStringLength := 0;
      END;
      substring^.SubString[substring^.SubStringLength] := x;
      INC (substring^.SubStringLength);
   END AppendChar;
 
 
-	(* -------------------------------------------------------------------------
-		 Procedure TypeTable.AppendIdent(srt, ident)
-		 -------------------------------------------------------------------------
-		 ------------------------------------------------------------------------- *)
+  (* -------------------------------------------------------------------------
+     Procedure TypeTable.AppendIdent(srt, ident)
+     -------------------------------------------------------------------------
+     ------------------------------------------------------------------------- *)
 
   PROCEDURE AppendIdent (VAR str: DynString; ident: Ident);
     VAR t: ARRAY [0..255] OF CHAR;
@@ -525,9 +525,9 @@ MODULE StabStrings;
   END AppendIdent;
   
 
-	(* -------------------------------------------------------------------------
-		 Procedure TypeTable.AssStabs(ident, front, middle, end)
-		 -------------------------------------------------------------------------
+  (* -------------------------------------------------------------------------
+     Procedure TypeTable.AssStabs(ident, front, middle, end)
+     -------------------------------------------------------------------------
      Emit Stabs in the format
         .stabs " ident front middle ", end
      or splits a long Stabs in the format
@@ -535,20 +535,20 @@ MODULE StabStrings;
         .stabs " middle2 \\", end
         ...
         .stabs " middleN ", end
-		 ------------------------------------------------------------------------- *)
+     ------------------------------------------------------------------------- *)
 
   PROCEDURE AssStabs
     (ident : Ident; front : ARRAY OF CHAR; middle: DynString; end : ARRAY OF CHAR);
     VAR substrpos, asslength : CARDINAL;
-	substring	     : DynString;
-	identstring	     : ARRAY [0..255] OF CHAR;
-	semicolon	     : BOOLEAN;
+  substring       : DynString;
+  identstring       : ARRAY [0..255] OF CHAR;
+  semicolon       : BOOLEAN;
   BEGIN
     flush;
-    AssString ('	.stabs "');
+    AssString ('  .stabs "');
     IF ident # NIL
       THEN GetIdentRepr (ident, identstring);
-	   AssString (identstring);
+     AssString (identstring);
     END (* IF *);
     AssString (front);
     IF middle # NIL THEN
@@ -558,27 +558,27 @@ MODULE StabStrings;
     semicolon := FALSE;
     LOOP
       IF substrpos = substring^.SubStringLength
-      	THEN IF substring^.Next = NIL
-	       THEN EXIT
-	       ELSE substring := substring^.Next;
-		    substrpos := 0;
-	     END (* IF *);
+        THEN IF substring^.Next = NIL
+         THEN EXIT
+         ELSE substring := substring^.Next;
+        substrpos := 0;
+       END (* IF *);
       END (* IF *);
       IF (asslength > KritAssLength) AND semicolon AND
-	 (((substring^.SubString[substrpos] >= 'A') AND 
-	   (substring^.SubString[substrpos] <= 'Z')) OR 
-	  ((substring^.SubString[substrpos] >= 'a') AND
-	   (substring^.SubString[substrpos] <= 'z')))
+   (((substring^.SubString[substrpos] >= 'A') AND 
+     (substring^.SubString[substrpos] <= 'Z')) OR 
+    ((substring^.SubString[substrpos] >= 'a') AND
+     (substring^.SubString[substrpos] <= 'z')))
         THEN AssString ('\\",');
-	     AssString (end);
-	     AssLn;
-	     flush;
-	     AssString ('	.stabs "');
-	     AssChar (substring^.SubString[substrpos]);
-	     asslength := 1;
-	ELSE AssChar (substring^.SubString[substrpos]);
-	     semicolon := (substring^.SubString[substrpos] = ';') OR
-			  (substring^.SubString[substrpos] = ',');
+       AssString (end);
+       AssLn;
+       flush;
+       AssString ('  .stabs "');
+       AssChar (substring^.SubString[substrpos]);
+       asslength := 1;
+  ELSE AssChar (substring^.SubString[substrpos]);
+       semicolon := (substring^.SubString[substrpos] = ';') OR
+        (substring^.SubString[substrpos] = ',');
       END (* IF *);
       INC (substrpos);
       INC (asslength);
@@ -612,7 +612,7 @@ MODULE ValueConversions;
     | LongCardValue : RETURN LONGINT (val.LongCardVal);
     | IntegerValue  : RETURN val.IntegerVal;
     | LongIntValue  : RETURN val.LongIntVal;
-    | CharValue	    : RETURN ORD (val.CharVal);
+    | CharValue      : RETURN ORD (val.CharVal);
     ELSE
       CompilerError ("illegal call to ConvToLongInt");
     END;
@@ -633,9 +633,9 @@ VAR
 
 
 (* -------------------------------------------------------------------------
-	 Procedure CgDebug.OpenDebug
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure CgDebug.OpenDebug
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
 PROCEDURE OpenDebug;
 VAR
@@ -654,13 +654,13 @@ BEGIN
   END; (*IF *)
 
   (* Emit Name of Source File *)
-  AssString ('	.stabs "');
+  AssString ('  .stabs "');
   AssString (cwd);
     
   IF Enabled(ElfOption) THEN
     AssString ('/",100,0,0,.LBB0');
     AssLn;
-    AssString ('	.stabs "');
+    AssString ('  .stabs "');
     AssString (NameOfSourceFile);
     AssString ('",100,0,0,.LBB0');
     AssLn;
@@ -670,7 +670,7 @@ BEGIN
   ELSE (* a.out *)
     AssString ('/",100,0,0,LBB0');
     AssLn;
-    AssString ('	.stabs "');
+    AssString ('  .stabs "');
     AssString (NameOfSourceFile);
     AssString ('",100,0,0,LBB0');
     AssLn;
@@ -724,9 +724,9 @@ END OpenDebug;
 
 
 (* -------------------------------------------------------------------------
-	 Procedure CgDebug.CloseDebug
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure CgDebug.CloseDebug
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
 PROCEDURE CloseDebug;
   VAR staticfront : ARRAY [0..511] OF CHAR;
@@ -737,79 +737,80 @@ BEGIN
 
   IF RootObject^.SizeOfActivationRecord > 0 THEN
     flush;
-	  GetIdentRepr (CompUnitObject^.name, staticfront);
-	  StripAssign (staticfront, staticfront);
-	  Append (staticfront, '_s:Gs');
-	  AppendIntToString (staticfront, RootObject^.SizeOfActivationRecord);
-	  AppendChar (staticdefstring, ';');
-	  AssStabs (NIL, staticfront, staticdefstring, '32,0,0,0');
+    GetIdentRepr (CompUnitObject^.name, staticfront);
+    StripAssign (staticfront, staticfront);
+    Append (staticfront, '_s:Gs');
+    AppendIntToString (staticfront, RootObject^.SizeOfActivationRecord);
+    AppendChar (staticdefstring, ';');
+    AssStabs (NIL, staticfront, staticdefstring, '32,0,0,0');
   END (* IF *)
 END CloseDebug;
 
 
 (* -------------------------------------------------------------------------
-	 Procedure CgDebug.StandardTypesDebug
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure CgDebug.StandardTypesDebug
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
 PROCEDURE StandardTypesDebug;
 BEGIN
   IF Enabled (DebugEnumOption) THEN
-    AssString('	.stabs "BOOLEAN:t1=eTRUE:1,FALSE:0,;",0x80,0,0,0');
+    AssString('  .stabs "BOOLEAN:t1=eTRUE:1,FALSE:0,;",0x80,0,0,0');
   ELSE
-    AssString('	.stabs "BOOLEAN:t1=r1;0;255;",0x80,0,0,0');
+    AssString('  .stabs "BOOLEAN:t1=r1;0;255;",0x80,0,0,0');
   END;
   AssLn;
-  AssString('	.stabs "CHAR:t2=r2;0;255;",0x80,0,0,0');
+  AssString('  .stabs "CHAR:t2=r2;0;255;",0x80,0,0,0');
   AssLn;
 
   (* CARDINAL and INTEGER are native 32-bit types *)
-  AssString('	.stabs "CARDINAL:t5=r5;0;4294967295;",0x80,0,0,0');
+  AssString('  .stabs "CARDINAL:t5=r5;0;4294967295;",0x80,0,0,0');
   AssLn;
-  AssString('	.stabs "INTEGER:t8=r8;-2147483648;2147483647;",0x80,0,0,0');
+  AssString('  .stabs "INTEGER:t8=r8;-2147483648;2147483647;",0x80,0,0,0');
   AssLn;
 
   (* LONGCARD and LONGINT are native 64-bit types *)
-  AssString('	.stabs "LONGCARD:t4=r4;0;-1;",0x80,0,0,0'); 
+  AssString('  .stabs "LONGCARD:t4=r4;0;-1;",0x80,0,0,0'); 
   AssLn;
-  AssString('	.stabs "LONGINT:t7=r7;-9223372036854775808;9223372036854775807;",0x80,0,0,0');
+  AssString('  .stabs "LONGINT:t7=r7;-9223372036854775808;9223372036854775807;",0x80,0,0,0');
   AssLn;
 
-  AssString('	.stabs "REAL:t9=r8;4;0;",0x80,0,0,0');
+  AssString('  .stabs "REAL:t9=r8;4;0;",0x80,0,0,0');
   AssLn;
-  AssString('	.stabs "LONGREAL:t10=r8;8;0;",0x80,0,0,0');
+  AssString('  .stabs "LONGREAL:t10=r8;8;0;",0x80,0,0,0');
   AssLn;
 
   (* BITSET remains 32-bit, mapped to a 32-bit unsigned range (like CARDINAL) *)
-  AssString('	.stabs "BITSET:t11=r5;0;4294967295",0x80,0,0,0');
+  AssString('  .stabs "BITSET:t11=r5;0;4294967295",0x80,0,0,0');
   AssLn;
 
-  AssString('	.stabs "WORD:t13=r13;0;255;",0x80,0,0,0');
+  AssString('  .stabs "WORD:t13=r13;0;255;",0x80,0,0,0');
   AssLn;
-  AssString('	.stabs "BYTE:t14=r2;0;255",0x80,0,0,0');
+  AssString('  .stabs "BYTE:t14=r2;0;255",0x80,0,0,0');
   AssLn;
-  AssString('	.stabs "VOID:t16=16",0x80,0,0,0');
+  AssString('  .stabs "VOID:t16=16",0x80,0,0,0');
   AssLn;
-  AssString('	.stabs "ADDRESS:t15=*16",0x80,0,0,0');
+  AssString('  .stabs "ADDRESS:t15=*16",0x80,0,0,0');
   AssLn;
-  AssString('	.stabs "PROC:t12=*f16;",0x80,0,0,0');
-  AssLn;
+  AssString('  .stabs "PROC:t12=*f16;",0x80,0,0,0');
+  AssLn
 END StandardTypesDebug;
 
 
 (* -------------------------------------------------------------------------
-	 Procedure CgDebug.TypeDebug(type, typedefstring)
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure CgDebug.TypeDebug(type, typedefstring)
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
 PROCEDURE TypeDebug (type : Type; VAR typedefstring: DynString);
-  VAR typeid    : CARDINAL;
-      isnew	: BOOLEAN;
-      tds, t	: DynString;
-      constant	: ObjectList;
-      field	: RecordField;
-      typefront : ARRAY [0..511] OF CHAR;
-
+VAR
+  typeid    : CARDINAL;
+  isnew  : BOOLEAN;
+  tds, t  : DynString;
+  constant  : ObjectList;
+  field  : RecordField;
+  typefront : ARRAY [0..511] OF CHAR;
+  
 BEGIN (* TypeDebug *)
   CheckTypeId (type, typeid, isnew);
   EmptyDynString (typedefstring);
@@ -823,22 +824,22 @@ BEGIN (* TypeDebug *)
     | ClassSHORTCARD :
         AssignString (tds, '5'); (* -> CARDINAL *)
     | ClassLONGCARD, ClassSIorLI, ClassSIorSCorLIorLC, ClassSCorLIorLC, ClassLIorLC :
-	     AssignString (tds, '4');
+       AssignString (tds, '4');
     | ClassSHORTINT :
         AssignString (tds, '8'); (* -> INTEGER *)
-	  | ClassLONGINT :
+    | ClassLONGINT :
        AssignString (tds, '7');
-	  | ClassREAL :
+    | ClassREAL :
        AssignString (tds, '9');
-	  | ClassLONGREAL, ClassSRorLR :
+    | ClassLONGREAL, ClassSRorLR :
         AssignString (tds, '10');
-	  | ClassBITSET :
+    | ClassBITSET :
         AssignString (tds, '11');
-	  | ClassPROC :
+    | ClassPROC :
         AssignString (tds, '12');
-	  | ClassWORD :
+    | ClassWORD :
         AssignString (tds, '13');
-	  | ClassADDRESS, ClassOPAQUE, ClassSTRING :
+    | ClassADDRESS, ClassOPAQUE, ClassSTRING :
         AssignString (tds, '15');
     | ClassVOID :
         AssignString (tds, '16');
@@ -853,7 +854,7 @@ BEGIN (* TypeDebug *)
               AppendInt (tds, ConvToLongInt (constant^.object^.value))
             ELSE
               CompilerError ("assertion violation (-g Option)")
-	          END; (* IF *)
+            END; (* IF *)
             AppendChar (tds, ',');
             constant := constant^.next
           END; (* WHILE *)
@@ -867,7 +868,7 @@ BEGIN (* TypeDebug *)
           ELSE
             AssignString (tds, '4')
           END (* CASE *)
-	      END (* IF *)
+        END (* IF *)
     | SubrangeType:
 (* Laut Grammatik muesste das so gehen, tut es aber nicht
    AssignString (tds, 'r');
@@ -878,93 +879,93 @@ BEGIN (* TypeDebug *)
    Append (tds, ';');
    AppendInt (tds, ConvToLongInt (type^.last));
 *)
-	     (*	Alternative: Subrange = BaseTypeOfSubrangeType *)
+       (*  Alternative: Subrange = BaseTypeOfSubrangeType *)
        TypeDebug(type^.BaseTypeOfSubrangeType, tds);
     | ArrayType :
       IF type^.IsOpenArray THEN
-	       AssignString (tds, 's8start:*');
-		     TypeDebug (type^.ComponentType, t);
-		     ConnectDynString (tds, t);
-		     AppendString (tds, ',0,32;high:5,32,32;;')
+         AssignString (tds, 's8start:*');
+         TypeDebug (type^.ComponentType, t);
+         ConnectDynString (tds, t);
+         AppendString (tds, ',0,32;high:5,32,32;;')
       ELSE
         AssignString (tds, 'a');
-		    CASE type^.IndexType^.class OF
-		      ClassBOOLEAN :
-		        AppendString(tds, 'r1;0;1');
-		    | ClassCHAR :
-		        AppendString(tds, 'r2;0;255');
-		    | SubrangeType :
-		        AppendChar (tds, 'r');
-			      TypeDebug(type^.IndexType^.BaseTypeOfSubrangeType,t);
-			      ConnectDynString(tds, t);
-			      AppendChar(tds, ';');
-			      AppendInt(tds, ConvToLongInt (type^.IndexType^.first));
+        CASE type^.IndexType^.class OF
+          ClassBOOLEAN :
+            AppendString(tds, 'r1;0;1');
+        | ClassCHAR :
+            AppendString(tds, 'r2;0;255');
+        | SubrangeType :
+            AppendChar (tds, 'r');
+            TypeDebug(type^.IndexType^.BaseTypeOfSubrangeType,t);
+            ConnectDynString(tds, t);
+            AppendChar(tds, ';');
+            AppendInt(tds, ConvToLongInt (type^.IndexType^.first));
             AppendChar(tds, ';');
             AppendInt (tds, ConvToLongInt (type^.IndexType^.last));
-		    | EnumerationType :
-		        AppendChar(tds, 'r');
-		        TypeDebug(type^.IndexType,t);
-		        ConnectDynString(tds, t);
-		        AppendString(tds, ';0;');
-		        AppendInt(tds, ConvToLongInt (type^.IndexType^.MaxVal))
-		    ELSE
-		      CompilerError ("assertion violation (-g option)");
-		    END; (* CASE *)
-		    AppendChar(tds, ';');
-		    TypeDebug(type^.ComponentType, t);
-		    ConnectDynString (tds, t);
-	    END (* IF *)
+        | EnumerationType :
+            AppendChar(tds, 'r');
+            TypeDebug(type^.IndexType,t);
+            ConnectDynString(tds, t);
+            AppendString(tds, ';0;');
+            AppendInt(tds, ConvToLongInt (type^.IndexType^.MaxVal))
+        ELSE
+          CompilerError ("assertion violation (-g option)");
+        END; (* CASE *)
+        AppendChar(tds, ';');
+        TypeDebug(type^.ComponentType, t);
+        ConnectDynString (tds, t);
+      END (* IF *)
     | RecordType :
         AssignString (tds, 's');
-	      AppendInt (tds, type^.size);
-	      field := type^.FirstField;
-	      WHILE field # NIL DO
-	        AppendIdent(tds, field^.name);
-	        AppendChar(tds, ':');
-	        TypeDebug(field^.type, t);
-	        ConnectDynString (tds, t);
-	        AppendChar(tds, ',');
-	        AppendInt(tds, 8 * field^.offset);
-	        AppendChar(tds, ',');
-	        AppendInt(tds, 8 * field^.type^.size);
-	        AppendChar(tds, ';');
-	        field := field^.next;
-	      END; (* WHILE *)
-	      AppendChar(tds, ';');
+        AppendInt (tds, type^.size);
+        field := type^.FirstField;
+        WHILE field # NIL DO
+          AppendIdent(tds, field^.name);
+          AppendChar(tds, ':');
+          TypeDebug(field^.type, t);
+          ConnectDynString (tds, t);
+          AppendChar(tds, ',');
+          AppendInt(tds, 8 * field^.offset);
+          AppendChar(tds, ',');
+          AppendInt(tds, 8 * field^.type^.size);
+          AppendChar(tds, ';');
+          field := field^.next;
+        END; (* WHILE *)
+        AppendChar(tds, ';');
     | SetType :
-	      AssignString(tds, '4');
+        AssignString(tds, '4');
     | PointerType :
-	      AssignString(tds, '*');
-	      TypeDebug(type^.BaseTypeOfPointerType, t);
-	      ConnectDynString(tds, t);
-	  | ProcedureType:
-	      AssignString (tds, '12');
-	      (* Prozedur-Typen nur als PROC ohne Argumente und Ergebnis *)
+        AssignString(tds, '*');
+        TypeDebug(type^.BaseTypeOfPointerType, t);
+        ConnectDynString(tds, t);
+    | ProcedureType:
+        AssignString (tds, '12');
+        (* Prozedur-Typen nur als PROC ohne Argumente und Ergebnis *)
     ELSE
       CompilerError ("assertion violation (-g option)")
     END (* CASE *);
 
-	  (* Wenn der Typ einen Namen hat, wird ein eigener stabs-Eintrag generiert und
-	     nur die Typ-Nummer in 'typedefstring' zurueckgegeben *)
-	  IF ((type^.DefiningObject = NIL) OR (type^.DefiningObject^.name = NIL)) THEN
-	    AppendChar(typedefstring, '=');
-		  ConnectDynString(typedefstring, tds)
-		(* ansonsten wird die Typ-Information an den uebergeordeten stabs-Eintrag
-		 weitergegeben. *)
-	  ELSE
-	    Assign(typefront, ':t');
-		  AppendIntToString(typefront, typeid);
-		  Append(typefront, '=');
-		  AssStabs(type^.DefiningObject^.name, typefront, tds, '128,0,0,0')
-	  END (* IF *)
+    (* Wenn der Typ einen Namen hat, wird ein eigener stabs-Eintrag generiert und
+       nur die Typ-Nummer in 'typedefstring' zurueckgegeben *)
+    IF ((type^.DefiningObject = NIL) OR (type^.DefiningObject^.name = NIL)) THEN
+      AppendChar(typedefstring, '=');
+      ConnectDynString(typedefstring, tds)
+    (* ansonsten wird die Typ-Information an den uebergeordeten stabs-Eintrag
+     weitergegeben. *)
+    ELSE
+      Assign(typefront, ':t');
+      AppendIntToString(typefront, typeid);
+      Append(typefront, '=');
+      AssStabs(type^.DefiningObject^.name, typefront, tds, '128,0,0,0')
+    END (* IF *)
   END (* IF NOT isNew *)
 END TypeDebug;
 
 
 (* -------------------------------------------------------------------------
-	 Procedure CgDebug.ProedureDebug(proc)
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure CgDebug.ProedureDebug(proc)
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
 PROCEDURE ProcedureDebug ( proc : Object );
 VAR
@@ -1000,9 +1001,9 @@ END ProcedureDebug;
 
 
 (* -------------------------------------------------------------------------
-	 Procedure CgDebug.BeginDebugBlock
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure CgDebug.BeginDebugBlock
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
 PROCEDURE BeginDebugBlock;
 BEGIN
@@ -1024,9 +1025,9 @@ END BeginDebugBlock;
 
 
 (* -------------------------------------------------------------------------
-	 Procedure CgDebug.EndDebugBlock
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure CgDebug.EndDebugBlock
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
 PROCEDURE EndDebugBlock;
 BEGIN
@@ -1037,8 +1038,8 @@ BEGIN
   IF Enabled(ElfOption) THEN
     AssString('.LBE');
   (* the following code is obsolete on 64-bit *)
-	ELSE (* a.out *)
-	  AssString('LBE');
+  ELSE (* a.out *)
+    AssString('LBE');
   END; (* IF *)
   
   AssInt (blocknumber);
@@ -1048,9 +1049,9 @@ END EndDebugBlock;
 
 
 (* -------------------------------------------------------------------------
-	 Procedure LocalObjectsDebug(firstlocalobj)
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure CgDebug.LocalObjectsDebug(firstlocalobj)
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
 PROCEDURE LocalObjectsDebug ( firstlocalobj : Object );
 VAR
@@ -1059,9 +1060,9 @@ VAR
 
 
 (* -------------------------------------------------------------------------
-	 Procedure LocalObjectsDebug.VariableDebug(obj)
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure LocalObjectsDebug.StaticVariableDebug(obj)
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
   PROCEDURE StaticVariableDebug ( obj : Object );
     VAR
@@ -1079,31 +1080,31 @@ VAR
   END StaticVariableDebug;
 
 (* -------------------------------------------------------------------------
-	 Procedure LocalObjectsDebug.LocalVariableDebug(obj)
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure LocalObjectsDebug.LocalVariableDebug(obj)
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
   PROCEDURE LocalVariableDebug ( obj : Object );
   VAR
     varfront, varend : ARRAY [0..511] OF CHAR;
-	  tds : DynString;
+    tds : DynString;
   BEGIN
     TypeDebug (obj^.TypeOfVariable, tds);
     CASE obj^.kind OF
       LocalVar :
         Assign(varfront, ':');
-		    Assign(varend, '128,0,');
+        Assign(varend, '128,0,');
     | VarParam :
         IF (obj^.TypeOfVariable^.class = ArrayType) AND 
-		       (obj^.TypeOfVariable^.IsOpenArray) THEN
-		       Assign(varfront, ':p')
+           (obj^.TypeOfVariable^.IsOpenArray) THEN
+           Assign(varfront, ':p')
         ELSE
           Assign(varfront, ':v')
-		    END; (* IF *)
-		    Assign(varend, '160,0,');
+        END; (* IF *)
+        Assign(varend, '160,0,');
     | ValueParam :
         Assign(varfront, ':p');
-		    Assign (varend, '160,0,')
+        Assign (varend, '160,0,')
     END; (* CASE *)
     AppendIntToString(varend, obj^.TypeOfVariable^.size);
     Append(varend, ',');
@@ -1112,69 +1113,69 @@ VAR
   END LocalVariableDebug;
 
 (* -------------------------------------------------------------------------
-	 Procedure LocalObjectsDebug.LocalVariableDebug(obj)
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure LocalObjectsDebug.LocalVariableDebug(obj)
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
   PROCEDURE ConstantDebug ( obj : Object );
-	VAR
-		constfront : ARRAY [0..511] OF CHAR;
-		tds : DynString;
-		def : BOOLEAN;
-	BEGIN
-		IF Enabled(DebugConstOption) THEN
-			Assign (constfront, ':c=');
-			EmptyDynString (tds);
-			def := TRUE;
-			CASE obj^.TypeOfConstant^.class OF
-				ClassSIorSCorLIorLC, ClassSIorLI, ClassSCorLIorLC,  ClassLIorLC,
-				ClassSHORTCARD, ClassLONGCARD, ClassSHORTINT, ClassLONGINT,
-				EnumerationType :
-					Append (constfront, 'i');
-					AppendIntToString (constfront, ConvToLongInt (obj^.value));
-			| ClassBOOLEAN :
-					IF ConvToBool (obj^.value) THEN
-						Append(constfront, 'i1')
-					ELSE
-						Append (constfront, 'i0')
-					END (* IF *)
-			| ClassCHAR :
-					Append (constfront, 'i');
-					AppendIntToString(constfront, ORD (ConvToChar (obj^.value)));
-			| ClassSRorLR, ClassREAL, ClassLONGREAL :
-					Append(constfront, 'r');
-					AppendRealToString(constfront, ConvToLongReal (obj^.value));
-			| ClassNIL :
-					Append(constfront, 'i0');
-	(*
-			| ClassSTRING :
-					Append(constfront, "s``");
-					ConvToString(obj^.value, tds);
-					Append(constfront, tds);
-					Append(constfront, "''");
-	*)
-			| ClassBITSET, SetType :
-					Append(constfront, 'i');
-					AppendIntToString(constfront, INTEGER(ConvToSet(obj^.value)))
-			ELSE
-	(*
-				WriteString ('Warning: No Debugging of "');
-				GetIdentRepr (obj^.name, tds); WriteString (tds); 
-				WriteString('"');
-										WriteLn;
-	*)
-				def := FALSE
-			END; (* CASE *)
-			IF def THEN
-				AssStabs(obj^.name, constfront, tds, '128,0,0,0')
-			END (* IF *)
-		END (* IF NOT Enabled(DebugConstOption) *)
-	END ConstantDebug;
+  VAR
+    constfront : ARRAY [0..511] OF CHAR;
+    tds : DynString;
+    def : BOOLEAN;
+  BEGIN
+    IF Enabled(DebugConstOption) THEN
+      Assign (constfront, ':c=');
+      EmptyDynString (tds);
+      def := TRUE;
+      CASE obj^.TypeOfConstant^.class OF
+        ClassSIorSCorLIorLC, ClassSIorLI, ClassSCorLIorLC,  ClassLIorLC,
+        ClassSHORTCARD, ClassLONGCARD, ClassSHORTINT, ClassLONGINT,
+        EnumerationType :
+          Append (constfront, 'i');
+          AppendIntToString (constfront, ConvToLongInt (obj^.value));
+      | ClassBOOLEAN :
+          IF ConvToBool (obj^.value) THEN
+            Append(constfront, 'i1')
+          ELSE
+            Append (constfront, 'i0')
+          END (* IF *)
+      | ClassCHAR :
+          Append (constfront, 'i');
+          AppendIntToString(constfront, ORD (ConvToChar (obj^.value)));
+      | ClassSRorLR, ClassREAL, ClassLONGREAL :
+          Append(constfront, 'r');
+          AppendRealToString(constfront, ConvToLongReal (obj^.value));
+      | ClassNIL :
+          Append(constfront, 'i0');
+  (*
+      | ClassSTRING :
+          Append(constfront, "s``");
+          ConvToString(obj^.value, tds);
+          Append(constfront, tds);
+          Append(constfront, "''");
+  *)
+      | ClassBITSET, SetType :
+          Append(constfront, 'i');
+          AppendIntToString(constfront, INTEGER(ConvToSet(obj^.value)))
+      ELSE
+  (*
+        WriteString ('Warning: No Debugging of "');
+        GetIdentRepr (obj^.name, tds); WriteString (tds); 
+        WriteString('"');
+                    WriteLn;
+  *)
+        def := FALSE
+      END; (* CASE *)
+      IF def THEN
+        AssStabs(obj^.name, constfront, tds, '128,0,0,0')
+      END (* IF *)
+    END (* IF NOT Enabled(DebugConstOption) *)
+  END ConstantDebug;
 
 (* -------------------------------------------------------------------------
-	 Procedure LocalObjectsDebug.Static(obj)
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure LocalObjectsDebug.Static(obj)
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
   PROCEDURE Static ( obj : Object ) : BOOLEAN;
   BEGIN 
@@ -1185,8 +1186,8 @@ VAR
   END Static;
 
 (* -------------------------------------------------------------------------
-	 Body of CgDebug.LocalObjectsDebug
-	 ------------------------------------------------------------------------- *)
+   Body of CgDebug.LocalObjectsDebug
+   ------------------------------------------------------------------------- *)
 
 BEGIN (* LocalObjectsDebug *)
  IF Enabled (DebugOption) THEN
@@ -1199,12 +1200,12 @@ BEGIN (* LocalObjectsDebug *)
       | StandardProcedureObj:
           (* do nothing *)
       | VariableObj:
-	  IF Static (obj) 
+    IF Static (obj) 
             THEN StaticVariableDebug (obj)
-	    ELSE LocalVariableDebug (obj)
-	  END;
+      ELSE LocalVariableDebug (obj)
+    END;
       | ConstantObj:
-	 ConstantDebug (obj);
+   ConstantDebug (obj);
       | TypeObj:
           TypeDebug (obj^.TypeOfType, tds);
       | FieldObj:
@@ -1215,22 +1216,22 @@ BEGIN (* LocalObjectsDebug *)
       obj := obj^.next;
     END;
     IF Enabled (ElfOption) THEN
-      AssString ('	.stabn 192,0,0,.LBB'); AssInt (blocknumber); 
+      AssString ('  .stabn 192,0,0,.LBB'); AssInt (blocknumber); 
       AssChar ('-'); AssString (CurProcEntry); AssLn;
-      AssString ('	.stabn 224,0,0,.LBE'); AssInt (blocknumber);
+      AssString ('  .stabn 224,0,0,.LBE'); AssInt (blocknumber);
       AssChar ('-'); AssString (CurProcEntry); AssLn;
     ELSE
-      AssString ('	.stabn 192,0,0,LBB'); AssInt (blocknumber); AssLn;
-      AssString ('	.stabn 224,0,0,LBE'); AssInt (blocknumber); AssLn;
+      AssString ('  .stabn 192,0,0,LBB'); AssInt (blocknumber); AssLn;
+      AssString ('  .stabn 224,0,0,LBE'); AssInt (blocknumber); AssLn;
     END;
   END (* IF Enabled (DebugOption) *)
 END LocalObjectsDebug;
 
 
 (* -------------------------------------------------------------------------
-	 Procedure CgDebug.LineNumberDebug(pos)
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure CgDebug.LineNumberDebug(pos)
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
 PROCEDURE LineNumberDebug (pos: SourcePosition);
 BEGIN
@@ -1239,33 +1240,33 @@ BEGIN
   END; (* IF *)
   
   IF Enabled(ElfOption) THEN
-	  INC (lnnumber);
-		AssHString('.LN');
-		AssInt(lnnumber);
-		AssHString(':');
-		AssLn;
-		AssHString('	.stabn  68,0,');
+    INC (lnnumber);
+    AssHString('.LN');
+    AssInt(lnnumber);
+    AssHString(':');
+    AssLn;
+    AssHString('  .stabn  68,0,');
     AssInt (pos.line);
-		AssHString(',.LN');
-		AssInt(lnnumber);
-		AssHString('-');
-		AssString(CurProcEntry)
-	(* the following code is obsolete on 64-bit *)
+    AssHString(',.LN');
+    AssInt(lnnumber);
+    AssHString('-');
+    AssString(CurProcEntry)
+  (* the following code is obsolete on 64-bit *)
   ELSE (* a.out *)
-    AssHString('	.stabd	68,0,');
-		AssInt (pos.line);
-	END; (* IF *)
-	
-	AssHString('		# line '); AssInt (pos.line);
-	AssHString(', column '); AssInt (pos.col);
+    AssHString('  .stabd  68,0,');
+    AssInt (pos.line);
+  END; (* IF *)
+  
+  AssHString('    # line '); AssInt (pos.line);
+  AssHString(', column '); AssInt (pos.col);
   AssLn;
   lastlinenumber := pos.line
 END LineNumberDebug;
 
 (* -------------------------------------------------------------------------
-	 Procedure CgDebug.LineNumberDebug(pos)
-	 -------------------------------------------------------------------------
-	 ------------------------------------------------------------------------- *)
+   Procedure CgDebug.LastLineNumberDebug;
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
 PROCEDURE LastLineNumberDebug;
   VAR lastpos : SourcePosition;

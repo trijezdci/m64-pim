@@ -25,34 +25,100 @@ FROM DfTable IMPORT
   Object;
 
 
+(* -------------------------------------------------------------------------
+	 Procedure OpenDebug
+	 -------------------------------------------------------------------------
+   (* Quelldateiname, Standardtypen, interne Initialisierung *)
+	 ------------------------------------------------------------------------- *)
+
 PROCEDURE OpenDebug;
-  (* Quelldateiname, Standardtypen, interne Initialisierung *)
+
+
+(* -------------------------------------------------------------------------
+	 Procedure CloseDebug
+	 -------------------------------------------------------------------------
+   (* statische Variablen *)
+	 ------------------------------------------------------------------------- *)
 
 PROCEDURE CloseDebug;
-  (* statische Variablen *)
+  
 
-PROCEDURE ProcedureDebug (proc: Object);
-  (* Prozedurname, zurueckgegebener Datentyp *)
+(* -------------------------------------------------------------------------
+	 Procedure StandardTypesDebug
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
+
+PROCEDURE StandardTypesDebug;
+
+
+(* -------------------------------------------------------------------------
+	 Procedure TypeDebug(type, typedefstring)
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
+
+PROCEDURE TypeDebug ( type : Type; VAR typedefstring : DynString );
+
+
+(* -------------------------------------------------------------------------
+	 Procedure ProcedureDebug(proc)
+	 -------------------------------------------------------------------------
+	 (* Prozedurname, zurueckgegebener Datentyp *)
+	 ------------------------------------------------------------------------- *)
+
+PROCEDURE ProcedureDebug ( proc : Object );
+  
+
+(* -------------------------------------------------------------------------
+	 Procedure BeginDebugBlock
+	 -------------------------------------------------------------------------
+	 Marks the beginning of a module or procedure.
+	 ------------------------------------------------------------------------- *)
 
 PROCEDURE BeginDebugBlock;
+
+
+(* -------------------------------------------------------------------------
+	 Procedure EndDebugBlock
+	 -------------------------------------------------------------------------
+	 Marks the end of a module or procedure.
+	 ------------------------------------------------------------------------- *)
+
 PROCEDURE EndDebugBlock;
-  (* Markiert Anfang und Ende einer Prozedur / eines Moduls *)
 
-PROCEDURE LocalObjectsDebug (firstlocalobj: Object);
-  (* Nach dem Uebersetzen der Prozedur / des Moduls:
-     Variablen, Parameter, Blockmarkierung;
-     Vorher muss der Block mit 'BeginDebugBlock' und 'EndDebugBlock'
-     markiert worden sein *)  
 
-PROCEDURE LineNumberDebug (pos: SourcePosition);
-  (* Zeilennummer im Sourcecode *)
+(* -------------------------------------------------------------------------
+	 Procedure LocalObjectsDebug(firstlocalobj)
+	 -------------------------------------------------------------------------
+   (* Nach dem Uebersetzen der Prozedur / des Moduls:
+      Variablen, Parameter, Blockmarkierung;
+      Vorher muss der Block mit 'BeginDebugBlock' und 'EndDebugBlock'
+      markiert worden sein *)  
+	 ------------------------------------------------------------------------- *)
+
+PROCEDURE LocalObjectsDebug ( firstlocalobj : Object );
+
+
+(* -------------------------------------------------------------------------
+	 Procedure CgDebug.LineNumberDebug(pos)
+	 -------------------------------------------------------------------------
+	 (* Zeilennummer im Sourcecode *)
+	 ------------------------------------------------------------------------- *)
+
+PROCEDURE LineNumberDebug ( pos : SourcePosition );
+
+
+(* -------------------------------------------------------------------------
+	 Procedure CgDebug.LastLineNumberDebug;
+	 -------------------------------------------------------------------------
+   (* Erzeugt die Zeile hinter der letzten Zeile einer Prozedur durch
+      Addition der letzten Zeilennummer mit 1. In der Regel steht dort
+      ein 'END Prozedurname;'. Die letzte Zeile wird leider im Strukturbaum
+      nur als NIL gekennzeichnet und aus NIL erhaelt man leider keine
+      Information ueber die Zeilennummer... *)
+	 ------------------------------------------------------------------------- *)
 
 PROCEDURE LastLineNumberDebug;
-  (* Erzeugt die Zeile hinter der letzten Zeile einer Prozedur durch
-     Addition der letzten Zeilennummer mit 1. In der Regel steht dort
-     ein 'END Prozedurname;'. Die letzte Zeile wird leider im Strukturbaum
-     nur als NIL gekennzeichnet und aus NIL erhaelt man leider keine
-     Information ueber die Zeilennummer... *)
+
 
 END CgDebug.
 
