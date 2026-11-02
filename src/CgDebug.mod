@@ -95,9 +95,17 @@ FROM CgBase IMPORT
 
 VAR DebugConstOption, DebugEnumOption : CARDINAL;
 
+
+  (* =========================================================================
+     MODULE CgDebug.TypeTable
+     =========================================================================
+     
+     ========================================================================= *)
+
 MODULE TypeTable;
 
   IMPORT ShortCard Type, Object, Equal, CompilerError, ADR;
+  
   EXPORT InitTypeTable, EnterType, CheckTypeId;
 
   CONST max = 1000;
@@ -105,125 +113,163 @@ MODULE TypeTable;
   VAR typetable : ARRAY [1..max] OF Type;
       maxtypeid : ShortCard;
 
+  (* -------------------------------------------------------------------------
+     Procedure TypeTable.InitTypeTable
+     -------------------------------------------------------------------------
+     
+     ------------------------------------------------------------------------- *)
+
   PROCEDURE InitTypeTable;
   BEGIN
-    FOR maxtypeid:=1 TO 16 DO 
+    FOR maxtypeid := 1 TO 16 DO 
       typetable[maxtypeid] := NIL
-    END;
+    END; (* FOR *)
     maxtypeid := 17;
   END InitTypeTable;
 
-  PROCEDURE EnterType (VAR obj: Object;
-                       VAR typeid: CARDINAL;
-		       name: ARRAY OF CHAR);
+
+  (* -------------------------------------------------------------------------
+     Procedure TypeTable.EnterType(obj, typeid, name)
+     -------------------------------------------------------------------------
+     
+     ------------------------------------------------------------------------- *)
+
+  PROCEDURE EnterType
+    ( VAR obj : Object; VAR typeid : CARDINAL; name : ARRAY OF CHAR );
   BEGIN
-    IF Equal (obj^.name, name)
-      THEN typetable[typeid] := obj^.TypeOfType;
-           DEC (typeid);
-           obj := obj^.next;
-      ELSE CompilerError ('assertion violation (-g Option)');
+    IF Equal(obj^.name, name) THEN
+      typetable[typeid] := obj^.TypeOfType;
+      DEC(typeid);
+      obj := obj^.next
+    ELSE
+      CompilerError("assertion violation (-g Option)")
     END
   END EnterType;
-    
-  PROCEDURE CheckTypeId (type : Type; 
-                         VAR typeid : CARDINAL; 
-                         VAR isnewtypeid : BOOLEAN);
+
+
+  (* -------------------------------------------------------------------------
+     Procedure TypeTable.CheckTypeId(type, typeid, isnewtypeid)
+     -------------------------------------------------------------------------
+     
+     ------------------------------------------------------------------------- *)
+
+  PROCEDURE CheckTypeId
+    ( type : Type; VAR typeid : CARDINAL; VAR isnewtypeid : BOOLEAN );
   BEGIN
     typetable[maxtypeid] := type;
     typeid := 1;
-    WHILE typetable[typeid] # type DO 
+    WHILE typetable[typeid] # type DO
       INC(typeid)
     END;
     isnewtypeid := typeid = maxtypeid;
-    IF isnewtypeid
-      THEN IF maxtypeid = max 
-            THEN CompilerError('Too much Types for -g Option');
-           END;           
-           INC(maxtypeid);
-    END;
+    IF isnewtypeid THEN
+      IF maxtypeid = max THEN
+        CompilerError("Too many types for -g Option")
+      END;
+      INC(maxtypeid)
+    END
   END CheckTypeId;
 
-END TypeTable;
+END (* MODULE *) TypeTable;
+
+
+(* =========================================================================
+   MODULE CgDebug.StabStrings
+   =========================================================================
+   ========================================================================= *)
 
 MODULE StabStrings;
 
-  IMPORT Append, StrEq,
-	 LongReal2Str,
-	 Ident, GetIdentRepr, 
-         WriteString, WriteLn,
-	 ALLOCATE,
-	 AssString, AssChar, AssLn, flush;
-  EXPORT StripAssign, AppendIntToString, AppendRealToString, Equal,
-	 DynString, EmptyDynString, AssignString, 
-	 AppendString, AppendChar, AppendInt, AppendIdent,
-	 ConnectDynString, AssStabs;
+  IMPORT Append, StrEq, LongReal2Str, Ident, GetIdentRepr, WriteString, WriteLn,
+	  ALLOCATE, AssString, AssChar, AssLn, flush;
+	 
+  EXPORT StripAssign, AppendIntToString, AppendRealToString, Equal, DynString,
+    EmptyDynString, AssignString, AppendString, AppendChar, AppendInt, AppendIdent,
+	  ConnectDynString, AssStabs;
 
-  (****** Procedures for Strings (ARRAY OF CHAR) *****)
+  (* -------------------------------------------------------------------------
+     Procedure StabStrings.StripAssign(dst, src)
+     -------------------------------------------------------------------------
+     Assigns string src to dst, stripping leading '_', terminated with CHR(0).
+     ------------------------------------------------------------------------- *)
 
-  PROCEDURE StripAssign (VAR dst, src: ARRAY OF CHAR);
-   (* assign string 'src' to string 'dst'. 'src' must be terminated by CHR(0) *)
-   (* a leading _ in src is supressed *)
-     VAR
-       i,j: ShortCard;
-       high: ShortCard;
+  PROCEDURE StripAssign(VAR dst, src: ARRAY OF CHAR);
+  VAR
+    i, j, high: ShortCard;
   BEGIN
-     (* high := max (HIGH(dst), HIGH(src)) *)
-     high := HIGH(dst);
-     IF high > HIGH(src) THEN
-       high := HIGH(src);
-     END;
-     (* copy string, max. 0..high, stopp on CHR(0) *)
-     i := 0; j:= 0;
-     IF src[0] = '_' THEN j := 1; END;
-     WHILE (j <= high) AND (src[j] # CHR(0)) DO
-       dst[i] := src[j];
-       INC(i); INC(j);
-     END;
-     IF i <= HIGH(dst) THEN
-       dst[i] := CHR(0);
-     END;
+    (* high := max (HIGH(dst), HIGH(src)) *)
+    high := HIGH(dst);
+    IF high > HIGH(src) THEN
+      high := HIGH(src)
+    END;
+    i := 0;
+    j := 0;
+    IF src[0] = '_' THEN
+      j := 1
+    END;
+    WHILE (j <= high) AND (src[j] # CHR(0)) DO
+      dst[i] := src[j];
+      INC(i);
+      INC(j)
+    END;
+    IF i <= HIGH(dst) THEN
+      dst[i] := CHR(0)
+    END
   END StripAssign;
 
-PROCEDURE AppendIntToString (VAR str: ARRAY OF CHAR; x : LONGINT);
-VAR
-  i : CARDINAL;
-  z, p : LONGINT;
-BEGIN
-  i := 0;
-  WHILE str[i] # CHR(0) DO
-    INC(i)
-  END; (* WHILE *)
-  IF x < 0 THEN
-    IF x = -9223372036854775807-1 (* 64-bit LONGINT Minimum *) THEN
-      Append (str, '-9223372036854775808'); 
-      RETURN
-    ELSE
-      str[i] := '-';
-      INC(i);
-      z := - x;
-    END (* IF *)
-  ELSE
-    z := x
-  END; (* IF *)
-  p := 1000000000000000000; (* 19-digit base power *)
-  WHILE p > z DO
-    p := p DIV 10
-  END; (* WHILE *)
-  IF p = 0 THEN
-    p := 1
-  END; (* IF *)
-  WHILE p > 0 DO
-    str [i] := VAL (CHAR, ORD ('0') + z DIV p);
-    z := z MOD p;
-    p := p DIV 10;
-    INC(i)
-  END; (* WHILE *)
-  str[i] := CHR(0)
-  END AppendIntToString;
+
+  (* -------------------------------------------------------------------------
+     Procedure StabStrings.AppendIntToString(str, x)
+     -------------------------------------------------------------------------
+     ------------------------------------------------------------------------- *)
+
+	PROCEDURE AppendIntToString (VAR str: ARRAY OF CHAR; x : LONGINT);
+	VAR
+		i : CARDINAL;
+		z, p : LONGINT;
+	BEGIN
+		i := 0;
+		WHILE str[i] # CHR(0) DO
+			INC(i)
+		END; (* WHILE *)
+		IF x < 0 THEN
+			IF x = -9223372036854775807-1 (* 64-bit LONGINT Minimum *) THEN
+				Append(str, '-9223372036854775808'); 
+				RETURN
+			ELSE
+				str[i] := '-';
+				INC(i);
+				z := - x;
+			END (* IF *)
+		ELSE
+			z := x
+		END; (* IF *)
+		p := 1000000000000000000; (* 19-digit base power *)
+		WHILE p > z DO
+			p := p DIV 10
+		END; (* WHILE *)
+		IF p = 0 THEN
+			p := 1
+		END; (* IF *)
+		WHILE p > 0 DO
+			str[i] := VAL(CHAR, ORD ('0') + z DIV p);
+			z := z MOD p;
+			p := p DIV 10;
+			INC(i)
+		END; (* WHILE *)
+		str[i] := CHR(0)
+	END AppendIntToString;
   
+  
+  (* -------------------------------------------------------------------------
+     Procedure StabStrings.AppendRealToString(str, x)
+     -------------------------------------------------------------------------
+     ------------------------------------------------------------------------- *)
+
   PROCEDURE AppendRealToString (VAR str: ARRAY OF CHAR; x : LONGREAL);
-    VAR realstr : ARRAY [0..50] OF CHAR;
-        ok : BOOLEAN;
+  VAR
+    realstr : ARRAY [0..50] OF CHAR;
+    ok : BOOLEAN;
   BEGIN
     LongReal2Str (x, 20, -20, realstr, ok); 
     IF ok
@@ -233,9 +279,16 @@ BEGIN
            Append (str, '0.0')
     END
   END AppendRealToString;
-    
-  PROCEDURE Equal (ident: Ident; str: ARRAY OF CHAR) : BOOLEAN;
-    VAR t: ARRAY [0..255] OF CHAR;
+  
+  
+  (* -------------------------------------------------------------------------
+     Function TypeTable.Equal(ident, str)
+     -------------------------------------------------------------------------
+     ------------------------------------------------------------------------- *)
+
+  PROCEDURE Equal ( ident : Ident; str : ARRAY OF CHAR ) : BOOLEAN;
+  VAR
+    t: ARRAY [0..255] OF CHAR;
   BEGIN
     GetIdentRepr (ident, t);
     RETURN StrEq (t, str);
@@ -243,83 +296,119 @@ BEGIN
 
   (****** Procedures for DynStrings (dynamic with pointers) *****)
 
-  CONST SubStringLength = 256;
-        KritAssLength   = 800;
+  CONST
+    SubStringLength = 256;
+    KritAssLength   = 800;
 
-  TYPE DynString        = POINTER TO SubStringElement;
-       SubStringElement = RECORD
-			    SubString : ARRAY [0..SubStringLength-1] OF CHAR;
-			    SubStringLength : CARDINAL;
-			    Next : DynString;
-			  END;
+  TYPE DynString = POINTER TO SubStringElement;
+  
+  TYPE SubStringElement = RECORD
+    SubString : ARRAY [0..SubStringLength-1] OF CHAR;
+    SubStringLength : CARDINAL;
+    Next : DynString;
+  END; (* RECORD *)
+
+
+  (* -------------------------------------------------------------------------
+     Procedure TypeTable.EmptyDynString(str)
+     -------------------------------------------------------------------------
+     str := ""
+     ------------------------------------------------------------------------- *)
 
   PROCEDURE EmptyDynString (VAR str: DynString);
-      (* str := "" *)
   BEGIN
-      str := NIL;
+    str := NIL;
   END EmptyDynString;
+  
+  
+  (* -------------------------------------------------------------------------
+     Procedure TypeTable.AssignString(dst, src)
+     -------------------------------------------------------------------------
+     Assigns string src to dst, terminated by CHR(0).
+     ------------------------------------------------------------------------- *)
 
-  PROCEDURE AssignString (VAR dst: DynString; VAR src: ARRAY OF CHAR);
-      (* assign string 'src' to string 'dst'. 'src' must be terminated by CHR(0) *)
+  PROCEDURE AssignString ( VAR dst : DynString; VAR src : ARRAY OF CHAR );
   BEGIN
       dst := NIL;
-      AppendString (dst, src);
+      AppendString(dst, src);
   END AssignString;
 
-  PROCEDURE AppendString (VAR dest: DynString; VAR suffix: ARRAY OF CHAR);
-   (* append 'suffix' to 'dest' *)
-      VAR suffixpos, suffixhigh, substrpos: CARDINAL;
+
+  (* -------------------------------------------------------------------------
+     Procedure TypeTable.AppendString(dest, suffix)
+     -------------------------------------------------------------------------
+     Appends string suffix to dest, terminated by CHR(0).
+     ------------------------------------------------------------------------- *)
+
+  PROCEDURE AppendString ( VAR dest : DynString; VAR suffix : ARRAY OF CHAR );
+  VAR
+    suffixpos, suffixhigh, substrpos: CARDINAL;
 	  substring : DynString;
   BEGIN
-      IF suffix[0] = CHR(0)
-	 THEN RETURN
-      END;
-      suffixpos := 0;
-      suffixhigh := HIGH(suffix);
-      IF dest = NIL
-      	THEN NEW (dest);
-	     dest^.SubStringLength := 0;
-	     dest^.Next := NIL;
-	     substring := dest;
-	ELSE substring := dest;
-	     WHILE substring^.Next # NIL DO
-	       substring := substring^.Next;
-	     END (* WHILE *);
-      END (* IF *);
-      substrpos := substring^.SubStringLength;
-      LOOP
-	 IF substrpos = SubStringLength
-	    THEN NEW (substring^.Next);
-		 substring^.SubStringLength := SubStringLength;
-		 substring := substring^.Next;
-		 substring^.Next := NIL;
-		 substrpos := 0;
-	 END (* IF *);
-         substring^.SubString[substrpos] := suffix[suffixpos];
-         IF suffixpos = suffixhigh
-	    THEN substring^.SubStringLength := substrpos + 1;
-		 EXIT
-	 END (* IF *);
-         INC (suffixpos);
-	 INC (substrpos);
-      	 IF suffix[suffixpos] = CHR(0)
-	    THEN substring^.SubStringLength := substrpos;
-		 EXIT
-	 END (* IF *);
-      END (* LOOP *);
+    IF suffix[0] = CHR(0) THEN
+      RETURN
+    END; (* IF *)
+    
+    suffixpos := 0;
+    suffixhigh := HIGH(suffix);
+    IF dest = NIL THEN
+      NEW(dest);
+      dest^.SubStringLength := 0;
+      dest^.Next := NIL;
+      substring := dest
+    ELSE
+      substring := dest;
+      WHILE substring^.Next # NIL DO
+	      substring := substring^.Next
+	    END; (* WHILE *)
+    END; (* IF *)
+    substrpos := substring^.SubStringLength;
+    LOOP
+	    IF substrpos = SubStringLength THEN
+	      NEW (substring^.Next);
+		    substring^.SubStringLength := SubStringLength;
+		    substring := substring^.Next;
+		    substring^.Next := NIL;
+		    substrpos := 0
+	    END; (* IF *)
+      substring^.SubString[substrpos] := suffix[suffixpos];
+      IF suffixpos = suffixhigh THEN
+        substring^.SubStringLength := substrpos + 1;
+		    EXIT
+	    END; (* IF *)
+      INC (suffixpos);
+	    INC (substrpos);
+      IF suffix[suffixpos] = CHR(0) THEN
+        substring^.SubStringLength := substrpos;
+		    EXIT
+      END; (* IF *)
+    END; (* LOOP *)
   END AppendString;
    
-  PROCEDURE ConnectDynString (VAR dest, src: DynString);
-     VAR substring : DynString;
-	 i	   : CARDINAL;
-  BEGIN
-     IF src = NIL THEN RETURN END;
-     IF dest = NIL
-       THEN dest := src;
-       ELSE substring := dest;
+
+  (* -------------------------------------------------------------------------
+     Procedure TypeTable.ConnectDynString(dest, src)
+     -------------------------------------------------------------------------
+     Appends string suffix to dest, terminated by CHR(0).
+     ------------------------------------------------------------------------- *)
+
+    PROCEDURE ConnectDynString ( VAR dest, src : DynString );
+    VAR
+      substring : DynString;
+	    i : CARDINAL;
+    BEGIN
+      IF src = NIL THEN
+        RETURN
+      END; (* IF *)
+      
+      IF dest = NIL THEN
+        dest := src
+      ELSE substring := dest;
+      
 	    WHILE substring^.Next # NIL DO
 	      substring := substring^.Next;
 	    END (* WHILE *);
+	    
 	    IF (substring^.SubStringLength + src^.SubStringLength
 	       < SubStringLength) AND (src^.Next = NIL)
 	      THEN FOR i:=0 TO src^.SubStringLength DO
@@ -333,58 +422,70 @@ BEGIN
      src := NIL;
   END ConnectDynString;
 
-PROCEDURE AppendInt ( VAR str : DynString; x : LONGINT );
-VAR
-  subStrPos : CARDINAL;
-  z, p : LONGINT;
-  substring : DynString;
-BEGIN
-  substring := str;
-  IF str = NIL THEN
-    NEW(str);
-    str^.SubStringLength := 0;
-    str^.Next := NIL;
-    substring := str
-  ELSE
-    substring := str;
-    WHILE substring^.Next # NIL DO
-      substring := substring^.Next
-    END (* WHILE *);
-  END (* IF *);
-  subStrPos := substring^.SubStringLength;
-  IF subStrPos + 21 >= SubStringLength THEN
-    NEW(substring^.Next);
-    substring := substring^.Next;
-    substring^.Next := NIL;
-    subStrPos := 0
-  END; (* IF *)
-  IF x < 0 THEN
-    IF x = -9223372036854775807-1 (* 64-bit LONGINT Min *) THEN
-      AppendString(str, '-9223372036854775808'); 
-      RETURN
-    ELSE
-      substring^.SubString[subStrPos] := '-';
-      INC(subStrPos);
-      z := - x;
-    END; (* IF *)
-  ELSE
-    z := x
-  END; (* IF *)
-  p := 1000000000000000000; (* Extended base power up to 19 digits *)
-  WHILE p > z DO
-    p := p DIV 10
-  END; (* WHILE *)
-  IF p = 0 THEN
-    p := 1
-  END; (* IF *)
-  WHILE p > 0 DO
-    substring^.SubString[subStrPos] := VAL (CHAR, ORD ('0') + z DIV p);
-    z := z MOD p;
-    p := p DIV 10;
-    INC(subStrPos);
-  END; (* WHILE *)
-  substring^.SubStringLength := subStrPos;
-END AppendInt;
+
+	(* -------------------------------------------------------------------------
+		 Procedure TypeTable.AppendInt(str, x)
+		 -------------------------------------------------------------------------
+		 ------------------------------------------------------------------------- *)
+	
+	PROCEDURE AppendInt ( VAR str : DynString; x : LONGINT );
+	VAR
+		subStrPos : CARDINAL;
+		z, p : LONGINT;
+		substring : DynString;
+	BEGIN
+		substring := str;
+		IF str = NIL THEN
+			NEW(str);
+			str^.SubStringLength := 0;
+			str^.Next := NIL;
+			substring := str
+		ELSE
+			substring := str;
+			WHILE substring^.Next # NIL DO
+				substring := substring^.Next
+			END (* WHILE *);
+		END (* IF *);
+		subStrPos := substring^.SubStringLength;
+		IF subStrPos + 21 >= SubStringLength THEN
+			NEW(substring^.Next);
+			substring := substring^.Next;
+			substring^.Next := NIL;
+			subStrPos := 0
+		END; (* IF *)
+		IF x < 0 THEN
+			IF x = -9223372036854775807-1 (* 64-bit LONGINT Min *) THEN
+				AppendString(str, '-9223372036854775808'); 
+				RETURN
+			ELSE
+				substring^.SubString[subStrPos] := '-';
+				INC(subStrPos);
+				z := - x;
+			END; (* IF *)
+		ELSE
+			z := x
+		END; (* IF *)
+		p := 1000000000000000000; (* Extended base power up to 19 digits *)
+		WHILE p > z DO
+			p := p DIV 10
+		END; (* WHILE *)
+		IF p = 0 THEN
+			p := 1
+		END; (* IF *)
+		WHILE p > 0 DO
+			substring^.SubString[subStrPos] := VAL (CHAR, ORD ('0') + z DIV p);
+			z := z MOD p;
+			p := p DIV 10;
+			INC(subStrPos);
+		END; (* WHILE *)
+		substring^.SubStringLength := subStrPos;
+	END AppendInt;
+
+
+	(* -------------------------------------------------------------------------
+		 Procedure TypeTable.AppendChar(srt, x)
+		 -------------------------------------------------------------------------
+		 ------------------------------------------------------------------------- *)
 
   PROCEDURE AppendChar (VAR str: DynString; x : CHAR);
     VAR substring : DynString;
@@ -410,6 +511,12 @@ END AppendInt;
      INC (substring^.SubStringLength);
   END AppendChar;
 
+
+	(* -------------------------------------------------------------------------
+		 Procedure TypeTable.AppendIdent(srt, ident)
+		 -------------------------------------------------------------------------
+		 ------------------------------------------------------------------------- *)
+
   PROCEDURE AppendIdent (VAR str: DynString; ident: Ident);
     VAR t: ARRAY [0..255] OF CHAR;
   BEGIN
@@ -417,15 +524,21 @@ END AppendInt;
     AppendString (str, t);
   END AppendIdent;
   
-  PROCEDURE AssStabs (ident : Ident;     front : ARRAY OF CHAR;
-		      middle: DynString; end   : ARRAY OF CHAR);
-  (* Emit Stabs in the format						   *)
-  (*    .stabs " ident front middle ", end				   *)
-  (* or splits a long Stabs in the format				   *)
-  (*    .stabs " ident front middle1 \\", end				   *)
-  (*    .stabs " middle2 \\", end					   *)
-  (*    ...								   *)
-  (*    .stabs " middleN ", end						   *)
+
+	(* -------------------------------------------------------------------------
+		 Procedure TypeTable.AssStabs(ident, front, middle, end)
+		 -------------------------------------------------------------------------
+     Emit Stabs in the format
+        .stabs " ident front middle ", end
+     or splits a long Stabs in the format
+        .stabs " ident front middle1 \\", end
+        .stabs " middle2 \\", end
+        ...
+        .stabs " middleN ", end
+		 ------------------------------------------------------------------------- *)
+
+  PROCEDURE AssStabs
+    (ident : Ident; front : ARRAY OF CHAR; middle: DynString; end : ARRAY OF CHAR);
     VAR substrpos, asslength : CARDINAL;
 	substring	     : DynString;
 	identstring	     : ARRAY [0..255] OF CHAR;
@@ -476,11 +589,18 @@ END AppendInt;
     AssLn;
   END AssStabs;
     
-END StabStrings;
+END (* MODULE *) StabStrings;
+
+
+(* =========================================================================
+   MODULE ValueConversions
+   =========================================================================
+   ========================================================================= *)
 
 MODULE ValueConversions;
 
   IMPORT Value, ValueClass, CompilerError;
+  
   EXPORT ConvToLongInt;
 
   PROCEDURE ConvToLongInt (val : Value) : LONGINT;
@@ -493,19 +613,29 @@ MODULE ValueConversions;
     | IntegerValue  : RETURN val.IntegerVal;
     | LongIntValue  : RETURN val.LongIntVal;
     | CharValue	    : RETURN ORD (val.CharVal);
-     ELSE
-      CompilerError ('illegal call of ConvToLongInt');
+    ELSE
+      CompilerError ("illegal call to ConvToLongInt");
     END;
   END ConvToLongInt;
 
-END ValueConversions;
+END (* MODULE *) ValueConversions;
 
-(* ---------------------------- Main Module ---------------------------- *)
 
-VAR blocknumber,  lnnumber : LONGCARD;  (* for internal label generation *)
-    lastlinenumber         : ShortCard;
-    staticdefstring        : DynString;
-    CurProcEntry	   : ARRAY [0..511] OF CHAR;
+(* =========================================================================
+   M a i n   M o d u l e
+   ========================================================================= *)
+
+VAR
+  blocknumber, lnnumber : LONGCARD;  (* for internal label generation *)
+  lastlinenumber : ShortCard;
+  staticdefstring : DynString;
+  CurProcEntry : ARRAY [0..511] OF CHAR;
+
+
+(* -------------------------------------------------------------------------
+	 Procedure CgDebug.OpenDebug
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
 
 PROCEDURE OpenDebug;
 VAR
@@ -593,6 +723,11 @@ BEGIN
 END OpenDebug;
 
 
+(* -------------------------------------------------------------------------
+	 Procedure CgDebug.CloseDebug
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
+
 PROCEDURE CloseDebug;
   VAR staticfront : ARRAY [0..511] OF CHAR;
 BEGIN
@@ -611,6 +746,11 @@ BEGIN
   END (* IF *)
 END CloseDebug;
 
+
+(* -------------------------------------------------------------------------
+	 Procedure CgDebug.StandardTypesDebug
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
 
 PROCEDURE StandardTypesDebug;
 BEGIN
@@ -656,6 +796,12 @@ BEGIN
   AssLn;
 END StandardTypesDebug;
 
+
+(* -------------------------------------------------------------------------
+	 Procedure CgDebug.TypeDebug(type, typedefstring)
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
+
 PROCEDURE TypeDebug (type : Type; VAR typedefstring: DynString);
   VAR typeid    : CARDINAL;
       isnew	: BOOLEAN;
@@ -668,186 +814,195 @@ BEGIN (* TypeDebug *)
   CheckTypeId (type, typeid, isnew);
   EmptyDynString (typedefstring);
   AppendInt (typedefstring, typeid);
-  IF isnew 
-    THEN
-         CASE type^.class OF
-           ClassBOOLEAN:
-             AssignString (tds, '1');
-         | ClassCHAR:
-             AssignString (tds, '2');
-         | ClassSHORTCARD:
-             AssignString (tds, '5'); (* -> CARDINAL *)
-         | ClassLONGCARD, ClassSIorLI, ClassSIorSCorLIorLC, 
-	   ClassSCorLIorLC, ClassLIorLC:
+  IF isnew THEN
+    CASE type^.class OF
+      ClassBOOLEAN :
+        AssignString (tds, '1');
+    | ClassCHAR :
+        AssignString (tds, '2');
+    | ClassSHORTCARD :
+        AssignString (tds, '5'); (* -> CARDINAL *)
+    | ClassLONGCARD, ClassSIorLI, ClassSIorSCorLIorLC, ClassSCorLIorLC, ClassLIorLC :
 	     AssignString (tds, '4');
-	 | ClassSHORTINT:
-             AssignString (tds, '8'); (* -> INTEGER *)
-	 | ClassLONGINT:
-             AssignString (tds, '7');
-	 | ClassREAL:
-             AssignString (tds, '9');
-	 | ClassLONGREAL, ClassSRorLR:
-             AssignString (tds, '10');
-	 | ClassBITSET:
-             AssignString (tds, '11');
-	 | ClassPROC:
-             AssignString (tds, '12');
-	 | ClassWORD:
-             AssignString (tds, '13');
-	 | ClassADDRESS, ClassOPAQUE, ClassSTRING:
-             AssignString (tds, '15');
-	 | ClassVOID:
-             AssignString (tds, '16');
-	 | EnumerationType:
-	    IF Enabled (DebugEnumOption) THEN
-	     AssignString (tds, 'e');
-	     constant := type^.constants;
-	     WHILE constant # NIL DO
-	       AppendIdent (tds, constant^.object^.name);
-	       AppendChar (tds, ':');
-	       IF constant^.object^.class = ConstantObj
-		  THEN AppendInt (tds, ConvToLongInt (constant^.object^.value))
-		  ELSE CompilerError ('assertion violation (-g Option)');
-	      END;
-	      AppendChar (tds, ',');
-	      constant := constant^.next;
-	    END;
-	     AppendChar (tds, ';');
-	    ELSE
-	   (* Die dbx-Enumeration hat immer 32 bit, die Modula-2-Enumeration
-	      8/16/32 bit, daher Enum = BYTE/SHORTCARD/LONGCARD *)
-	     CASE type^.size OF
-	     | 1: AssignString (tds, '14');
-	     | 2: AssignString (tds, '3');
-	     ELSE AssignString (tds, '4');
-	     END; (* CASE *)
-	    END;
-	 | SubrangeType:
-(*           Laut Grammatik muesste das so gehen, tut es aber nicht
-	     AssignString (tds, 'r');
-	     TypeDebug (type^.BaseTypeOfSubrangeType, t);
-	     Append (tds, t);
-	     Append (tds, ';');
-	     AppendInt (tds, ConvToLongInt (type^.first));
-	     Append (tds, ';');
-	     AppendInt (tds, ConvToLongInt (type^.last));
+    | ClassSHORTINT :
+        AssignString (tds, '8'); (* -> INTEGER *)
+	  | ClassLONGINT :
+       AssignString (tds, '7');
+	  | ClassREAL :
+       AssignString (tds, '9');
+	  | ClassLONGREAL, ClassSRorLR :
+        AssignString (tds, '10');
+	  | ClassBITSET :
+        AssignString (tds, '11');
+	  | ClassPROC :
+        AssignString (tds, '12');
+	  | ClassWORD :
+        AssignString (tds, '13');
+	  | ClassADDRESS, ClassOPAQUE, ClassSTRING :
+        AssignString (tds, '15');
+    | ClassVOID :
+        AssignString (tds, '16');
+    | EnumerationType :
+        IF Enabled (DebugEnumOption) THEN
+          AssignString (tds, 'e');
+          constant := type^.constants;
+          WHILE constant # NIL DO
+            AppendIdent (tds, constant^.object^.name);
+            AppendChar (tds, ':');
+            IF constant^.object^.class = ConstantObj THEN
+              AppendInt (tds, ConvToLongInt (constant^.object^.value))
+            ELSE
+              CompilerError ("assertion violation (-g Option)")
+	          END; (* IF *)
+            AppendChar (tds, ',');
+            constant := constant^.next
+          END; (* WHILE *)
+          AppendChar (tds, ';')
+        ELSE
+(* Die dbx-Enumeration hat immer 32 bit, die Modula-2-Enumeration
+   8/16/32 bit, daher Enum = BYTE/SHORTCARD/LONGCARD *)
+          CASE type^.size OF
+            1: AssignString (tds, '14');
+          | 2: AssignString (tds, '3')
+          ELSE
+            AssignString (tds, '4')
+          END (* CASE *)
+	      END (* IF *)
+    | SubrangeType:
+(* Laut Grammatik muesste das so gehen, tut es aber nicht
+   AssignString (tds, 'r');
+   TypeDebug (type^.BaseTypeOfSubrangeType, t);
+   Append (tds, t);
+   Append (tds, ';');
+   AppendInt (tds, ConvToLongInt (type^.first));
+   Append (tds, ';');
+   AppendInt (tds, ConvToLongInt (type^.last));
 *)
 	     (*	Alternative: Subrange = BaseTypeOfSubrangeType *)
-	     TypeDebug (type^.BaseTypeOfSubrangeType, tds);
-	 | ArrayType:
-	     IF type^.IsOpenArray
-               THEN AssignString (tds, 's8start:*');
-		    TypeDebug (type^.ComponentType, t);
-		    ConnectDynString (tds, t);
-		    AppendString (tds, ',0,32;high:5,32,32;;');
-	       ELSE AssignString (tds, 'a');
+       TypeDebug(type^.BaseTypeOfSubrangeType, tds);
+    | ArrayType :
+      IF type^.IsOpenArray THEN
+	       AssignString (tds, 's8start:*');
+		     TypeDebug (type^.ComponentType, t);
+		     ConnectDynString (tds, t);
+		     AppendString (tds, ',0,32;high:5,32,32;;')
+      ELSE
+        AssignString (tds, 'a');
 		    CASE type^.IndexType^.class OF
-		      ClassBOOLEAN:
-		        AppendString (tds, 'r1;0;1');
-		    | ClassCHAR:
-		        AppendString (tds, 'r2;0;255');
-		    | SubrangeType:
+		      ClassBOOLEAN :
+		        AppendString(tds, 'r1;0;1');
+		    | ClassCHAR :
+		        AppendString(tds, 'r2;0;255');
+		    | SubrangeType :
 		        AppendChar (tds, 'r');
-			TypeDebug(type^.IndexType^.BaseTypeOfSubrangeType,t);
-			ConnectDynString (tds, t);
-			AppendChar (tds, ';');
-			AppendInt (tds, 
-			           ConvToLongInt (type^.IndexType^.first));
-			AppendChar (tds, ';');
-			AppendInt (tds,
-				   ConvToLongInt (type^.IndexType^.last));
-		    | EnumerationType:
-		        AppendChar (tds, 'r');
-			TypeDebug(type^.IndexType,t);
-			ConnectDynString (tds, t);
-			AppendString (tds, ';0;');
-			AppendInt (tds,
-				   ConvToLongInt (type^.IndexType^.MaxVal));
-	            ELSE
-		      CompilerError ('assertion violation (-g option)');
-		    END;
-		    AppendChar (tds, ';');
-		    TypeDebug (type^.ComponentType, t);
+			      TypeDebug(type^.IndexType^.BaseTypeOfSubrangeType,t);
+			      ConnectDynString(tds, t);
+			      AppendChar(tds, ';');
+			      AppendInt(tds, ConvToLongInt (type^.IndexType^.first));
+            AppendChar(tds, ';');
+            AppendInt (tds, ConvToLongInt (type^.IndexType^.last));
+		    | EnumerationType :
+		        AppendChar(tds, 'r');
+		        TypeDebug(type^.IndexType,t);
+		        ConnectDynString(tds, t);
+		        AppendString(tds, ';0;');
+		        AppendInt(tds, ConvToLongInt (type^.IndexType^.MaxVal))
+		    ELSE
+		      CompilerError ("assertion violation (-g option)");
+		    END; (* CASE *)
+		    AppendChar(tds, ';');
+		    TypeDebug(type^.ComponentType, t);
 		    ConnectDynString (tds, t);
-	     END;
-	 | RecordType:
-	     AssignString (tds, 's');
-	     AppendInt (tds, type^.size);
-	     field := type^.FirstField;
-	     WHILE field # NIL DO
-	       AppendIdent (tds, field^.name);
-	       AppendChar (tds, ':');
-	       TypeDebug (field^.type, t);
-	       ConnectDynString (tds, t);
-	       AppendChar (tds, ',');
-	       AppendInt (tds, 8 * field^.offset);
-	       AppendChar (tds, ',');
-	       AppendInt (tds, 8 * field^.type^.size);
-	       AppendChar (tds, ';');
-	       field := field^.next;
-	     END;
-	     AppendChar (tds, ';');
-	 | SetType:
-	     AssignString (tds, '4');
-	 | PointerType:
-	     AssignString (tds, '*');
-	     TypeDebug (type^.BaseTypeOfPointerType, t);
-	     ConnectDynString (tds, t);
-	 | ProcedureType:
-	     AssignString (tds, '12');
-	     (* Prozedur-Typen nur als PROC ohne Argumente und Ergebnis *)
-         ELSE CompilerError ('assertion violation (-g option)')
-         END (* CASE *);
-	 IF ((type^.DefiningObject = NIL) OR (type^.DefiningObject^.name = NIL))
-	 (* Wenn der Typ einen Namen hat, wird fuer diesen Typ ein eigenes
-            stabs-Kommando generiert und nur die Typ-Nummer
-	    (in 'typedefstring') zurueckgegeben, ansonsten wird die
-	    Typ-Information an das uebergeordete stabs-Kommando weitergegeben.
-         *) 
-	   THEN AppendChar (typedefstring, '=');
-		ConnectDynString (typedefstring, tds);
-	   ELSE Assign (typefront, ':t');
-		AppendIntToString (typefront, typeid);
-		Append (typefront, '=');
-		AssStabs (type^.DefiningObject^.name, 
-			  typefront , tds, '128,0,0,0');
-	 END;
-  END;
+	    END (* IF *)
+    | RecordType :
+        AssignString (tds, 's');
+	      AppendInt (tds, type^.size);
+	      field := type^.FirstField;
+	      WHILE field # NIL DO
+	        AppendIdent(tds, field^.name);
+	        AppendChar(tds, ':');
+	        TypeDebug(field^.type, t);
+	        ConnectDynString (tds, t);
+	        AppendChar(tds, ',');
+	        AppendInt(tds, 8 * field^.offset);
+	        AppendChar(tds, ',');
+	        AppendInt(tds, 8 * field^.type^.size);
+	        AppendChar(tds, ';');
+	        field := field^.next;
+	      END; (* WHILE *)
+	      AppendChar(tds, ';');
+    | SetType :
+	      AssignString(tds, '4');
+    | PointerType :
+	      AssignString(tds, '*');
+	      TypeDebug(type^.BaseTypeOfPointerType, t);
+	      ConnectDynString(tds, t);
+	  | ProcedureType:
+	      AssignString (tds, '12');
+	      (* Prozedur-Typen nur als PROC ohne Argumente und Ergebnis *)
+    ELSE
+      CompilerError ("assertion violation (-g option)")
+    END (* CASE *);
+
+	  (* Wenn der Typ einen Namen hat, wird ein eigener stabs-Eintrag generiert und
+	     nur die Typ-Nummer in 'typedefstring' zurueckgegeben *)
+	  IF ((type^.DefiningObject = NIL) OR (type^.DefiningObject^.name = NIL)) THEN
+	    AppendChar(typedefstring, '=');
+		  ConnectDynString(typedefstring, tds)
+		(* ansonsten wird die Typ-Information an den uebergeordeten stabs-Eintrag
+		 weitergegeben. *)
+	  ELSE
+	    Assign(typefront, ':t');
+		  AppendIntToString(typefront, typeid);
+		  Append(typefront, '=');
+		  AssStabs(type^.DefiningObject^.name, typefront, tds, '128,0,0,0')
+	  END (* IF *)
+  END (* IF NOT isNew *)
 END TypeDebug;
 
 
-PROCEDURE ProcedureDebug (proc: Object);
-  VAR procfront, procend : ARRAY [0..511] OF CHAR;
-      tds		 : DynString;
-      s,d		 : INTEGER;
+(* -------------------------------------------------------------------------
+	 Procedure CgDebug.ProedureDebug(proc)
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
+
+PROCEDURE ProcedureDebug ( proc : Object );
+VAR
+  procfront, procend : ARRAY [0..511] OF CHAR;
+  tds : DynString;
+  s,d : INTEGER;
 BEGIN
- IF Enabled (DebugOption) THEN
- 
+  IF Enabled (DebugOption) THEN
     Assign (CurProcEntry, proc^.procindex^.Entry^);
     StripAssign (procfront, proc^.procindex^.Entry^);
-    
     CASE proc^.class OF
-    | ProcedureObj:
-        Append (procfront, ':F');
-        IF proc^.TypeOfProcedure^.ResultType # TypeVOID
-          THEN TypeDebug (proc^.TypeOfProcedure^.ResultType, tds);
-          ELSE AssignString (tds, '16');
-        END;
+      ProcedureObj :
+        Append(procfront, ':F');
+        IF proc^.TypeOfProcedure^.ResultType # TypeVOID THEN
+          TypeDebug(proc^.TypeOfProcedure^.ResultType, tds)
+        ELSE
+          AssignString(tds, '16')
+        END (* IF *)
 (*
         AppendIntToString (procend, proc^.TypeOfProcedure^.ResultType^.size);
 *)
-    | ModuleObj:
-        Append (procfront, ':F');
-	AssignString (tds, '16');
-    ELSE CompilerError ('Assertion violation (-g Option)');
-    END;
+    | ModuleObj :
+        Append(procfront, ':F');
+        AssignString (tds, '16');
+    ELSE
+      CompilerError("Assertion violation (-g Option)")
+    END; (* CASE *)
     Assign (procend, '36,0,0,');
     Append (procend, proc^.procindex^.Entry^);
-    AssStabs (NIL, procfront, tds, procend);
-
+    AssStabs (NIL, procfront, tds, procend)
   END (* IF Enabled (DebugOption) *)
 END ProcedureDebug;
 
+
+(* -------------------------------------------------------------------------
+	 Procedure CgDebug.BeginDebugBlock
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
 
 PROCEDURE BeginDebugBlock;
 BEGIN
@@ -868,6 +1023,11 @@ BEGIN
 END BeginDebugBlock;
 
 
+(* -------------------------------------------------------------------------
+	 Procedure CgDebug.EndDebugBlock
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
+
 PROCEDURE EndDebugBlock;
 BEGIN
   IF NOT Enabled(DebugOption) THEN
@@ -886,12 +1046,26 @@ BEGIN
   AssLn
 END EndDebugBlock;
 
-PROCEDURE LocalObjectsDebug (firstlocalobj: Object);
-  VAR obj: Object;
-      tds: DynString;
 
-  PROCEDURE StaticVariableDebug (obj: Object);
-    VAR defstring, tds: DynString;
+(* -------------------------------------------------------------------------
+	 Procedure LocalObjectsDebug(firstlocalobj)
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
+
+PROCEDURE LocalObjectsDebug ( firstlocalobj : Object );
+VAR
+  obj : Object;
+  tds : DynString;
+
+
+(* -------------------------------------------------------------------------
+	 Procedure LocalObjectsDebug.VariableDebug(obj)
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
+
+  PROCEDURE StaticVariableDebug ( obj : Object );
+    VAR
+      defstring, tds : DynString;
   BEGIN
     AppendIdent (staticdefstring, obj^.name);
     AppendChar (staticdefstring, ':');
@@ -904,91 +1078,115 @@ PROCEDURE LocalObjectsDebug (firstlocalobj: Object);
     AppendChar (staticdefstring, ';');
   END StaticVariableDebug;
 
-  PROCEDURE LocalVariableDebug (obj: Object);
-    VAR varfront, varend : ARRAY [0..511] OF CHAR;
-	tds		 : DynString;
+(* -------------------------------------------------------------------------
+	 Procedure LocalObjectsDebug.LocalVariableDebug(obj)
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
+
+  PROCEDURE LocalVariableDebug ( obj : Object );
+  VAR
+    varfront, varend : ARRAY [0..511] OF CHAR;
+	  tds : DynString;
   BEGIN
     TypeDebug (obj^.TypeOfVariable, tds);
     CASE obj^.kind OF
-      | LocalVar:   Assign (varfront, ':');
-		    Assign (varend, '128,0,');
-      | VarParam:   IF (obj^.TypeOfVariable^.class = ArrayType) AND 
-		       (obj^.TypeOfVariable^.IsOpenArray)
-		      THEN Assign (varfront, ':p');
-		      ELSE Assign (varfront, ':v');
-		    END;
-		    Assign (varend, '160,0,');
-      | ValueParam: Assign (varfront, ':p');
-		    Assign (varend, '160,0,');
-    END;
-    AppendIntToString (varend, obj^.TypeOfVariable^.size);
-    Append (varend, ',');
-    AppendIntToString (varend, obj^.offset);
-    AssStabs (obj^.name, varfront, tds, varend);
+      LocalVar :
+        Assign(varfront, ':');
+		    Assign(varend, '128,0,');
+    | VarParam :
+        IF (obj^.TypeOfVariable^.class = ArrayType) AND 
+		       (obj^.TypeOfVariable^.IsOpenArray) THEN
+		       Assign(varfront, ':p')
+        ELSE
+          Assign(varfront, ':v')
+		    END; (* IF *)
+		    Assign(varend, '160,0,');
+    | ValueParam :
+        Assign(varfront, ':p');
+		    Assign (varend, '160,0,')
+    END; (* CASE *)
+    AppendIntToString(varend, obj^.TypeOfVariable^.size);
+    Append(varend, ',');
+    AppendIntToString(varend, obj^.offset);
+    AssStabs(obj^.name, varfront, tds, varend)
   END LocalVariableDebug;
 
-  PROCEDURE ConstantDebug (obj: Object);
-    VAR constfront : ARRAY [0..511] OF CHAR;
-	tds	   : DynString;
-        def	   : BOOLEAN;
-  BEGIN
-    IF Enabled (DebugConstOption)
-      THEN Assign (constfront, ':c=');
-	   EmptyDynString (tds);
-	   def := TRUE;
-	   CASE obj^.TypeOfConstant^.class OF
-             | ClassSIorSCorLIorLC, ClassSIorLI, ClassSCorLIorLC, 
-               ClassLIorLC, ClassSHORTCARD,
-               ClassLONGCARD, ClassSHORTINT, ClassLONGINT,
-	       EnumerationType:
-                 Append (constfront, 'i');
-	         AppendIntToString (constfront, ConvToLongInt (obj^.value));
-	     | ClassBOOLEAN:
-	         IF ConvToBool (obj^.value)
-		   THEN Append (constfront, 'i1')
-		   ELSE Append (constfront, 'i0')
-		 END;
-	     | ClassCHAR:
-                 Append (constfront, 'i');
-	         AppendIntToString (constfront, ORD (ConvToChar (obj^.value)));
-             | ClassSRorLR, ClassREAL, ClassLONGREAL:
-                 Append (constfront, 'r');
-	         AppendRealToString (constfront, ConvToLongReal (obj^.value));
-	     | ClassNIL:
-	         Append (constfront, 'i0');
-(*
-	     | ClassSTRING:
-	       	 Append (constfront, "s``");
-		 ConvToString (obj^.value, tds);
-		 Append (constfront, tds);
-		 Append (constfront, "''");
-*)
-	     | ClassBITSET, SetType:
-		 Append (constfront, 'i');
-		 AppendIntToString (constfront,
-				    INTEGER (ConvToSet(obj^.value)));
-             ELSE
-(*
-		  WriteString ('Warning: No Debugging of "');
-		  GetIdentRepr (obj^.name, tds); WriteString (tds); 
-		  WriteString('"');
-                  WriteLn;
-*)
-		  def := FALSE;
-           END;
-	   IF def
-             THEN AssStabs (obj^.name, constfront, tds, '128,0,0,0');
-	   END;
-    END;
-  END ConstantDebug;
+(* -------------------------------------------------------------------------
+	 Procedure LocalObjectsDebug.LocalVariableDebug(obj)
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
 
-    PROCEDURE Static ( obj : Object ) : BOOLEAN;
-    BEGIN 
-      WHILE obj^.DefiningScope^.class = ModuleObj DO
-	obj := obj^.DefiningScope;
-      END;
-      RETURN obj^.DefiningScope = RootObject;
-    END Static;
+  PROCEDURE ConstantDebug ( obj : Object );
+	VAR
+		constfront : ARRAY [0..511] OF CHAR;
+		tds : DynString;
+		def : BOOLEAN;
+	BEGIN
+		IF Enabled(DebugConstOption) THEN
+			Assign (constfront, ':c=');
+			EmptyDynString (tds);
+			def := TRUE;
+			CASE obj^.TypeOfConstant^.class OF
+				ClassSIorSCorLIorLC, ClassSIorLI, ClassSCorLIorLC,  ClassLIorLC,
+				ClassSHORTCARD, ClassLONGCARD, ClassSHORTINT, ClassLONGINT,
+				EnumerationType :
+					Append (constfront, 'i');
+					AppendIntToString (constfront, ConvToLongInt (obj^.value));
+			| ClassBOOLEAN :
+					IF ConvToBool (obj^.value) THEN
+						Append(constfront, 'i1')
+					ELSE
+						Append (constfront, 'i0')
+					END (* IF *)
+			| ClassCHAR :
+					Append (constfront, 'i');
+					AppendIntToString(constfront, ORD (ConvToChar (obj^.value)));
+			| ClassSRorLR, ClassREAL, ClassLONGREAL :
+					Append(constfront, 'r');
+					AppendRealToString(constfront, ConvToLongReal (obj^.value));
+			| ClassNIL :
+					Append(constfront, 'i0');
+	(*
+			| ClassSTRING :
+					Append(constfront, "s``");
+					ConvToString(obj^.value, tds);
+					Append(constfront, tds);
+					Append(constfront, "''");
+	*)
+			| ClassBITSET, SetType :
+					Append(constfront, 'i');
+					AppendIntToString(constfront, INTEGER(ConvToSet(obj^.value)))
+			ELSE
+	(*
+				WriteString ('Warning: No Debugging of "');
+				GetIdentRepr (obj^.name, tds); WriteString (tds); 
+				WriteString('"');
+										WriteLn;
+	*)
+				def := FALSE
+			END; (* CASE *)
+			IF def THEN
+				AssStabs(obj^.name, constfront, tds, '128,0,0,0')
+			END (* IF *)
+		END (* IF NOT Enabled(DebugConstOption) *)
+	END ConstantDebug;
+
+(* -------------------------------------------------------------------------
+	 Procedure LocalObjectsDebug.Static(obj)
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
+
+  PROCEDURE Static ( obj : Object ) : BOOLEAN;
+  BEGIN 
+    WHILE obj^.DefiningScope^.class = ModuleObj DO
+      obj := obj^.DefiningScope
+    END; (* WHILE *)
+    RETURN obj^.DefiningScope = RootObject;
+  END Static;
+
+(* -------------------------------------------------------------------------
+	 Body of CgDebug.LocalObjectsDebug
+	 ------------------------------------------------------------------------- *)
 
 BEGIN (* LocalObjectsDebug *)
  IF Enabled (DebugOption) THEN
@@ -1028,6 +1226,12 @@ BEGIN (* LocalObjectsDebug *)
   END (* IF Enabled (DebugOption) *)
 END LocalObjectsDebug;
 
+
+(* -------------------------------------------------------------------------
+	 Procedure CgDebug.LineNumberDebug(pos)
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
+
 PROCEDURE LineNumberDebug (pos: SourcePosition);
 BEGIN
   IF NOT Enabled(DebugOption) THEN
@@ -1058,16 +1262,26 @@ BEGIN
   lastlinenumber := pos.line
 END LineNumberDebug;
 
+(* -------------------------------------------------------------------------
+	 Procedure CgDebug.LineNumberDebug(pos)
+	 -------------------------------------------------------------------------
+	 ------------------------------------------------------------------------- *)
+
 PROCEDURE LastLineNumberDebug;
   VAR lastpos : SourcePosition;
 BEGIN
   lastpos.line := lastlinenumber + 1;
   lastpos.col := 0;
-  LineNumberDebug (lastpos);
+  LineNumberDebug(lastpos)
 END LastLineNumberDebug;
 
+
+(* =========================================================================
+   Body of MAIN MODULE CgDebug
+   ========================================================================= *)
+
 BEGIN
-  DefineOption (DebugOption, 'g', TRUE, TRUE);
-  DefineOption (DebugConstOption, 'gc', TRUE, TRUE);
-  DefineOption (DebugEnumOption, 'ge', TRUE, TRUE);
+  DefineOption(DebugOption, 'g', TRUE, TRUE);
+  DefineOption(DebugConstOption, 'gc', TRUE, TRUE);
+  DefineOption(DebugEnumOption, 'ge', TRUE, TRUE)
 END CgDebug.
