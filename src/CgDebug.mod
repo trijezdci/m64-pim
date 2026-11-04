@@ -500,17 +500,17 @@ MODULE StabStrings;
     subString : DynString;
   BEGIN
     subString := str;
-    IF str = NIL
-      THEN NEW(str);
-        str^.SubStringLength := 0;
-        str^.Next := NIL;
-        subString := str
-      ELSE
-        subString := str;
-        WHILE subString^.Next # NIL DO
-          subString := subString^.Next
-        END (* WHILE *)
-      END (* IF *);
+    IF str = NIL THEN
+      NEW(str);
+      str^.SubStringLength := 0;
+      str^.Next := NIL;
+      subString := str
+    ELSE
+      subString := str;
+      WHILE subString^.Next # NIL DO
+        subString := subString^.Next
+      END (* WHILE *)
+    END (* IF *);
     IF subString^.SubStringLength = SubStringLength THEN
       NEW(subString^.Next);
       subString := subString^.Next;
