@@ -672,7 +672,7 @@ VAR
   n : CARDINAL;
   obj : Object;
   cwd : ARRAY [0..511] OF CHAR;
-  BEGIN
+BEGIN
   IF NOT Enabled(DebugOption) THEN
     RETURN
   END; (* IF *)
@@ -1300,7 +1300,8 @@ END LineNumberDebug;
    ------------------------------------------------------------------------- *)
 
 PROCEDURE LastLineNumberDebug;
-VAR lastPos : SourcePosition;
+VAR
+  lastPos : SourcePosition;
 BEGIN
   lastPos.line := lastLineNumber + 1;
   lastPos.col := 0;
