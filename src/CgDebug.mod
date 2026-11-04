@@ -114,7 +114,7 @@ MODULE TypeTable;
 
   VAR
     typeTable : ARRAY [1..MaxTypes] OF Type;
-    maxTypeId : ShortCard;
+    lastTypeId : ShortCard;
 
   (* -------------------------------------------------------------------------
      Procedure TypeTable.InitTypeTable
@@ -129,7 +129,7 @@ MODULE TypeTable;
     FOR n := 1 TO 16 DO 
       typeTable[n] := NIL
     END; (* FOR *)
-    maxTypeId := 17;
+    lastTypeId := 17;
   END InitTypeTable;
 
 
@@ -161,17 +161,17 @@ MODULE TypeTable;
   PROCEDURE CheckTypeId
     ( type : Type; VAR typeId : CARDINAL; VAR isNewTypeId : BOOLEAN );
   BEGIN
-    typeTable[maxTypeId] := type;
+    typeTable[lastTypeId] := type;
     typeId := 1;
     WHILE typeTable[typeId] # type DO
       INC(typeId)
     END;
-    isNewTypeId := typeId = maxTypeId;
+    isNewTypeId := (typeId = lastTypeId);
     IF isNewTypeId THEN
-      IF maxTypeId = MaxTypes THEN
+      IF lastTypeId = MaxTypes THEN
         CompilerError("Too many types for -g Option")
       END;
-      INC(maxTypeId)
+      INC(lastTypeId)
     END
   END CheckTypeId;
 
