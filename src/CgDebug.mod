@@ -288,7 +288,7 @@ MODULE StabStrings;
   
   
   (* -------------------------------------------------------------------------
-     Function TypeTable.isEqual(ident, str)
+     Function StabStrings.isEqual(ident, str)
      -------------------------------------------------------------------------
      ------------------------------------------------------------------------- *)
 
@@ -316,7 +316,7 @@ MODULE StabStrings;
 
 
   (* -------------------------------------------------------------------------
-     Procedure TypeTable.EmptyDynString(str)
+     Procedure StabStrings.EmptyDynString(str)
      -------------------------------------------------------------------------
      str := ""
      ------------------------------------------------------------------------- *)
@@ -328,7 +328,7 @@ MODULE StabStrings;
   
   
   (* -------------------------------------------------------------------------
-     Procedure TypeTable.AssignString(dst, src)
+     Procedure StabStrings.AssignString(dst, src)
      -------------------------------------------------------------------------
      Assigns string src to dst, terminated by CHR(0).
      ------------------------------------------------------------------------- *)
@@ -341,7 +341,7 @@ MODULE StabStrings;
 
 
   (* -------------------------------------------------------------------------
-     Procedure TypeTable.AppendString(dest, suffix)
+     Procedure StabStrings.AppendString(dest, suffix)
      -------------------------------------------------------------------------
      Appends string suffix to dest, terminated by CHR(0).
      ------------------------------------------------------------------------- *)
@@ -393,7 +393,7 @@ MODULE StabStrings;
    
 
   (* -------------------------------------------------------------------------
-     Procedure TypeTable.AppendDynString(dest, suffix)
+     Procedure StabStrings.AppendDynString(dest, suffix)
      -------------------------------------------------------------------------
      Appends dynamic string suffix to dest, terminated by CHR(0).
      ------------------------------------------------------------------------- *)
@@ -432,7 +432,7 @@ MODULE StabStrings;
 
 
   (* -------------------------------------------------------------------------
-     Procedure TypeTable.AppendInt(str, i)
+     Procedure StabStrings.AppendInt(str, i)
      -------------------------------------------------------------------------
      ------------------------------------------------------------------------- *)
   
@@ -491,7 +491,7 @@ MODULE StabStrings;
 
 
   (* -------------------------------------------------------------------------
-     Procedure TypeTable.AppendChar(str, ch)
+     Procedure StabStrings.AppendChar(str, ch)
      -------------------------------------------------------------------------
      ------------------------------------------------------------------------- *)
 
@@ -523,7 +523,7 @@ MODULE StabStrings;
 
 
   (* -------------------------------------------------------------------------
-     Procedure TypeTable.AppendIdent(str, ident)
+     Procedure StabStrings.AppendIdent(str, ident)
      -------------------------------------------------------------------------
      ------------------------------------------------------------------------- *)
 
@@ -537,7 +537,7 @@ MODULE StabStrings;
   
 
   (* -------------------------------------------------------------------------
-     Procedure TypeTable.AssStabs(ident, front, middle, end)
+     Procedure StabStrings.AssStabs(ident, front, middle, end)
      -------------------------------------------------------------------------
      Emit Stabs in the format
         .stabs " ident front middle ", end
@@ -622,8 +622,13 @@ MODULE ValueConversions;
   
   EXPORT toLongInt;
 
+  (* -------------------------------------------------------------------------
+     Function ValueConversions.toLongInt(val)
+     -------------------------------------------------------------------------
+     (* converts val to LONGINT *)
+     ------------------------------------------------------------------------- *)
+
   PROCEDURE toLongInt ( val : Value ) : LONGINT;
-  (* converts val to LONGINT *)
   BEGIN
     CASE val.class OF
     | BoolValue :
@@ -994,7 +999,7 @@ END TypeDebug;
 
 
 (* -------------------------------------------------------------------------
-   Procedure CgDebug.ProedureDebug(proc)
+   Procedure CgDebug.ProcedureDebug(proc)
    -------------------------------------------------------------------------
    ------------------------------------------------------------------------- *)
 
