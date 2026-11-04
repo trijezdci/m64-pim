@@ -28,7 +28,12 @@ FROM CgUtilities IMPORT
   ConvertLONGINTtoString, StringAppend1;
 
 
-PROCEDURE MakeRelSymb (VAR s : ARRAY OF CHAR) : RelSymb;
+(* -------------------------------------------------------------------------
+   Function CgBase.MakeRelSymb(s)
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
+
+PROCEDURE MakeRelSymb ( VAR s : ARRAY OF CHAR ) : RelSymb;
 VAR
   i, high : INTEGER;
   RelSym : RelSymb;
@@ -38,23 +43,31 @@ BEGIN
   WHILE (i<=high) AND (s[i] # CHR(0)) DO
     INC(i)
   END; (* WHILE *)
-  ALLOCATE (RelSym, i+1);
+  ALLOCATE(RelSym, i+1);
   i:=0;
   WHILE (i<=high) AND (s[i] # CHR(0)) DO
     RelSym^[i] := s[i]; INC(i)
   END; (* WHILE *)
   RelSym^[i] := CHR(0);
-  RETURN(RelSym)
+  RETURN RelSym
 END MakeRelSymb;
 
 
-PROCEDURE GetLabel (VAR lab : Label);
+(* -------------------------------------------------------------------------
+   Procedure CgBase.GetLabel(label)
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
+
+PROCEDURE GetLabel ( VAR label : Label );
 BEGIN
-   lab := NewSymb()
+   label := NewSymb()
 END GetLabel;
 
-VAR SymbolCnt : INTEGER;
 
+(* -------------------------------------------------------------------------
+   Function CgBase.NewSymb()
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
 PROCEDURE NewSymb () : RelSymb;
 VAR
@@ -63,14 +76,19 @@ BEGIN
   INC(SymbolCnt);
   ConvertLONGINTtoString(SymbolCnt, s);
   IF Enabled(ElfOption) THEN
-    t := '.Lab'
+    t := ".Lab"
   ELSE
-    t := 'Lab';
+    t := "Lab";
   END; (* IF *)
-  StringAppend1 (t,s);
-  RETURN (MakeRelSymb (t))
+  StringAppend1(t,s);
+  RETURN MakeRelSymb(t)
 END NewSymb;
 
+
+(* -------------------------------------------------------------------------
+   Procedure CgBase.InitCgBase
+   -------------------------------------------------------------------------
+   ------------------------------------------------------------------------- *)
 
 PROCEDURE InitCgBase;
 BEGIN
@@ -78,6 +96,13 @@ BEGIN
 END InitCgBase;
 
 
+(* =========================================================================
+   Body of MAIN MODULE CgBase
+   ========================================================================= *)
+
+VAR
+  SymbolCnt : INTEGER;
+
 BEGIN
-    NullSymb := NIL; (* MakeRelSymb ('0'); *)
+  NullSymb := NIL; (* MakeRelSymb("0"); *)
 END CgBase.
