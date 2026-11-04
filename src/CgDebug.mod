@@ -461,8 +461,8 @@ MODULE StabStrings;
       subString^.Next := NIL;
       subStrPos := 0
     END; (* IF *)
-    IF x < 0 THEN
-      IF x = -9223372036854775807-1 (* 64-bit LONGINT Min *) THEN
+    IF i < 0 THEN
+      IF i = -9223372036854775807-1 (* 64-bit LONGINT Min *) THEN
         AppendString(str, "-9223372036854775808"); 
         RETURN
       ELSE
