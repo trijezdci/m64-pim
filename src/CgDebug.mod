@@ -238,7 +238,7 @@ MODULE StabStrings;
       INC(n)
     END; (* WHILE *)
     IF i < 0 THEN
-      IFix = -9223372036854775807-1 (* 64-bit LONGINT Minimum *) THEN
+      IF i = -9223372036854775807-1 (* 64-bit LONGINT Minimum *) THEN
         Append(str, "-9223372036854775808"); 
         RETURN
       ELSE
@@ -615,7 +615,7 @@ END (* MODULE *) StabStrings;
 MODULE ValueConversions;
 
 (* Why is this a separate module when there is only one function in it and
-   not local constants, types nor variables are defined either??? WTF?! *)
+   no local constants, types nor variables are defined either??? WTF?! *)
 
   IMPORT Value, ValueClass, CompilerError;
   
