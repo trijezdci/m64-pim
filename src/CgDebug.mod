@@ -190,7 +190,7 @@ MODULE StabStrings;
    
   EXPORT StripAssign, AppendIntToString, AppendRealToString, isEqual, DynString,
     EmptyDynString, AssignString, AppendString, AppendChar, AppendInt, AppendIdent,
-    ConnectDynString, AssStabs;
+    AppendDynString, AssStabs;
 
   (* -------------------------------------------------------------------------
      Procedure StabStrings.StripAssign(dst, src)
@@ -393,22 +393,22 @@ MODULE StabStrings;
    
 
   (* -------------------------------------------------------------------------
-     Procedure TypeTable.ConnectDynString(dest, src)
+     Procedure TypeTable.AppendDynString(dest, suffix)
      -------------------------------------------------------------------------
-     Appends string suffix to dest, terminated by CHR(0).
+     Appends dynamic string suffix to dest, terminated by CHR(0).
      ------------------------------------------------------------------------- *)
 
-  PROCEDURE ConnectDynString ( VAR dest, src : DynString );
+  PROCEDURE AppendDynString ( VAR dest, suffix : DynString );
   VAR
     n : CARDINAL;
     subString : DynString;
   BEGIN
-    IF src = NIL THEN
+    IF suffix = NIL THEN
       RETURN
     END; (* IF *)
     
     IF dest = NIL THEN
-      dest := src
+      dest := suffix
     ELSE
       subString := dest;
       
@@ -416,19 +416,19 @@ MODULE StabStrings;
         subString := subString^.Next
       END; (* WHILE *)
       
-      IF (subString^.SubStringLength + src^.SubStringLength
-         < SubStringLength) AND (src^.Next = NIL) THEN
-        FOR n := 0 TO src^.SubStringLength DO
+      IF (subString^.SubStringLength + suffix^.SubStringLength
+         < SubStringLength) AND (suffix^.Next = NIL) THEN
+        FOR n := 0 TO suffix^.SubStringLength DO
           subString^.SubString[n + subString^.SubStringLength]
-           := src^.SubString[n]
+           := suffix^.SubString[n]
         END; (* FOR *)
-        INC(subString^.SubStringLength, src^.SubStringLength)
+        INC(subString^.SubStringLength, suffix^.SubStringLength)
       ELSE
-        subString^.Next := src
+        subString^.Next := suffix
       END (* IF *)
     END; (* IF *)
-    src := NIL
-  END ConnectDynString;
+    suffix := NIL
+  END AppendDynString;
 
 
   (* -------------------------------------------------------------------------
@@ -916,7 +916,7 @@ BEGIN (* TypeDebug *)
       IF type^.IsOpenArray THEN
          AssignString(tds, "s8start:*");
          TypeDebug(type^.ComponentType, t);
-         ConnectDynString(tds, t);
+         AppendDynString(tds, t);
          AppendString(tds, ",0,32;high:5,32,32;;")
       ELSE
         AssignString(tds, "a");
@@ -928,7 +928,7 @@ BEGIN (* TypeDebug *)
         | SubrangeType :
             AppendChar(tds, "r");
             TypeDebug(type^.IndexType^.BaseTypeOfSubrangeType,t);
-            ConnectDynString(tds, t);
+            AppendDynString(tds, t);
             AppendChar(tds, ";");
             AppendInt(tds, toLongInt(type^.IndexType^.first));
             AppendChar(tds, ";");
@@ -936,7 +936,7 @@ BEGIN (* TypeDebug *)
         | EnumerationType :
             AppendChar(tds, "r");
             TypeDebug(type^.IndexType,t);
-            ConnectDynString(tds, t);
+            AppendDynString(tds, t);
             AppendString(tds, ";0;");
             AppendInt(tds, toLongInt(type^.IndexType^.MaxVal))
         ELSE
@@ -944,7 +944,7 @@ BEGIN (* TypeDebug *)
         END; (* CASE *)
         AppendChar(tds, ";");
         TypeDebug(type^.ComponentType, t);
-        ConnectDynString(tds, t)
+        AppendDynString(tds, t)
       END (* IF *)
     | RecordType :
         AssignString(tds, "s");
@@ -954,7 +954,7 @@ BEGIN (* TypeDebug *)
           AppendIdent(tds, field^.name);
           AppendChar(tds, ":");
           TypeDebug(field^.type, t);
-          ConnectDynString(tds, t);
+          AppendDynString(tds, t);
           AppendChar(tds, ",");
           AppendInt(tds, 8 * field^.offset);
           AppendChar(tds, ",");
@@ -968,7 +968,7 @@ BEGIN (* TypeDebug *)
     | PointerType :
         AssignString(tds, "*");
         TypeDebug(type^.BaseTypeOfPointerType, t);
-        ConnectDynString(tds, t);
+        AppendDynString(tds, t);
     | ProcedureType:
         AssignString(tds, "12")
         (* Prozedur-Typen nur als PROC ohne Argumente und Ergebnis *)
@@ -980,7 +980,7 @@ BEGIN (* TypeDebug *)
        nur die Typ-Nummer in typeDefString zurueckgegeben *)
     IF ((type^.DefiningObject = NIL) OR (type^.DefiningObject^.name = NIL)) THEN
       AppendChar(typeDefString, "=");
-      ConnectDynString(typeDefString, tds)
+      AppendDynString(typeDefString, tds)
     (* ansonsten wird die Typ-Information an den uebergeordeten stabs-Eintrag
      weitergegeben. *)
     ELSE
@@ -1102,7 +1102,7 @@ VAR
     AppendIdent(staticDefString, obj^.name);
     AppendChar(staticDefString, ":");
     TypeDebug(obj^.TypeOfVariable, tds);
-    ConnectDynString(staticDefString, tds);
+    AppendDynString(staticDefString, tds);
     AppendChar(staticDefString, ",");
     AppendInt(staticDefString, 8 * obj^.offset);
     AppendChar(staticDefString, ",");
