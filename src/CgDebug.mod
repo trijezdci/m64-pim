@@ -198,7 +198,7 @@ MODULE StabStrings;
      Assigns string src to dst, stripping leading "_", terminated with CHR(0).
      ------------------------------------------------------------------------- *)
 
-  PROCEDURE StripAssign ( VAR dst, src: ARRAY OF CHAR );
+  PROCEDURE StripAssign ( VAR dst, src : ARRAY OF CHAR );
   VAR
     n, m, high: ShortCard;
   BEGIN
@@ -228,7 +228,7 @@ MODULE StabStrings;
      -------------------------------------------------------------------------
      ------------------------------------------------------------------------- *)
 
-  PROCEDURE AppendIntToString ( VAR str: ARRAY OF CHAR; i : LONGINT );
+  PROCEDURE AppendIntToString ( VAR str : ARRAY OF CHAR; i : LONGINT );
   VAR
     n : CARDINAL;
     z, p : LONGINT;
@@ -271,7 +271,7 @@ MODULE StabStrings;
      -------------------------------------------------------------------------
      ------------------------------------------------------------------------- *)
 
-  PROCEDURE AppendRealToString ( VAR str: ARRAY OF CHAR; i : LONGREAL );
+  PROCEDURE AppendRealToString ( VAR str : ARRAY OF CHAR; i : LONGREAL );
   VAR
     ok : BOOLEAN;
     realStr : ARRAY [0..50] OF CHAR;
@@ -321,7 +321,7 @@ MODULE StabStrings;
      str := ""
      ------------------------------------------------------------------------- *)
 
-  PROCEDURE EmptyDynString ( VAR str: DynString );
+  PROCEDURE EmptyDynString ( VAR str : DynString );
   BEGIN
     str := NIL
   END EmptyDynString;
@@ -495,7 +495,7 @@ MODULE StabStrings;
      -------------------------------------------------------------------------
      ------------------------------------------------------------------------- *)
 
-  PROCEDURE AppendChar ( VAR str: DynString; ch : CHAR );
+  PROCEDURE AppendChar ( VAR str : DynString; ch : CHAR );
   VAR
     subString : DynString;
   BEGIN
@@ -527,7 +527,7 @@ MODULE StabStrings;
      -------------------------------------------------------------------------
      ------------------------------------------------------------------------- *)
 
-  PROCEDURE AppendIdent ( VAR str: DynString; ident: Ident );
+  PROCEDURE AppendIdent ( VAR str : DynString; ident : Ident );
   VAR
     t : ARRAY [0..255] OF CHAR;
   BEGIN
@@ -549,7 +549,8 @@ MODULE StabStrings;
      ------------------------------------------------------------------------- *)
 
   PROCEDURE AssStabs
-    (ident : Ident; front : ARRAY OF CHAR; middle: DynString; end : ARRAY OF CHAR);
+    ( ident : Ident;
+      front : ARRAY OF CHAR; middle : DynString; end : ARRAY OF CHAR );
   VAR
     subStrPos, assLength : CARDINAL;
     subString : DynString;
@@ -832,7 +833,7 @@ END StandardTypesDebug;
    -------------------------------------------------------------------------
    ------------------------------------------------------------------------- *)
 
-PROCEDURE TypeDebug ( type : Type; VAR typeDefString: DynString );
+PROCEDURE TypeDebug ( type : Type; VAR typeDefString : DynString );
 VAR
   isNew : BOOLEAN;
   typeId : CARDINAL;
@@ -1264,7 +1265,7 @@ END LocalObjectsDebug;
    -------------------------------------------------------------------------
    ------------------------------------------------------------------------- *)
 
-PROCEDURE LineNumberDebug (pos: SourcePosition);
+PROCEDURE LineNumberDebug ( pos: SourcePosition );
 BEGIN
   IF NOT Enabled(DebugOption) THEN
     RETURN
