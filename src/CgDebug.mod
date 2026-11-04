@@ -110,10 +110,10 @@ MODULE TypeTable;
   EXPORT InitTypeTable, EnterType, CheckTypeId;
 
   CONST
-    max = 1000;
+    MaxTypes = 1000;
 
   VAR
-    typeTable : ARRAY [1..max] OF Type;
+    typeTable : ARRAY [1..MaxTypes] OF Type;
     maxTypeId : ShortCard;
 
   (* -------------------------------------------------------------------------
@@ -168,7 +168,7 @@ MODULE TypeTable;
     END;
     isNewTypeId := typeId = maxTypeId;
     IF isNewTypeId THEN
-      IF maxTypeId = max THEN
+      IF maxTypeId = MaxTypes THEN
         CompilerError("Too many types for -g Option")
       END;
       INC(maxTypeId)
@@ -202,7 +202,7 @@ MODULE StabStrings;
   VAR
     n, m, high: ShortCard;
   BEGIN
-    (* high := max(HIGH(dst), HIGH(src)) *)
+    (* high := MAX(HIGH(dst), HIGH(src)) *)
     high := HIGH(dst);
     IF high > HIGH(src) THEN
       high := HIGH(src)
