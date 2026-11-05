@@ -63,7 +63,6 @@ END SETBIT;
 
 PROCEDURE CLEARBIT ( VAR value : WORD64; index : BitIndex );
 BEGIN
-BEGIN
   IF index < RegBitwidth THEN
     EXCL(value.bitset64.lowBits, index);
   ELSE (* index >= 32 *)
@@ -212,13 +211,13 @@ BEGIN
   val := value.card64.highBits;
   
   valDiv2 := val DIV 2;
-  val := (val AND mask1) + (vDiv2 AND mask1);
+  val := (val AND mask1) + (valDiv2 AND mask1);
   
   valDiv4 := val DIV 4;
-  val := (val AND mask2) + (vDiv4 AND mask2);
+  val := (val AND mask2) + (valDiv4 AND mask2);
   
   valDiv16 := val DIV 16;
-  val := (val AND mask3) + (vDiv16 AND mask3);
+  val := (val AND mask3) + (valDiv16 AND mask3);
   
   val := val + (val DIV 0100H);
   val := val + (val DIV 010000H);
@@ -355,7 +354,7 @@ BEGIN
     underflowMask.cardinal := 0FFFFFFFFH DIV powerOf2[RegBitwidth - shiftFactor];
     
     underflowBits.cardinal := value.card64.highBits;
-    underflowBits.bitset := unerflowBits.bitset * unerflowMask.bitset;
+    underflowBits.bitset := underflowBits.bitset * underflowMask.bitset;
     
     (* shift the overflow bits up *)
     underflowBits.cardinal :=
@@ -380,7 +379,7 @@ VAR
   signExtendMask : WORD32;
 BEGIN
   IF shiftFactor = 0 THEN
-    res := value
+    res := value;
     RETURN
   END; (* IF *)
   
@@ -431,7 +430,7 @@ END ASHR;
  * ------------------------------------------------------------------------ *)
 
 VAR
-  powerOf2 : ARRAY [0..HighBit] OF LONGCARD;
+  powerOf2 : ARRAY [0..Highbit] OF LONGCARD;
 
 
 (* ---------------------------------------------------------------------------
