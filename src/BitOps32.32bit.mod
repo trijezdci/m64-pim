@@ -319,8 +319,7 @@ BEGIN
     signExtendMask.bitset := allBitsSet.bitset / shiftedMask.bitset;
       
     (* apply mask to shifted result *)
-    res.bitset := res.bitset + signExtendMask.bitset;
-    END
+    res.bitset := res.bitset + signExtendMask.bitset
   END
 END ASHR;
 
@@ -334,7 +333,7 @@ END ASHR;
  * ------------------------------------------------------------------------ *)
 
 VAR
-  powerOf2 : ARRAY [0..MAX(BitIndex)] OF CARDINAL;
+  powerOf2 : ARRAY [0..Highbit] OF CARDINAL;
   
 
 (* ---------------------------------------------------------------------------
@@ -350,10 +349,9 @@ VAR
   
 BEGIN
   powerOf2[0] := 1;
-  FOR index := 1 TO Bitwidth-2 DO
+  FOR index := 1 TO Highbit DO
     powerOf2[index] := powerOf2[index-1] * 2
-  END; (* FOR *)
-  powerOf2[Bitwidth-1] := MAX(CARDINAL)
+  END (* FOR *)
 END InitPow2Table;
 
 
