@@ -16,6 +16,9 @@ Icon
 .VolumeIcon.icns
 .com.apple.timemachine.donotpresent
 
+# Vim temporary files
+*.swp
+
 # intermediary build products
 *.o
 *.a

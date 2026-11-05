@@ -104,5 +104,5 @@ VAR
   SymbolCnt : INTEGER;
 
 BEGIN
-  NullSymb := NIL; (* MakeRelSymb("0"); *)
+  NullSymb := NIL (* MakeRelSymb("0"); *)
 END CgBase.
