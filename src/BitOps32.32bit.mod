@@ -9,39 +9,6 @@ FROM SYSTEM IMPORT
   BYTE, ADDRESS, TSIZE;
 
 
-(* ---------------------------------------------------------------------------
- * BitOps32 Operand Type
- * ------------------------------------------------------------------------ *)
-
-(*
-TYPE WORD32 = RECORD
-  CASE : CARDINAL OF
-    0 : cardinal  : CARDINAL
-  | 1 : longcard  : LONGCARD
-  | 2 : integer   : INTEGER
-  | 3 : longint   : LONGINT
-  | 4 : real      : REAL
-  | 5 : bitset    : BITSET
-  | 6 : arrOfByte : ARRAY [0..3] OF BYTE
-  | 7 : address   : ADDRESS
-  END (* CASE *)
-END; (* RECORD *)
-*)
-
-(* ---------------------------------------------------------------------------
- * Bit width
- * ------------------------------------------------------------------------ *)
-(*
-CONST Bitwidth = TSIZE(WORD32) * 8;
-*)
-
-(* ---------------------------------------------------------------------------
- * Bit Index Type
- * ------------------------------------------------------------------------ *)
-(*
-TYPE BitIndex = CARDINAL [0..Bitwidth-1];
-*)
-
 (* --------------------------------------------------------------------------
  * Function:  BitOps.BIT(value, index)
  * --------------------------------------------------------------------------
@@ -50,7 +17,7 @@ TYPE BitIndex = CARDINAL [0..Bitwidth-1];
 
 PROCEDURE BIT ( value : WORD32; index : BitIndex ) : BOOLEAN;
 BEGIN
-
+  RETURN index IN value.bitset
 END BIT;
 
 
@@ -62,7 +29,7 @@ END BIT;
 
 PROCEDURE SETBIT ( VAR value : WORD32; index : BitIndex );
 BEGIN
-
+  INCL(value.bitset, index)
 END SETBIT;
 
 
@@ -74,7 +41,7 @@ END SETBIT;
 
 PROCEDURE CLEARBIT ( VAR value : WORD32; index : BitIndex );
 BEGIN
-
+  EXCL(value.bitset, index)
 END CLEARBIT;
 
 
@@ -85,8 +52,43 @@ END CLEARBIT;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE MSBIT ( VAR value : WORD32 ) : BitIndex;
+VAR
+  val : CARDINAL;
+  shiftFactor : BitIndex;
 BEGIN
-
+  val := value.cardinal;
+  
+  IF val = 0 THEN
+    RETURN 0
+  END; (* IF *)
+    
+  shiftFactor := 0;
+  
+  IF val >= 65536 THEN
+    val := val DIV 65536;
+    shiftFactor := shiftFactor + 16
+  END; (* IF *)
+  
+  IF val >= 256 THEN
+    val := val DIV 256;
+    shiftFactor := shiftFactor + 8
+  END; (* IF *)
+  
+  IF val >= 16 THEN
+    val := val DIV 16;
+    shiftFactor := shiftFactor + 4
+  END; (* IF *)
+  
+  IF val >= 4 THEN
+    val := val DIV 4;
+    shiftFactor := shiftFactor + 2
+  END; (* IF *)
+  
+  IF val >= 2 THEN
+    shiftFactor := shiftFactor + 1
+  END; (* IF *)
+  
+    RETURN shiftFactor
 END MSBIT;
  
 
@@ -97,8 +99,48 @@ END MSBIT;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE LSBIT ( VAR value : WORD32 ) : BitIndex;
+VAR
+  val : CARDINAL;
+  shiftFactor : BitIndex;
 BEGIN
+  val := value.cardinal;
 
+  IF val = 0 THEN
+    RETURN 0
+  END; (* IF *)
+
+  shiftFactor := 0;
+
+  (* Check lower 16 bits *)
+  IF (val MOD 65536) = 0 THEN
+    val := val DIV 65536;
+    shiftFactor := shiftFactor + 16
+  END; (* IF *)
+
+  (* Check lower 8 bits *)
+  IF (val MOD 256) = 0 THEN
+    val := val DIV 256;
+    shiftFactor := shiftFactor + 8
+  END; (* IF *)
+
+  (* Check lower 4 bits *)
+  IF (val MOD 16) = 0 THEN
+    val := val DIV 16;
+    shiftFactor := shiftFactor + 4
+  END; (* IF *)
+
+  (* Check lower 2 bits *)
+  IF (val MOD 4) = 0 THEN
+    val := val DIV 4;
+    shiftFactor := shiftFactor + 2
+  END; (* IF *)
+
+  (* Check the last bit *)
+  IF (val MOD 2) = 0 THEN
+    shiftFactor := shiftFactor + 1
+  END; (* IF *)
+
+  RETURN shift
 END LSBIT;
 
 
@@ -109,8 +151,38 @@ END LSBIT;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE BITCOUNT ( VAR value : WORD32 ) : CARDINAL;
+VAR
+  val, mask1, mask2, mask3, mask4,
+  valDiv2, valDiv4, valDiv16 : WORD32;
 BEGIN
+  val := value;
 
+  (* initialise masks *)
+  mask1.cardinal := 055555555H;
+  mask2.cardinal := 033333333H;
+  mask3.cardinal := 00F0F0F0FH;
+  mask4.cardinal := 00000003FH;
+  
+  (* Count pairs: val = (val & mask1) + ((val >> 1) & mask1) *)
+  valDiv2.cardinal := val.cardinal DIV 2;
+  val.bitset := (val.bitset * mask1.bitset) + (valDiv2.bitset * mask1.bitset);
+
+  (* Count nibbles: val = (val & mask2) + ((val >> 2) & mask2) *)
+  valDiv4.cardinal := val.cardinal DIV 4;
+  val.bitset := (val.bitset * mask2.bitset) + (vDiv4.bitset * mask2.bitset);
+
+  (* Count bytes: val = (val & mask3) + ((val >> 4) & mask3) *)
+  valDiv16.cardinal := val.cardinal DIV 16;
+  val.bitset := (val.bitset * mask3.bitset) + (vDiv16.bitset * mask3.bitset);
+
+  (* Sum adjacent bytes and 16-bit halves *)
+  val.cardinal := val.cardinal + (val.cardinal DIV 0100H);
+  val.cardinal := val.cardinal + (val.cardinal DIV 010000H);
+
+  (* Final mask out to clean up the total (max 32) *)
+  val.bitset := val.bitset * mask4.bitset;
+
+  RETURN val.cardinal
 END BITCOUNT;
 
 
@@ -122,7 +194,7 @@ END BITCOUNT;
 
 PROCEDURE BWAND ( value1, value2 : WORD32; VAR res : WORD32 );
 BEGIN
-
+  res.bitset := value1.bitset * value2.bitset
 END BWAND;
 
 
@@ -134,7 +206,7 @@ END BWAND;
 
 PROCEDURE BWOR ( value1, value2 : WORD32; VAR res : WORD32 );
 BEGIN
-
+  res.bitset := value1.bitset + value2.bitset
 END BWOR;
 
 
@@ -146,7 +218,7 @@ END BWOR;
 
 PROCEDURE BWXOR ( val1, val2 : WORD32; VAR res : WORD32 );
 BEGIN
-
+  res.bitset := val1.bitset / val2.bitset
 END BWXOR;
 
 
@@ -157,8 +229,11 @@ END BWXOR;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE BWNOT ( value : WORD32; VAR res : WORD32 );
+VAR
+  mask : WORD32;
 BEGIN
-
+  mask.cardinal := 0FFFFFFFFH;
+  res.bitset := mask.bitset / value.bitset
 END BWNOT;
 
 
@@ -170,7 +245,13 @@ END BWNOT;
 
 PROCEDURE SHL ( value : WORD32; shiftFactor : CARDINAL; VAR res : WORD32 );
 BEGIN
-
+  IF shiftFactor = 0 THEN
+    res := value
+  ELSIF shiftFactor >= 32 THEN
+    res.cardinal := 0
+  ELSE
+    res.cardinal := value.cardinal * powerOf2[shiftFactor]
+  END (* IF *)
 END SHL;
   
   
@@ -182,7 +263,13 @@ END SHL;
  
 PROCEDURE SHR ( value : WORD32; shiftFactor : CARDINAL; VAR res : WORD32 );
 BEGIN
-
+  IF shiftFactor = 0 THEN
+    res := value
+  ELSIF shiftFactor >= 32 THEN
+    res.cardinal := 0
+  ELSE
+    res.cardinal := value.cardinal DIV powerOf2[shiftFactor]
+  END (* IF *)
 END SHR;
 
 
@@ -193,10 +280,81 @@ END SHR;
  * ----------------------------------------------------------------------- *)
  
 PROCEDURE ASHR ( value : WORD32; shiftFactor : CARDINAL; VAR res : WORD32 );
+VAR
+  allBitsSet     : WORD32;
+  shiftedMask    : WORD32;
+  signExtendMask : WORD32;
 BEGIN
-
+  IF shiftFactor = 0 THEN
+    res := value;
+    RETURN
+  END; (* IF *)
+  
+  IF shiftFactor >= 32 THEN
+    IF 31 IN value.bitset THEN
+      res.cardinal := 0FFFFFFFFH;
+    ELSE
+      res.cardinal := 0;
+    END; (* IF *)
+    RETURN
+  END; (* IF *)
+  
+  (* logical shift right *)
+  res.cardinal := value.cardinal DIV powerOf2[shiftFactor];
+    
+  (* if sign bit is set *)
+  IF 31 IN value.bitset THEN
+    (* compute mask for sign extension *)
+    allBitsSet.cardinal := 0FFFFFFFFH;
+    shiftedMask.cardinal := allBitsSet.cardinal DIV powerOf2[shiftFactor];
+  
+    (* invert mask *)
+    signExtendMask.bitset := allBitsSet.bitset / shiftedMask.bitset;
+      
+    (* apply mask to shifted result *)
+    res.bitset := res.bitset + signExtendMask.bitset;
+    END
+  END
 END ASHR;
 
 
+(* ************************************************************************ *
+ * Private Operations                                                       *
+ * ************************************************************************ *)
+
+(* ---------------------------------------------------------------------------
+ * Powers of 2 table
+ * ------------------------------------------------------------------------ *)
+
+VAR
+  powerOf2 : ARRAY [0..MAX(BitIndex)] OF CARDINAL;
+  
+
+(* ---------------------------------------------------------------------------
+ * private procedure InitPow2Table
+ * ---------------------------------------------------------------------------
+ * Initialises the powers of 2 table
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE InitPow2Table;
+
+VAR
+  index : BitIndex;
+  
+BEGIN
+  powerOf2[0] := 1;
+  FOR index := 1 TO Bitwidth-2 DO
+    powerOf2[index] := powerOf2[index-1] * 2
+  END; (* FOR *)
+  powerOf2[Bitwidth-1] := MAX(CARDINAL)
+END InitPow2Table;
+
+
+(* ---------------------------------------------------------------------------
+ * Module initialisation.
+ * ------------------------------------------------------------------------ *)
+
+BEGIN (* BitOps32 *)
+  InitPow2Table
 END BitOps32.
 
