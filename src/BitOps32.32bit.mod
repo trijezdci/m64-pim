@@ -9,6 +9,13 @@ FROM SYSTEM IMPORT
   BYTE, ADDRESS, TSIZE;
 
 
+(* ---------------------------------------------------------------------------
+ * Highest bit index
+ * ------------------------------------------------------------------------ *)
+
+CONST HighBit = Bitwidth - 1;
+
+
 (* --------------------------------------------------------------------------
  * Function:  BitOps.BIT(value, index)
  * --------------------------------------------------------------------------
@@ -247,7 +254,7 @@ PROCEDURE SHL ( value : WORD32; shiftFactor : CARDINAL; VAR res : WORD32 );
 BEGIN
   IF shiftFactor = 0 THEN
     res := value
-  ELSIF shiftFactor >= 32 THEN
+  ELSIF shiftFactor >= Bitwidth THEN
     res.cardinal := 0
   ELSE
     res.cardinal := value.cardinal * powerOf2[shiftFactor]
@@ -265,7 +272,7 @@ PROCEDURE SHR ( value : WORD32; shiftFactor : CARDINAL; VAR res : WORD32 );
 BEGIN
   IF shiftFactor = 0 THEN
     res := value
-  ELSIF shiftFactor >= 32 THEN
+  ELSIF shiftFactor >= Bitwidth THEN
     res.cardinal := 0
   ELSE
     res.cardinal := value.cardinal DIV powerOf2[shiftFactor]
@@ -290,8 +297,8 @@ BEGIN
     RETURN
   END; (* IF *)
   
-  IF shiftFactor >= 32 THEN
-    IF 31 IN value.bitset THEN
+  IF shiftFactor >= Bitwidth THEN
+    IF HighBit IN value.bitset THEN
       res.cardinal := 0FFFFFFFFH;
     ELSE
       res.cardinal := 0;
@@ -303,7 +310,7 @@ BEGIN
   res.cardinal := value.cardinal DIV powerOf2[shiftFactor];
     
   (* if sign bit is set *)
-  IF 31 IN value.bitset THEN
+  IF HighBit IN value.bitset THEN
     (* compute mask for sign extension *)
     allBitsSet.cardinal := 0FFFFFFFFH;
     shiftedMask.cardinal := allBitsSet.cardinal DIV powerOf2[shiftFactor];
