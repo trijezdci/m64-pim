@@ -547,8 +547,7 @@ END Pow10;
 PROCEDURE Log10 ( n : CARD64T; VAR res : CARDINAL; VAR stat : Status );
 VAR
   ignore : Status;
-  approx : CARDINAL;
-  log : CARD64T;
+  log, approx : CARDINAL;
 BEGIN
   IF isZero(n) THEN
     stat := DivByZero;
@@ -556,7 +555,7 @@ BEGIN
   END; (* IF *)
   
   (* approximation = (log2(n) * 77) / 256 *)
-  LOG2(n, log, ignore);
+  Log2(n, log, ignore);
   approx := (log * 77) DIV 256;
   
   IF approx < 19 THEN
