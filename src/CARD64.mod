@@ -25,6 +25,14 @@ CONST
 
 
 (* --------------------------------------------------------------------------
+ * Maximum decimal digits
+ * ----------------------------------------------------------------------- *)
+
+CONST
+  MaxDecimalDigits = 19
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  CARD64.SetZero(res)
  * --------------------------------------------------------------------------
  * Passes the CARD64T value of zero in res.
@@ -492,7 +500,7 @@ END Pow2;
 (* --------------------------------------------------------------------------
  * Procedure:  CARD64.Log2(n, res, stat)
  * --------------------------------------------------------------------------
- * the integral part of the binary logarithm of n in res.
+ * Passes the integral part of the binary logarithm of n in res.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Log2 ( n : CARD64T; VAR res : CARDINAL; VAR stat : Status );
@@ -510,6 +518,60 @@ BEGIN
 
   stat := Success
 END Log2;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  CARD64.Pow10(n, res, stat)
+ * --------------------------------------------------------------------------
+ * Passes the n-th power of 10 in res, status in stat.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Pow10 ( n : CARDINAL; VAR res : CARD64T; VAR stat : Status );
+BEGIN
+  IF n >= MaxDecimalDigits THEN
+    stat := Overflow;
+    RETURN
+  END; (* IF *)
+  
+  res := powerOf10[n];
+  stat := Success
+END Pow10;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  CARD64.Log10(n, res, stat)
+ * --------------------------------------------------------------------------
+ * Passes the integral part of the decimal logarithm of n in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Log10 ( n : CARD64T; VAR res : CARDINAL; VAR stat : Status );
+VAR
+  ignore : Status;
+  approx : CARDINAL;
+  log : CARD64T;
+BEGIN
+  IF isZero(n) THEN
+    stat := DivByZero;
+    RETURN
+  END; (* IF *)
+  
+  (* approximation = (log2(n) * 77) / 256 *)
+  LOG2(n, log, ignore);
+  approx := (log * 77) DIV 256;
+  
+  IF approx < 19 THEN
+    IF (n.highBits > powerOf10[approx+1].highBits) OR
+      ((n.highBits = powerOf10[approx+1].highBits) AND
+       (n.lowBits >= powerOf10[approx+1].lowBits)) THEN
+      res := approx+1;
+      stat := Success;
+      RETURN
+    END (* IF *)
+  END (* IF *)
+  
+  res := approx;
+  stat := Success
+END Log10;
 
 
 (* --------------------------------------------------------------------------
@@ -987,6 +1049,7 @@ END log2LC;
 
 VAR
   powerOf2 : ARRAY [0..Bitwidth-1] OF CARD64T;
+  powerOf10 : ARRAY [0..MaxDecimalDigits] OF CARD64T;
 
 
 (* --------------------------------------------------------------------------
@@ -1017,8 +1080,38 @@ BEGIN
 END InitPow2Table;
 
 
-(* Initialise data table *)
+(* --------------------------------------------------------------------------
+ * procedure InitPow10Table
+ * --------------------------------------------------------------------------
+ * Initialises data table with powers of 10.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE InitPow10Table;
+VAR
+  index : CARDINAL;
+  ignore : Status;
+  ten : CARD64T;
+BEGIN
+  ten.highBits := 0;
+  ten.lowBits := 10;
+  
+  powerOf10[0].highBits := 0;
+  powerOf10[0].lowBits := 1;
+
+  FOR index := 1 TO 9 DO
+    powerOf10[index].highBits := 0;
+    powerOf10[index].lowBits := powerOf10[index-1].lowBits * 10
+  END; (* FOR *)
+
+  FOR index := 10 TO MaxDecimalDigits DO
+    CrossProdMul(powerOf10[index-1], ten, powerOf10[index], ignore)
+  END (* FOR *)
+END InitPow10Table;
+
+
+((* Initialise data tables *)
 
 BEGIN
-  InitPow2Table
+  InitPow2Table;
+  InitPow10Table
 END CARD64.
