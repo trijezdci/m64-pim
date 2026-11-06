@@ -559,6 +559,7 @@ BEGIN
   approx := (log * 77) DIV 256;
   
   IF approx < 19 THEN
+    (* n >= powerOf10[approx+1] *)
     IF (n.highBits > powerOf10[approx+1].highBits) OR
       ((n.highBits = powerOf10[approx+1].highBits) AND
        (n.lowBits >= powerOf10[approx+1].lowBits)) THEN
