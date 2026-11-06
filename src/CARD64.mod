@@ -558,18 +558,15 @@ BEGIN
   Log2(n, log, ignore);
   approx := (log * 77) DIV 256;
   
-  IF approx < 19 THEN
-    (* n >= powerOf10[approx+1] *)
-    IF (n.highBits > powerOf10[approx+1].highBits) OR
-      ((n.highBits = powerOf10[approx+1].highBits) AND
-       (n.lowBits >= powerOf10[approx+1].lowBits)) THEN
-      res := approx+1;
-      stat := Success;
-      RETURN
-    END (* IF *)
-  END (* IF *)
+  (* n >= powerOf10[approx+1] *)
+  IF (n.highBits > powerOf10[approx+1].highBits) OR
+    ((n.highBits = powerOf10[approx+1].highBits) AND
+     (n.lowBits >= powerOf10[approx+1].lowBits)) THEN
+    res := approx + 1
+  ELSE
+    res := approx
+  END; (* IF *)
   
-  res := approx;
   stat := Success
 END Log10;
 
@@ -1109,9 +1106,15 @@ BEGIN
 END InitPow10Table;
 
 
-((* Initialise data tables *)
+(* Module initialisation *)
 
 BEGIN
+  (* ASSERT MaxDecimalDigits matches Bitwidth *)
+  IF (((Bitwidth-1) * 77) DIV 256) >= MaxDecimalDigits THEN
+    HALT
+  END;
+  
+  (* initialise tables *)
   InitPow2Table;
   InitPow10Table
 END CARD64.
