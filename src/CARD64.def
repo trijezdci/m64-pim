@@ -4,6 +4,8 @@ DEFINITION MODULE CARD64;
 
 (* 64-bit Cardinal Type for 32-bit Compiler *)
 
+FROM SYSTEM IMPORT TSIZE;
+
 
 (* ---------------------------------------------------------------------------
  * 64-bit Cardinal Type
@@ -27,6 +29,35 @@ END; (* RECORD *)
  * ------------------------------------------------------------------------ *)
 
 TYPE Status = ( Success, Underflow, Overflow, DivByZero );
+
+
+(* --------------------------------------------------------------------------
+ * Bit width of type CARD64T
+ * ----------------------------------------------------------------------- *)
+
+CONST Bitwidth = TSIZE(CARD64T) * 8;
+
+
+(* --------------------------------------------------------------------------
+ * Bit index type
+ * ----------------------------------------------------------------------- *)
+
+TYPE BitIndex = LONGCARD [0..Bitwidth-1];
+
+
+(* --------------------------------------------------------------------------
+ * Maximum deximal digit count for CARD64T values
+ * ----------------------------------------------------------------------- *)
+
+CONST MaxDecimalDigits = (((Bitwidth-1) * 77) DIV 256) - 1;
+
+
+(* --------------------------------------------------------------------------
+ * Decimal digit range type
+ * ----------------------------------------------------------------------- *)
+
+TYPE DigitRange = LONGCARD [0..MaxDecimalDigits];
+
 
 
 (* --------------------------------------------------------------------------
@@ -248,12 +279,12 @@ PROCEDURE Mod ( left, right : CARD64T; VAR res : CARD64T; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  CARD64.Pow2(n, res, stat)
+ * Procedure:  CARD64.Pow2(n, res)
  * --------------------------------------------------------------------------
- * Passes the n-th power of 2 in res, status in stat.
+ * Passes the n-th power of 2 in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Pow2 ( n : CARDINAL; VAR res : CARD64T; VAR stat : Status );
+PROCEDURE Pow2 ( n : BitIndex; VAR res : CARD64T );
 
 
 (* --------------------------------------------------------------------------
@@ -262,16 +293,16 @@ PROCEDURE Pow2 ( n : CARDINAL; VAR res : CARD64T; VAR stat : Status );
  * the integral part of the logarithm of 2 for argument n in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Log2 ( n : CARD64T; VAR res : CARDINAL; VAR stat : Status );
+PROCEDURE Log2 ( n : CARD64T; VAR res : LONGCARD; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  CARD64.Pow10(n, res, stat)
+ * Procedure:  CARD64.Pow10(n, res)
  * --------------------------------------------------------------------------
- * Passes the n-th power of 10 in res, status in stat.
+ * Passes the n-th power of 10 in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Pow10 ( n : CARDINAL; VAR res : CARD64T; VAR stat : Status );
+PROCEDURE Pow10 ( n : DigitRange; VAR res : CARD64T );
 
 
 (* --------------------------------------------------------------------------
@@ -280,7 +311,7 @@ PROCEDURE Pow10 ( n : CARDINAL; VAR res : CARD64T; VAR stat : Status );
  * the integral part of the logarithm of 10 for argument n in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Log10 ( n : CARD64T; VAR res : CARDINAL; VAR stat : Status );
+PROCEDURE Log10 ( n : CARD64T; VAR res : LONGCARD; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------

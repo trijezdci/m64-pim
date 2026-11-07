@@ -6,30 +6,7 @@ IMPLEMENTATION MODULE CARD64;
 
 FROM SYSTEM IMPORT TSIZE;
 
-(*
-TYPE CARD64T = RECORD
-  highBits,
-  lowBits : LONGCARD
-END; (* RECORD *)
-
-TYPE Status = ( Success, Overflow, DivByZero );
-*)
-
-
-(* --------------------------------------------------------------------------
- * bit width
- * ----------------------------------------------------------------------- *)
-
-CONST
-  Bitwidth = TSIZE(CARD64T) * 8;
-
-
-(* --------------------------------------------------------------------------
- * Maximum decimal digits
- * ----------------------------------------------------------------------- *)
-
-CONST
-  MaxDecimalDigits = 19
+IMPORT LongCardMath;
 
 
 (* --------------------------------------------------------------------------
@@ -480,20 +457,14 @@ END Mod;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  CARD64.Pow2(n, res, stat)
+ * Procedure:  CARD64.Pow2(n, res)
  * --------------------------------------------------------------------------
- * Passes the n-th power of 2 in res, status in stat.
+ * Passes the n-th power of 2 in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Pow2 ( n : CARDINAL; VAR res : CARD64T; VAR stat : Status );
+PROCEDURE Pow2 ( n : BitIndex; VAR res : CARD64T );
 BEGIN
-  IF n >= Bitwidth THEN
-    stat := Overflow;
-    RETURN
-  END; (* IF *)
-  
-  res := powerOf2[n];
-  stat := Success
+  res := powerOf2[n]
 END Pow2;
 
 
@@ -503,7 +474,7 @@ END Pow2;
  * Passes the integral part of the binary logarithm of n in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Log2 ( n : CARD64T; VAR res : CARDINAL; VAR stat : Status );
+PROCEDURE Log2 ( n : CARD64T; VAR res : LONGCARD; VAR stat : Status );
 BEGIN
   IF isZero(n) THEN
     stat := DivByZero;
@@ -511,9 +482,9 @@ BEGIN
   END; (* IF *)
 
   IF n.highBits # 0 THEN
-    res := 32 + log2LC(n.highBits)
+    res := LongCardMath.Bitwidth + LongCardMath.log2(n.highBits)
   ELSE
-    res := log2LC(n.lowBits)
+    res := LongCardMath.log2(n.lowBits)
   END; (* IF *)
 
   stat := Success
@@ -521,20 +492,14 @@ END Log2;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  CARD64.Pow10(n, res, stat)
+ * Procedure:  CARD64.Pow10(n, res)
  * --------------------------------------------------------------------------
- * Passes the n-th power of 10 in res, status in stat.
+ * Passes the n-th power of 10 in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Pow10 ( n : CARDINAL; VAR res : CARD64T; VAR stat : Status );
-BEGIN
-  IF n >= MaxDecimalDigits THEN
-    stat := Overflow;
-    RETURN
-  END; (* IF *)
-  
-  res := powerOf10[n];
-  stat := Success
+PROCEDURE Pow10 ( n : DigitRange; VAR res : CARD64T );
+BEGIN 
+  res := powerOf10[n]
 END Pow10;
 
 
@@ -544,7 +509,7 @@ END Pow10;
  * Passes the integral part of the decimal logarithm of n in res.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Log10 ( n : CARD64T; VAR res : CARDINAL; VAR stat : Status );
+PROCEDURE Log10 ( n : CARD64T; VAR res : LONGCARD; VAR stat : Status );
 VAR
   ignore : Status;
   log, approx : CARDINAL;
@@ -1001,52 +966,11 @@ END DivMod;
 
 
 (* --------------------------------------------------------------------------
- * Function: log2LC(n)
- * --------------------------------------------------------------------------
- * Returns the integral part of the base-2 logarithm of non-zero n.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE log2LC ( n : LONGCARD ) : CARDINAL;
-VAR
-  res : CARDINAL;
-BEGIN
-  res := 0;
-
-  IF n >= 010000H THEN
-    n := n DIV 010000H;
-    res := res + 16
-  END; (* IF *)
-
-  IF n >= 0100H THEN
-    n := n DIV 0100H;
-    res := res + 8
-  END; (* IF *)
-
-  IF n >= 010H THEN
-    n := n DIV 010H;
-    res := res + 4
-  END; (* IF *)
-
-  IF n >= 04H THEN
-    n := n DIV 04H;
-    res := res + 2
-  END; (* IF *)
-
-  IF n >= 02H THEN
-    res := res + 1
-  END; (* IF *)
-
-  RETURN res
-END log2LC;
-
-
-(* --------------------------------------------------------------------------
  * Data table for powers of 2
  * ----------------------------------------------------------------------- *)
 
 VAR
   powerOf2 : ARRAY [0..Bitwidth-1] OF CARD64T;
-  powerOf10 : ARRAY [0..MaxDecimalDigits] OF CARD64T;
 
 
 (* --------------------------------------------------------------------------
@@ -1057,7 +981,7 @@ VAR
 
 PROCEDURE InitPow2Table;
 VAR
-  index : CARDINAL;
+  index : BitIndex;
 BEGIN
   powerOf2[0].highBits := 0;
   powerOf2[0].lowBits := 1;
@@ -1078,6 +1002,14 @@ END InitPow2Table;
 
 
 (* --------------------------------------------------------------------------
+ * Data table for powers of 10
+ * ----------------------------------------------------------------------- *)
+
+VAR
+  powerOf10 : ARRAY [0..MaxDecimalDigits] OF CARD64T;
+
+
+(* --------------------------------------------------------------------------
  * procedure InitPow10Table
  * --------------------------------------------------------------------------
  * Initialises data table with powers of 10.
@@ -1085,7 +1017,7 @@ END InitPow2Table;
 
 PROCEDURE InitPow10Table;
 VAR
-  index : CARDINAL;
+  index : DigitRange;
   ignore : Status;
   ten : CARD64T;
 BEGIN
