@@ -512,7 +512,7 @@ END Pow10;
 PROCEDURE Log10 ( n : CARD64T; VAR res : LONGCARD; VAR stat : Status );
 VAR
   ignore : Status;
-  log, approx : CARDINAL;
+  log, approx : LONGCARD;
 BEGIN
   IF isZero(n) THEN
     stat := DivByZero;
