@@ -1,0 +1,47 @@
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
+
+DEFINITION MODULE CARD64IO;
+
+(* Console IO library for Type CARD64T *)
+
+
+IMPORT CARD64;
+
+FROM CARD64 IMPORT CARD64T;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  CARD64.Read(n, stat)
+ * --------------------------------------------------------------------------
+ * Read unformatted decimal number from console and pass it in n.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Read ( VAR n : CARD64T; VAR stat : CARD64.Status );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  CARD64.Write(n)
+ * --------------------------------------------------------------------------
+ * Write n unformatted to console.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Write ( n : CARD64T );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  CARD64.WriteF(fmt, n)
+ * --------------------------------------------------------------------------
+ * Write n formatted to console following format fmt.
+ *
+ * fmt | radix    | separation       | digit grouping
+ * ----+----------+------------------+---------------
+ * ',' | decimal  | comma separated  | 3 digits 
+ * '.' | decimal  | period separated | 3 digits
+ * 'x' | radix-16 | colon separated  | 8 digits
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE WriteF ( fmt : CHAR; n : CARD64T );
+
+
+END CARD64.
+
