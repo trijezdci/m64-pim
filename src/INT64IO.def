@@ -5,7 +5,10 @@ DEFINITION MODULE Int64IO;
 (* Console IO library for Type INT64T *)
 
 
+IMPORT INT64;
+
 FROM INT64 IMPORT INT64T;
+
 
 (* --------------------------------------------------------------------------
  * Procedure:  Int64IO.Read(i, stat)
