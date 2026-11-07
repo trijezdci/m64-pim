@@ -5,7 +5,15 @@ IMPLEMENTATION MODULE Int64IO;
 (* Console IO library for Type INT64T *)
 
 
+IMPORT INT64;
+
 FROM INT64 IMPORT INT64T;
+
+IMPORT CARD64;
+
+FROM CARD64 IMPORT CARD64T;
+
+IMPORT InOut;
 
 
 (* --------------------------------------------------------------------------
@@ -14,9 +22,74 @@ FROM INT64 IMPORT INT64T;
  * Read unformatted decimal number from console and pass it in i.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Read ( VAR i : INT64T );
+PROCEDURE Read ( VAR i : INT64T; VAR stat : INT64.Status );
+VAR
+  ch : CHAR;
+  minusSign : BOOLEAN;
+  ten, val, digitVal, minIntMagnitude, maxIntMagnitude : CARD64T;
 BEGIN
+  CARD64.SetZero(val);
+  ten.highBits := 0;
+  ten.lowBits := 10;
+  
+  InOut.Read(ch);
+  IF NOT InOut.Done() THEN
+    stat := INT64.NoInput;
+    RETURN
+  END (* IF *)
+  
+  IF (ch = "-") OR (ch = "+") THEN
+    minusSign := (ch = "-");
+    InOut.Read(ch)
+  END; (* IF *)
+  
+  IF (ch < "0") OR (ch > "9") THEN
+    stat := INT64.InvalidInput;
+    RETURN
+  END; (* IF *)
+  
+  WHILE InOut.Done() AND (ch >= "0") AND (ch <= "9") DO
+    CARD64.Mul(val, ten, val, stat);
+    IF stat # CARD64.Success THEN
+      RETURN
+    END; (* IF *)
+    
+    digitVal.highBits := 0;
+    digitVal.lowBits := ORD(ch) - ORD("0");
+    
+    CARD64.Add(val, digitVal, val, stat);
+    IF stat # CARD64.Success THEN
+      RETURN
+    END; (* IF *)
+    
+    InOut.Read(ch)
+  END; (* WHILE *)
+  
+  minIntMagnitude.highBits := 80000000H;
+  minIntMagnitude.lowBits := 0;
 
+  maxIntMagnitude.highBits := 7FFFFFFFH;
+  maxIntMagnitude.lowBits := 0FFFFFFFFH;
+  
+  IF minusSign THEN
+    IF CARD64.gt(val, minIntMagnitude) THEN
+      stat := INT64.Underflow;
+      RETURN
+    END; (* IF *)
+    IF CARD64.eq(val, minIntMagnitude) THEN
+      INT64.SetMin(i);
+      stat := INT64.Success
+    ELSE
+      INT64.FromCard64(val, i, stat);
+      INT64.Neg(i, i, stat)
+    END (* IF *)
+  ELSE (* no minus sign *)
+    IF CARD64.gt(val, maxIntMagnitude) THEN
+      stat := INT64.Overflow;
+      RETURN
+    END; (* IF *)
+    INT64.FromCard64(val, i, stat)
+  END (* IF *)
 END Read;
 
 
@@ -27,28 +100,20 @@ END Read;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Write ( i : INT64T );
+VAR
+  index, count : CARDINAL;
+  digits : ARRAY [0..CARD64.MaxDecimalDigits] OF CHAR;
 BEGIN
-  IF INT64.isZero(i) THEN
-    WriteChar("0");
-    RETURN
-  ELSIF INT64.isOne(i) THEN
-    WriteChar("1");
-    RETURN
+  IF i.highBits < 0 THEN
+    InOut.Write("-")
   END; (* IF *)
   
-  rem := i;
   index := 0;
-  WHILE NOT INT64.isZero(rem) DO
-    INT64.Mod(rem, ten, digitVal, stat);
-    INT64.Div(rem, ten, rem, stat);
-    digit[index] := CHR(ORD("0") + digitVal;
+  GetDigitSeq(i, digits, count);
+  WHILE digits[index] # CHR(0) DO
+    InOut.Write(digits[index]);
     INC(index)
-  END; (* WHILE *)
-  
-  REPEAT
-    WriteChar(digit[index]);
-    DEC(index)
-  UNTIL index = 0
+  END (* WHILE *)
 END Write;
 
 
@@ -66,13 +131,14 @@ END Write;
 
 PROCEDURE WriteF ( fmt : CHAR; i : INT64T );
 BEGIN
-  IF fmt = "." THEN
-    WriteFmtDec(".", i)
-  ELSE fmt = "," THEN
-    WriteFmtDec(",", i)
+  IF (fmt = ".") OR (fmt = ",") THEN
+    WriteFmtDec(fmt, i)
   ELSE fmt = "x" THEN
     WriteFmtHex(i)
   ELSE
+    IF i.highBits > 0 THEN
+      InOut.Write(" ")
+    END; (* IF *)
     Write(i)
   END (* IF *)
 END WriteF;
@@ -83,18 +149,104 @@ END WriteF;
  * *********************************************************************** *)
 
 (* --------------------------------------------------------------------------
+ * Function:  digitCount(n)
+ * --------------------------------------------------------------------------
+ * Returns the decimal digit count for n.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE digitCount ( n : CARD64T ) : CARDINAL;
+VAR
+  count : LONGCARD;
+  ignore : CARD64.Status;
+BEGIN
+  IF CARD64.isZero(n) THEN
+    RETURN 1
+  ELSE
+    CARD64.Log10(n, count, ignore);
+    RETURN CARDINAL(count + 1)
+  END (* IF *)
+END digitCount;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  GetDigitSeq(n, digits)
+ * --------------------------------------------------------------------------
+ * Passes the decimal digit sequence for n in digits.
+ * ----------------------------------------------------------------------- *)
+
+CONST MinIntDigitSeq = "9223372036854775808";
+
+PROCEDURE GetDigitSeq
+  ( i : INT64T; VAR digits : ARRAY OF CHAR; VAR count : CARDINAL );
+VAR
+  index : CARDINAL;
+  ignore : CARD64.Status;
+  ten, rem, digitVal : CARD64T;
+BEGIN
+  IF INT64.isZero(i) THEN
+    digits := "0";
+    count := 1;
+    RETURN
+  ELSIF INT64.isOne(i) THEN
+    digits := "1";
+    count := 1;
+    RETURN
+  ELSIF INT64.isMin(i) THEN
+    digits := MinIntDigitSeq;
+    count := CARD64.MaxDecimalDigits;
+    RETURN
+  END; (* IF *)
+  
+  IF i.highBits < 0 THEN
+    INT64.Abs(i, rem, ignore)
+  ELSE
+    rem.highBits := LONGCARD(i.highBits);
+    rem.lowBits := i.lowBits
+  END; (* IF *)
+  
+  ten.highBits := 0;
+  ten.lowBits := 10;
+  
+  index := digitCount(rem);
+  digits[index] := CHR(0);
+  count := index;
+  
+  WHILE index > 0 DO
+    DEC(index);
+    CARD64.Mod(rem, ten, digitVal, ignore);
+    CARD64.Div(rem, ten, rem, ignore);
+    digits[index] := CHR(ORD("0") + CARDINAL(digitVal.lowBits))
+  END (* WHILE *)
+END GetDigitSeq;
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  WriteFmtDec(fmt, i)
  * --------------------------------------------------------------------------
  * Write i as decimal number to console with digit group separator fmt.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE WriteFmtDec ( fmt : CHAR; i : INT64T );
+VAR
+  index, weight : CARDINAL;
+  digits : ARRAY [0..CARD64.MaxDecimalDigits] OF CHAR;
 BEGIN
-  If (fmt = ".") OR (fmt = ",") THEN
-    
+  IF i.highBits < 0 THEN
+    InOut.Write("-")
   ELSE
-    Write(i)
-  END (* IF *)
+    InOut.Write(" ")
+  END; (* IF *)
+  
+  index := 0;
+  GetDigitSeq(i, digits, weight);
+  WHILE digits[index] # CHR(0) DO
+    InOut.Write(digits[index]);
+    IF (weight MOD 3 = 0) AND (weight > 0) THEN
+      InOut.Write(fmt)
+    END; (* IF *)
+    INC(index);
+    DEC(weight)
+  END (* WHILE *)
 END WriteFmtDec;
 
 
@@ -106,10 +258,10 @@ END WriteFmtDec;
 
 PROCEDURE WriteFmtHex ( i : INT64T );
 BEGIN
-  WriteChar("0");
-  WriteChar("x");
+  InOut.Write("0");
+  InOut.Write("x");
   WriteLCHex(LONGCARD(i.highBits));
-  WriteChar(":");
+  InOut.Write(":");
   WriteLCHex(i.lowBits)
 END WriteFmtHex;
 
@@ -128,7 +280,7 @@ VAR
   index : CARDINAL;
 BEGIN
   FOR index := 0 TO 7 DO
-    WriteChar(HexDigit[(n DIV shiftFactor[index]) MOD 16]
+    InOut.Write(HexDigit[(n DIV shiftFactor[index]]) MOD 16]
   END (* FOR *)
 END WriteLCHex;
 
@@ -152,57 +304,7 @@ BEGIN
 END InitShiftFactorTable;
 
 
-
-
-
-(* --------------------------------------------------------------------------
- * function pow10(n)
- * --------------------------------------------------------------------------
- * Returns the power of 10 for argument n
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE pow10 ( n : CARDINAL ) : CARDINAL;
-
-BEGIN
-  RETURN powerOf10[n]
-END pow10;
-
-
-(* --------------------------------------------------------------------------
- * function log10(n)
- * --------------------------------------------------------------------------
- * Returns the integral part of the logarithm of 10 for argument n
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE log10 ( n : CARDINAL ) : CARDINAL;
-
-VAR
-  index, approximation : CARDINAL;
-  
-BEGIN
-  index := shr((log2(n) + 1) * 1233, 12);
-  approximation := powerOf10[index];
-  IF n < approximation THEN
-    RETURN index - 1
-  ELSE
-    RETURN approximation
-  END (* IF *)
-END log10;
-
-
-(* --------------------------------------------------------------------------
- * function maxDecimalDigits(n)
- * --------------------------------------------------------------------------
- * Returns the number of decimal digits of the largest unsigned integer that
- * can be encoded in base-2 using n number of 8-bit octets for 1 <= n <= 16.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE maxDecimalDigits ( octets : Card1To16 ) : CARDINAL;
-
-BEGIN
-  RETURN maxDecDigits[octets]
-END maxDecimalDigits;
-
+(* Module initialisation *)
 
 BEGIN
   InitShiftFactorTable
