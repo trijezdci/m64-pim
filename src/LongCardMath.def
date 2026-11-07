@@ -35,15 +35,6 @@ TYPE DigitRange = LONGCARD [0..MaxDecimalDigits];
 
 
 (* --------------------------------------------------------------------------
- * Function:  LongCardMath.log2(n)
- * --------------------------------------------------------------------------
- * Returns the integral part of the binary logarithm of n.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE log2 ( n : LONGCARD ) : LONGCARD;
-
-
-(* --------------------------------------------------------------------------
  * Function:  LongCardMath.pow2(n)
  * --------------------------------------------------------------------------
  * Returns the n-th power of 2.
@@ -53,12 +44,12 @@ PROCEDURE pow2 ( n : BitIndex ) : LONGCARD;
 
 
 (* --------------------------------------------------------------------------
- * Function:  LongCardMath.log10(n)
+ * Function:  LongCardMath.log2(n)
  * --------------------------------------------------------------------------
- * Returns the integral part of the decimal logarithm of n.
+ * Returns the integral part of the binary logarithm of n.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE log10 ( n : LONGCARD ) : LONGCARD;
+PROCEDURE log2 ( n : LONGCARD ) : LONGCARD;
 
 
 (* --------------------------------------------------------------------------
@@ -68,6 +59,15 @@ PROCEDURE log10 ( n : LONGCARD ) : LONGCARD;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE pow10 ( n : DigitRange ) : LONGCARD;
+
+
+(* --------------------------------------------------------------------------
+ * Function:  LongCardMath.log10(n)
+ * --------------------------------------------------------------------------
+ * Returns the integral part of the decimal logarithm of n.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE log10 ( n : LONGCARD ) : LONGCARD;
 
 
 END LongCardMath.

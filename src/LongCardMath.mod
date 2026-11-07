@@ -4,6 +4,17 @@ IMPLEMENTATION MODULE LongCardMath;
 
 
 (* --------------------------------------------------------------------------
+ * Function:  LongCardMath.pow2(n)
+ * --------------------------------------------------------------------------
+ * Returns the n-th power of 2.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE pow2 ( n : BitIndex ) : LONGCARD;
+  RETURN powerOf2[n]
+END pow2;
+
+
+(* --------------------------------------------------------------------------
  * Function:  LongCardMath.log2(n)
  * --------------------------------------------------------------------------
  * Returns the integral part of the binary logarithm of n.
@@ -44,14 +55,15 @@ END log2;
 
 
 (* --------------------------------------------------------------------------
- * Function:  LongCardMath.pow2(n)
+ * Function:  LongCardMath.pow10(n)
  * --------------------------------------------------------------------------
- * Returns the n-th power of 2.
+ * Returns the n-th power of 10.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE pow2 ( n : BitIndex ) : LONGCARD;
-  RETURN powerOf2[n]
-END pow2;
+PROCEDURE pow10 ( n : DigitRange ) : LONGCARD;
+BEGIN
+  RETURN powerOf10[n]
+END pow10;
 
 
 (* --------------------------------------------------------------------------
@@ -72,18 +84,6 @@ BEGIN
     RETURN approx
   END (* IF *)
 END log10;
-
-
-(* --------------------------------------------------------------------------
- * Function:  LongCardMath.pow10(n)
- * --------------------------------------------------------------------------
- * Returns the n-th power of 10.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE pow10 ( n : DigitRange ) : LONGCARD;
-BEGIN
-  RETURN powerOf10[n]
-END pow10;
 
 
 (* --------------------------------------------------------------------------
