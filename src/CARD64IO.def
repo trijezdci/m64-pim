@@ -43,5 +43,5 @@ PROCEDURE Write ( n : CARD64T );
 PROCEDURE WriteF ( fmt : CHAR; n : CARD64T );
 
 
-END CARD64.
+END CARD64IO.
 
