@@ -17,7 +17,7 @@ IMPORT InOut;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  Int64IO.Read(i)
+ * Procedure:  Int64IO.Read(i, stat)
  * --------------------------------------------------------------------------
  * Read unformatted decimal number from console and pass it in i.
  * ----------------------------------------------------------------------- *)
@@ -133,7 +133,7 @@ PROCEDURE WriteF ( fmt : CHAR; i : INT64T );
 BEGIN
   IF (fmt = ".") OR (fmt = ",") THEN
     WriteFmtDec(fmt, i)
-  ELSE fmt = "x" THEN
+  ELSIF fmt = "x" THEN
     WriteFmtHex(i)
   ELSE
     IF i.highBits > 0 THEN
@@ -280,7 +280,7 @@ VAR
   index : CARDINAL;
 BEGIN
   FOR index := 0 TO 7 DO
-    InOut.Write(HexDigit[(n DIV shiftFactor[index]]) MOD 16]
+    InOut.Write(HexDigit[(n DIV shiftFactor[index]) MOD 16])
   END (* FOR *)
 END WriteLCHex;
 
