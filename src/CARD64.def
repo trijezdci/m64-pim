@@ -28,7 +28,8 @@ END; (* RECORD *)
  * Status Type
  * ------------------------------------------------------------------------ *)
 
-TYPE Status = ( Success, Underflow, Overflow, DivByZero );
+TYPE Status =
+  ( Success, Underflow, Overflow, DivByZero, NoInput, InvalidInput );
 
 
 (* --------------------------------------------------------------------------
