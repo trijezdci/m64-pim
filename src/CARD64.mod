@@ -258,6 +258,26 @@ END lteq;
 
 
 (* --------------------------------------------------------------------------
+ * Function:  CARD64.digitCount(n)
+ * --------------------------------------------------------------------------
+ * Returns the decimal digit count for n.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE digitCount ( n : CARD64T ) : CARDINAL;
+VAR
+  count : LONGCARD;
+  ignore : Status;
+BEGIN
+  IF isZero(n) THEN
+    RETURN 1
+  ELSE
+    Log10(n, count, ignore);
+    RETURN CARDINAL(count + 1)
+  END (* IF *)
+END digitCount;
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  CARD64.Inc(n, stat)
  * --------------------------------------------------------------------------
  * Destructively increments n by 1.  Leaves n unchanged on Overflow.

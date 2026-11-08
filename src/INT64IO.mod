@@ -149,26 +149,6 @@ END WriteF;
  * *********************************************************************** *)
 
 (* --------------------------------------------------------------------------
- * Function:  digitCount(n)
- * --------------------------------------------------------------------------
- * Returns the decimal digit count for n.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE digitCount ( n : CARD64T ) : CARDINAL;
-VAR
-  count : LONGCARD;
-  ignore : CARD64.Status;
-BEGIN
-  IF CARD64.isZero(n) THEN
-    RETURN 1
-  ELSE
-    CARD64.Log10(n, count, ignore);
-    RETURN CARDINAL(count + 1)
-  END (* IF *)
-END digitCount;
-
-
-(* --------------------------------------------------------------------------
  * Procedure:  GetDigitSeq(n, digits)
  * --------------------------------------------------------------------------
  * Passes the decimal digit sequence for n in digits.
@@ -207,7 +187,7 @@ BEGIN
   ten.highBits := 0;
   ten.lowBits := 10;
   
-  index := digitCount(rem);
+  index := CARD64.digitCount(rem);
   digits[index] := CHR(0);
   count := index;
   

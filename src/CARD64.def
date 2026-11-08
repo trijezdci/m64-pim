@@ -215,6 +215,15 @@ PROCEDURE lteq ( left, right : CARD64T ) : BOOLEAN;
 
 
 (* --------------------------------------------------------------------------
+ * Function:  CARD64.digitCount(n)
+ * --------------------------------------------------------------------------
+ * Returns the decimal digit count for n.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE digitCount ( n : CARD64T ) : CARDINAL;
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  CARD64.Inc(n, stat)
  * --------------------------------------------------------------------------
  * Destructively increments n by 1.  Leaves n unchanged on Overflow.
