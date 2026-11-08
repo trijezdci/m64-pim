@@ -75,7 +75,7 @@ VAR
   digits : ARRAY [0..CARD64.MaxDecimalDigits] OF CHAR;
 BEGIN
   index := 0;
-  GetDigitSeq(i, digits, count);
+  GetDigitSeq(n, digits, count);
   WHILE digits[index] # CHR(0) DO
     InOut.Write(digits[index]);
     INC(index)
@@ -102,7 +102,7 @@ BEGIN
   ELSIF fmt = "x" THEN
     WriteFmtHex(n)
   ELSE
-    Write(i)
+    Write(n)
   END (* IF *)
 END WriteF;
 
@@ -144,11 +144,11 @@ VAR
   ignore : CARD64.Status;
   ten, rem, digitVal : CARD64T;
 BEGIN
-  IF CARD64.isZero(i) THEN
+  IF CARD64.isZero(n) THEN
     digits := "0";
     count := 1;
     RETURN
-  ELSIF CARD64.isOne(i) THEN
+  ELSIF CARD64.isOne(n) THEN
     digits := "1";
     count := 1;
     RETURN
@@ -208,7 +208,7 @@ BEGIN
   InOut.Write("x");
   WriteLCHex(n.highBits);
   InOut.Write(":");
-  WriteLCHex(i.lowBits)
+  WriteLCHex(n.lowBits)
 END WriteFmtHex;
 
 
