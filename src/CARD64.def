@@ -60,7 +60,6 @@ CONST MaxDecimalDigits = (((Bitwidth-1) * 77) DIV 256) - 1;
 TYPE DigitRange = LONGCARD [0..MaxDecimalDigits];
 
 
-
 (* --------------------------------------------------------------------------
  * Procedure:  CARD64.SetZero(res)
  * --------------------------------------------------------------------------

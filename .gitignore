@@ -25,3 +25,4 @@ Icon
 *.so
 out/
 build/
+test/build/
