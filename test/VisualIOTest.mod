@@ -306,6 +306,9 @@ END PrintIntTest;
  * Main body
  * ----------------------------------------------------------------------- *)
 
+VAR
+  index : CARDINAL;
+
 BEGIN (* VisualIOTest *)
   InitCardTests;
   InitIntTests;
@@ -314,14 +317,14 @@ BEGIN (* VisualIOTest *)
   InOut.WriteLn; InOut.WriteLn;
   
   FOR index := 0 TO CardTestCount-1 DO
-    PrintCardTest(testCase[index]);
+    PrintCardTest(cardTest[index]);
   END; (* FOR *)
 
   InOut.WriteString("Visual IO Tests for INT64IO");
   InOut.WriteLn; InOut.WriteLn;
   
   FOR index := 0 TO IntTestCount-1 DO
-    PrintIntTest(testCase[index]);
+    PrintIntTest(intTest[index]);
   END; (* FOR *)
 
   InOut.WriteString("done.");
