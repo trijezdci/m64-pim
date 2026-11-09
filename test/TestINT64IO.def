@@ -4,7 +4,7 @@ DEFINITION MODULE TestINT64IO;
 
 (* Tests for INT64IO *)
 
-PROCEDURE RunTests;
+PROCEDURE RunTests ( VAR passed, failed : CARDINAL );
 
 END TestINT64IO.
 
