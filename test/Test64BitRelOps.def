@@ -1,0 +1,12 @@
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
+
+DEFINITION MODULE Test64BitRelOps;
+
+(* Test Suite for 64-bit Whole Number Relational Operations *)
+
+PROCEDURE RunTests ( VAR passed, failed : CARDINAL );
+(* Comparisons, odd/even, and digit count boundary tests *)
+
+END Test64BitRelOps.
+
+
