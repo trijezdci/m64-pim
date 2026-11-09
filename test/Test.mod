@@ -2,9 +2,10 @@
 
 MODULE Test;
 
-IMPORT TestIO;
+IMPORT TestCARD64IO, TestINT64IO;
 
 BEGIN
-  TestIO.RunIOTests
+  TestCARD64IO.RunTests;
+  TestINT64IO.RunTests
 END Test.
 

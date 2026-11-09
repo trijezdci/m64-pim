@@ -1,0 +1,11 @@
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
+
+DEFINITION MODULE TestINT64IO;
+
+(* Tests for INT64IO *)
+
+PROCEDURE RunTests;
+
+END TestINT64IO.
+
+
