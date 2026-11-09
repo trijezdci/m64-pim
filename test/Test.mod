@@ -35,7 +35,8 @@ END InitCounters;
 PROCEDURE Tally;
 BEGIN
   totalPassed := totalPassed + passed;
-  totalFailed := totalFailed + failed
+  totalFailed := totalFailed + failed;
+  passed := 0; failed = 0
 END Tally;
 
 
