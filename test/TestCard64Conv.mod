@@ -247,7 +247,7 @@ BEGIN
   fromCardTest[1].expected.highBits := 0;
   fromCardTest[1].expected.lowBits := 1;
   
-  fromCardTest[2].label := "CARD64.FromCard(MAX(CARDINAL), n, stat)"
+  fromCardTest[2].label := "CARD64.FromCard(MAX(CARDINAL), n, stat)";
   fromCardTest[2].operand := MAX(CARDINAL);
   fromCardTest[2].expected.highBits := 0;
   fromCardTest[2].expected.lowBits := 0FFFFFFFFH
@@ -389,7 +389,7 @@ VAR
   index : CARDINAL;
 BEGIN
   FOR index := 0 TO FromLongCardTestCount-1 DO
-    RunFromCardTest(fromLongCardTest[index], passed, failed)
+    RunFromLongCardTest(fromLongCardTest[index], passed, failed)
   END (* FOR *)
 END RunFromLongCardTests;
 
