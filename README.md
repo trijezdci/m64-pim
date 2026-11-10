@@ -5,6 +5,7 @@ Intermediary port of MOCKA i386 to AMD64 for use as dev tool for the 64-bit MOCK
 
 ### 64-bit conversion
 * remove types `SHORTCARD` and `SHORTINT`
+* add 64-bit signed and unsigned type libraries for constant evaluation
 * change `CARDINAL` and `INTEGER` from aliases to native 32-bit types
 * change `LONGCARD` and `LONGINT` from 32-bit to 64-bit
 * change all pointer types to 64-bit
