@@ -1,8 +1,8 @@
 (*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
 
-DEFINITION MODULE Test64BitConv;
+DEFINITION MODULE TestCard64Conv;
 
-(* Test Suite for 64-bit Whole Number Type Conversions *)
+(* Test Suite for CARD64 Constant Assignments and Type Conversions *)
 
 PROCEDURE RunTests ( VAR passed, failed : CARDINAL );
 (* Data widening, narrowing, constant assignment, and transfer tests *)
@@ -10,5 +10,5 @@ PROCEDURE RunTests ( VAR passed, failed : CARDINAL );
 PROCEDURE testCount () : CARDINAL;
 (* Returns the number of tests in this test suite *)
 
-END Test64BitConv.
+END TestCard64Conv.
 
