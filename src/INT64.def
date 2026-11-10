@@ -170,7 +170,7 @@ PROCEDURE ToLongInt ( i : INT64T; VAR res : LONGINT; VAR stat : Status );
 (* --------------------------------------------------------------------------
  * Procedure:  INT64.ToString(i, res, stat)
  * --------------------------------------------------------------------------
- * Passes the unformatted decimal string representation of INT64T n in res.
+ * Passes the unformatted decimal string representation of INT64T i in res.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE ToString

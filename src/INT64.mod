@@ -326,7 +326,7 @@ END ToLongInt;
 (* --------------------------------------------------------------------------
  * Procedure:  INT64.ToString(i, res, stat)
  * --------------------------------------------------------------------------
- * Passes the unformatted decimal string representation of INT64T n in res.
+ * Passes the unformatted decimal string representation of INT64T i in res.
  * ----------------------------------------------------------------------- *)
 
 CONST MinIntStr = "-9223372036854775808";
@@ -335,6 +335,7 @@ PROCEDURE ToString
   ( i : INT64T; VAR res : ARRAY OF CHAR; VAR stat : Status );
 VAR
   index, minIndex: CARDINAL;
+  magnitude : INT64T;
   ten, rem, digitVal : CARD64T;
 BEGIN
   (* check for MIN(INT64T) *)
@@ -348,7 +349,9 @@ BEGIN
     RETURN
   END; (* IF *)
   
-  Abs(i, rem, stat);
+  (* rem := ABS(i) :: CARD64T *)
+  Abs(i, magnitude, stat);
+  ToCard64(magnitude, rem, stat);
   
   (* set start and end index *)
   index := CARD64.digitCount(rem);
