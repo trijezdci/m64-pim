@@ -211,7 +211,7 @@ BEGIN
   FOR index := 0 TO SetValTestCount-1 DO
     RunSetValTest(setValTest[index], passed, failed)
   END (* FOR *)
-END TestSetVal;
+END RunSetValTests;
 
 
 (* --------------------------------------------------------------------------
@@ -398,12 +398,12 @@ END RunFromLongCardTests;
  * Test parameter type for CARD64.FromString
  * ----------------------------------------------------------------------- *)
 
-TYPE CardTestFromString = RECORD
+TYPE FromStringTest = RECORD
   operand : NumberString;
   expected : CARD64T;
   expStatus : Status;
   label : LabelString
-END; (* CardTestFromString *)
+END; (* FromStringTest *)
 
 
 (* --------------------------------------------------------------------------
@@ -791,9 +791,9 @@ END RunToStringTests;
 PROCEDURE PrintResult ( n : CARD64T );
 BEGIN
   InOut.WriteString(" result: ");
-  InOut.WriteHex(n.highBits, 8);
+  InOut.WriteHex(n.highBits, 8); (* not sure this will print leading zeros *)
   InOut.Write(":");
-  InOut.WriteHex(n.lowBits, 8);
+  InOut.WriteHex(n.lowBits, 8); (* not sure this will print leading zeros *)
   InOut.WriteLn
 END PrintResult;
 
