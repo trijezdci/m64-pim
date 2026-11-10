@@ -851,7 +851,6 @@ CONST ToStringTestCount = 19;
 VAR toStringTest : ARRAY [0..ToStringTestCount-1] OF ToStringTest;
 
 PROCEDURE InitToStringTests;
-END InitToStringTests;
 BEGIN
   toStringTest[0].label := "CARD64.ToString() for 0";
   toStringTest[0].operand.highBits := 0;
