@@ -103,7 +103,7 @@ BEGIN
   index := 0;
   ch := str[index];
   WHILE ch # CHR(0) DO
-    IF (ch < "0") OR ch > "9") THEN
+    IF (ch < "0") OR (ch > "9") THEN
       stat := InvalidInput;
       RETURN
     END; (* IF *)
