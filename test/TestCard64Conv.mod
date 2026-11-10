@@ -412,7 +412,7 @@ END; (* FromStringTest *)
  * Initialises tests for procedure FromString.
  * ----------------------------------------------------------------------- *)
 
-CONST FromStringTestCount = 21;
+CONST FromStringTestCount = 22;
 
 VAR fromStringTest : ARRAY [0..FromStringTestCount-1] OF FromStringTest;
 
@@ -532,23 +532,23 @@ BEGIN
   fromStringTest[18].expected.lowBits := 0FFFFFFFFH
   fromStringTest[18].expStatus := Success;
   
-  fromStringTest[18].label := "CARD64.FromString('18446744073709551616', n, stat)";
-  fromStringTest[18].operand := "18446744073709551616";
-  fromStringTest[18].expected.highBits := 0; (* ignored *)
-  fromStringTest[18].expected.lowBits := 0; (* ignored *)
-  fromStringTest[18].expStatus := Overflow;
-  
-  fromStringTest[19].label := "CARD64.FromString('', n, stat)";
-  fromStringTest[19].operand := "";
+  fromStringTest[19].label := "CARD64.FromString('18446744073709551616', n, stat)";
+  fromStringTest[19].operand := "18446744073709551616";
   fromStringTest[19].expected.highBits := 0; (* ignored *)
   fromStringTest[19].expected.lowBits := 0; (* ignored *)
-  fromStringTest[19].expStatus := NoInput;
+  fromStringTest[19].expStatus := Overflow;
   
-  fromStringTest[20].label := "CARD64.FromString('123$', n, stat)";
-  fromStringTest[20].operand := "123$";
+  fromStringTest[20].label := "CARD64.FromString('', n, stat)";
+  fromStringTest[20].operand := "";
   fromStringTest[20].expected.highBits := 0; (* ignored *)
   fromStringTest[20].expected.lowBits := 0; (* ignored *)
-  fromStringTest[20].expStatus := InvalidInput
+  fromStringTest[20].expStatus := NoInput;
+  
+  fromStringTest[21].label := "CARD64.FromString('123$', n, stat)";
+  fromStringTest[21].operand := "123$";
+  fromStringTest[21].expected.highBits := 0; (* ignored *)
+  fromStringTest[21].expected.lowBits := 0; (* ignored *)
+  fromStringTest[21].expStatus := InvalidInput
 END InitFromStringTests;
 
 
