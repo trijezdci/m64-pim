@@ -7,5 +7,8 @@ DEFINITION MODULE Test64BitConv;
 PROCEDURE RunTests ( VAR passed, failed : CARDINAL );
 (* Data widening, narrowing, constant assignment, and transfer tests *)
 
+PROCEDURE testCount () : CARDINAL;
+(* Returns the number of tests in this test suite *)
+
 END Test64BitConv.
 

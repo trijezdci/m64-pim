@@ -29,7 +29,8 @@ END; (* RECORD *)
  * ------------------------------------------------------------------------ *)
 
 TYPE Status =
-  ( Success, Underflow, Overflow, DivByZero, NoInput, InvalidInput );
+  ( Success, Underflow, Overflow, DivByZero,
+    StrLenTooShort, NoInput, InvalidInput );
 
 
 (* --------------------------------------------------------------------------
@@ -59,6 +60,14 @@ CONST MaxDecimalDigits = (((Bitwidth-1) * 77) DIV 256) - 1;
 
 TYPE DigitRange = LONGCARD [0..MaxDecimalDigits];
 
+
+(* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * NOTE : Not all classic Modula-2 compilers support records as return types
+ * of functions.  For  portability,  all functions  that return a result  of
+ * type CARD64T  are therefore  implemented  as procedures  where the result
+ * is passed back in a VAR parameter instead.
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *)
+ 
 
 (* --------------------------------------------------------------------------
  * Procedure:  CARD64.SetZero(res)
@@ -121,6 +130,16 @@ PROCEDURE ToCard ( c : CARD64T; VAR res : CARDINAL; VAR stat : Status );
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE ToLongCard ( n : CARD64T; VAR res : LONGCARD; VAR stat : Status );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  CARD64.ToString(n, res, stat)
+ * --------------------------------------------------------------------------
+ * Passes the unformatted decimal string representation of CARD64T n in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE ToString
+  ( n : CARD64T; VAR res : ARRAY OF CHAR; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------

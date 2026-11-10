@@ -114,6 +114,54 @@ END ToLongCard;
 
 
 (* --------------------------------------------------------------------------
+ * Procedure:  CARD64.ToString(n, res, stat)
+ * --------------------------------------------------------------------------
+ * Passes the unformatted decimal string representation of CARD64T n in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE ToString
+  ( n : CARD64T; VAR res : ARRAY OF CHAR; VAR stat : Status );
+VAR
+  index : CARDINAL;
+  ten, rem, digitVal : CARD64T;
+BEGIN
+  (* verify res has sufficient space *)
+  index := digitCount(n);
+  IF HIGH(res) < index THEN
+    stat := StrLenTooShort;
+    RETURN
+  END; (* IF *)
+  
+  (* shortcuts *)
+  IF isZero(n) THEN
+    res := "0";
+    stat := Success
+    RETURN
+  ELSIF isOne(n) THEN
+    res := "1";
+    stat := Success
+    RETURN
+  END; (* IF *)
+  
+  ten.highBits := 0;
+  ten.lowBits := 10;
+  
+  rem := n;
+  
+  (* terminate res *)
+  res[index] := CHR(0);
+  
+  (* compute digits right to left *)
+  WHILE index > 0 DO
+    DEC(index);
+    CARD64.Mod(rem, ten, digitVal, stat);
+    CARD64.Div(rem, ten, rem, stat);
+    res[index] := CHR(ORD("0") + CARDINAL(digitVal.lowBits))
+  END (* WHILE *)
+END ToString;
+
+
+(* --------------------------------------------------------------------------
  * Function:  CARD64.isZero(value)
  * --------------------------------------------------------------------------
  * Returns TRUE if value is 0, otherwise FALSE.

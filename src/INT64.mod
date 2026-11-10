@@ -8,22 +8,8 @@ IMPLEMENTATION MODULE INT64;
 FROM SYSTEM IMPORT TSIZE;
 
 IMPORT CARD64;
-FROM CARD64 IMPORT
-  CARD64T, Status;
 
-(*
-TYPE CARD64T = RECORD (* Requires 32-bit LONGCARD type *)
-  highBits,
-  lowBits : LONGCARD
-END; (* RECORD *)
-
-TYPE INT64T = RECORD
-  highBits : LONGINT;
-  lowBits : LONGCARD
-END; (* INT64T *)
-
-TYPE Status = ( Success, Underflow, Overflow, DivByZero );
-*)
+FROM CARD64 IMPORT CARD64T;
 
 
 (* --------------------------------------------------------------------------
@@ -335,6 +321,81 @@ BEGIN
     RETURN
   END (* IF *)
 END ToLongInt;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  INT64.ToString(i, res, stat)
+ * --------------------------------------------------------------------------
+ * Passes the unformatted decimal string representation of INT64T n in res.
+ * ----------------------------------------------------------------------- *)
+
+CONST MinIntStr = "-9223372036854775808";
+
+PROCEDURE ToString
+  ( i : INT64T; VAR res : ARRAY OF CHAR; VAR stat : Status );
+VAR
+  index, minIndex: CARDINAL;
+  ten, rem, digitVal : CARD64T;
+BEGIN
+  (* check for MIN(INT64T) *)
+  IF isMin(i) THEN
+    IF HIGH(res) < CARD64.MaxDecimalDigits + 1 THEN
+      stat := StrLenTooShort;
+      RETURN
+    END; (* IF *)
+    res := MinIntStr;
+    stat := Success;
+    RETURN
+  END; (* IF *)
+  
+  Abs(i, rem, stat);
+  
+  (* set start and end index *)
+  index := CARD64.digitCount(rem);
+  minIndex := 0;
+  
+  (* adjust for sign if negative *)
+  IF i.highBits < 0 THEN
+    INC(minIndex);
+    INC(index);
+  END; (* IF *)
+  
+  (* verify res has sufficient space *)
+  IF HIGH(res) < index THEN
+    stat := StrLenTooShort;
+    RETURN
+  END; (* IF *)
+  
+  (* shortcuts *)
+  IF isZero(i) THEN
+    res := "0";
+    stat := Success;
+    RETURN
+  ELSIF isOne(i) THEN
+    res := "1";
+    stat := Success;
+    RETURN
+  END; (* IF *)
+  
+  ten.highBits := 0;
+  ten.lowBits := 10;
+   
+  (* terminate res *)
+  res[index] := CHR(0);
+  
+  (* compute digits right to left *)
+  WHILE index > minIndex DO
+    DEC(index);
+    CARD64.Mod(rem, ten, digitVal, stat);
+    CARD64.Div(rem, ten, rem, stat);
+    res[index] := CHR(ORD("0") + CARDINAL(digitVal.lowBits))
+  END; (* WHILE *)
+  
+  (* prepend sign if negative *)
+  IF i.highBits < 0 THEN
+    res[0] := "-"
+  END (* IF *)
+END ToString;
 
 
 (* --------------------------------------------------------------------------
