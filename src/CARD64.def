@@ -115,6 +115,18 @@ PROCEDURE FromLongCard ( n : LONGCARD; VAR res : CARD64T );
 
 
 (* --------------------------------------------------------------------------
+ * Procedure:  CARD64.FromString(str, res, stat)
+ * --------------------------------------------------------------------------
+ * Parses an unformatted decimal number in str, and passes its CARD64T value
+ * in res.  Passes NoInput in stat if str is empty.  Passes InvalidInput in
+ * stat if str does not represent an unformatted decimal literal.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE FromString
+  ( str : ARRAY OF CHAR; VAR res : CARD64T; VAR stat : Status );
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  CARD64.ToCard(c, res, stat)
  * --------------------------------------------------------------------------
  * Passes the CARDINAL value of CARD64T c in res.

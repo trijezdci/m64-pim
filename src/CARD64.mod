@@ -75,6 +75,65 @@ END FromLongCard;
 
 
 (* --------------------------------------------------------------------------
+ * Procedure:  CARD64.FromString(str, res, stat)
+ * --------------------------------------------------------------------------
+ * Parses an unformatted decimal number in str, and passes its CARD64T value
+ * in res.  Passes NoInput in stat if str is empty.  Passes InvalidInput in
+ * stat if str does not represent an unformatted decimal literal.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE FromString
+  ( str : ARRAY OF CHAR; VAR res : CARD64T; VAR stat : Status );
+VAR
+  ch : CHAR;
+  index : CARDINAL;
+  ten, val, digitVal : CARD64T;
+BEGIN
+  IF str[0] = CHR(0) THEN
+    stat := NoInput;
+    RETURN
+  END; (* IF *)
+   
+  ten.highBits := 0;
+  ten.lowBits := 10;
+  
+  SetZero(val);
+  digitVal.highBits := 0;
+  
+  index := 0;
+  ch := str[index];
+  WHILE ch # CHR(0) DO
+    IF (ch < "0") OR ch > "9") THEN
+      stat := InvalidInput;
+      RETURN
+    END; (* IF *)
+    
+    MUL(val, ten, val, stat);
+    IF stat # Success THEN
+      RETURN
+    END; (* IF *)
+    
+    digitVal.lowBits := ORD(ch) - ORD("0");
+    
+    Add(val, digitVal, val, stat);
+    IF stat # Success THEN
+      RETURN
+    END; (* IF *)
+    
+    INC(index);
+    IF index > HIGH(str) THEN
+      ch := CHR(0)
+    ELSE
+      ch := str[index]
+    END; (* IF *)
+  END; (* WHILE *)
+  
+  res := val;
+  stat := Success
+END FromString;
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  CARD64.ToCard(c, res, stat)
  * --------------------------------------------------------------------------
  * Passes the CARDINAL value of CARD64T c in res.
@@ -135,11 +194,11 @@ BEGIN
   (* shortcuts *)
   IF isZero(n) THEN
     res := "0";
-    stat := Success
+    stat := Success;
     RETURN
   ELSIF isOne(n) THEN
     res := "1";
-    stat := Success
+    stat := Success;
     RETURN
   END; (* IF *)
   
