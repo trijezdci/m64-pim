@@ -107,6 +107,26 @@ BEGIN
 END WriteF;
 
 
+(* --------------------------------------------------------------------------
+ * Procedure:  WriteStatus(stat)
+ * --------------------------------------------------------------------------
+ * Write stat to console.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE WriteStatus ( stat : Status );
+BEGIN 
+  CASE stat OF
+    Success        : InOut.WriteString("Success")
+  | Underflow      : InOut.WriteString("Underflow")
+  | Overflow       : InOut.WriteString("Overflow")
+  | DivByZero      : InOut.WriteString("DivByZero")
+  | StrLenTooShort : InOut.WriteString("StrLenTooShort")
+  | NoInput        : InOut.WriteString("NoInput")
+  | InvalidInput   : InOut.WriteString("InvalidInput")
+  END (* CASE *)
+END WriteStatus;
+
+
 (* **************************************************************************
  * P R I V A T E   P R O C E D U R E S
  * *********************************************************************** *)

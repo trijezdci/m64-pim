@@ -43,5 +43,14 @@ PROCEDURE Write ( n : CARD64T );
 PROCEDURE WriteF ( fmt : CHAR; n : CARD64T );
 
 
+(* --------------------------------------------------------------------------
+ * Procedure:  WriteStatus(stat)
+ * --------------------------------------------------------------------------
+ * Write stat to console.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE WriteStatus ( stat : Status );
+
+
 END CARD64IO.
 
