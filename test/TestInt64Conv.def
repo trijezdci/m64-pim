@@ -1,0 +1,13 @@
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
+
+DEFINITION MODULE TestInt64Conv;
+
+(* Test Suite for INT64 Constant Assignments and Type Conversions *)
+
+PROCEDURE RunTests ( VAR passed, failed : CARDINAL );
+(* Data widening, narrowing, constant assignment, and transfer tests *)
+
+PROCEDURE testCount () : CARDINAL;
+(* Returns the number of tests in this test suite *)
+
+END TestInt64Conv.
