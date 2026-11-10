@@ -998,6 +998,34 @@ BEGIN
 END RunToStringTests;
 
 
+(* --------------------------------------------------------------------------
+ * Function:  eqStr(s1, s2)
+ * --------------------------------------------------------------------------
+ * Returns TRUE if strings s1 and s2 are equal, otherwise FALSE.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE eqStr ( VAR s1, s2 : ARRAY OF CHAR ) : BOOLEAN;
+VAR
+  index : CARDINAL;
+BEGIN
+  index := 0;
+  WHILE (index <= HIGH(s1)) AND (index <= HIGH(s2)) AND 
+        (s1[index] # CHR(0)) AND (s2[index] # CHR(0)) DO
+    IF s1[index] # s2[index] THEN
+      RETURN FALSE
+    END; (* IF *)
+    INC(index)
+  END; (* WHILE *)
+  
+  IF (index <= HIGH(s1)) AND (s1[index] # CHR(0)) THEN
+    RETURN FALSE
+  ELSIF (index <= HIGH(s2)) AND (s2[index] # CHR(0)) THEN
+    RETURN FALSE
+  ELSE
+    RETURN TRUE
+  END (* IF *)
+END eqStr;
+
 
 (* --------------------------------------------------------------------------
  * Procedure:  PrintResult(n)
