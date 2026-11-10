@@ -77,7 +77,9 @@ END RunTests;
 
 PROCEDURE testCount () : CARDINAL;
 BEGIN
-  RETURN CardTestCount + IntTestCount
+  RETURN SetValTestCount +
+    FromCardTestCount + FromLongCardTestCount + FromStringTestCount +
+    ToCardTestCount + ToLongCardTestCount + ToStringTestCount;
 END testCount;
 
 
