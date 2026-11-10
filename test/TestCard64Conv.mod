@@ -636,7 +636,29 @@ VAR toCardTest : ARRAY [0..ToCardTestCount-1] OF ToCardTest;
 
 PROCEDURE InitToCardTests;
 BEGIN
-  (* TO DO *)
+  toCardTest[0].label := "CARD64.ToCard() for 0";
+  toCardTest[0].operand.highBits := 0;
+  toCardTest[0].operand.lowBits := 0;
+  toCardTest[0].expected := 0;
+  toCardTest[0].expStatus := Success;
+  
+  toCardTest[1].label := "CARD64.ToCard() for 1";
+  toCardTest[1].operand.highBits := 0;
+  toCardTest[1].operand.lowBits := 1;
+  toCardTest[1].expected := 1;
+  toCardTest[1].expStatus := Success;
+  
+  toCardTest[2].label := "CARD64.ToCard() for MAX(CARDINAL)";
+  toCardTest[2].operand.highBits := 0;
+  toCardTest[2].operand.lowBits := MAX(CARDINAL);
+  toCardTest[2].expected := 0FFFFFFFFH;
+  toCardTest[2].expStatus := Success;
+  
+  toCardTest[3].label := "CARD64.ToCard() for MAX(CARDINAL)+1";
+  toCardTest[3].operand.highBits := 1;
+  toCardTest[3].operand.lowBits := MAX(CARDINAL);
+  toCardTest[3].expected := 0; (* ignored *)
+  toCardTest[3].expStatus := Overflow
 END InitToCardTests;
 
 
@@ -647,8 +669,38 @@ END InitToCardTests;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE RunToCardTest ( test : ToCardTest; VAR passed, failed : CARDINAL );
+VAR
+  stat : Status;
+  n : CARDINAL;
 BEGIN
-  (* TO DO *)
+  (* Print label *)
+  InOut.WriteString("*** ");
+  InOut.WriteString(test.label);
+  InOut.WriteString(" ***");
+  InOut.WriteLn;
+  
+  ToCard(test.operand, n, stat);
+  PrintCardResult(n); PrintStatus(stat);
+  IF test.expStatus = Success THEN
+    IF (n = test.expected) THEN
+      InOut.WriteString(PassNotice);
+      INC(passed)
+    ELSE
+      InOut.WriteString(FailNotice);
+      INC(failed)
+    END (* IF *)
+  ELSE (* test.expStatus # Success *)
+    IF stat = test.expStatus THEN
+      InOut.WriteString(PassNotice);
+      INC(passed)
+    ELSE
+      InOut.WriteString(FailNotice);
+      INC(failed)
+    END (* IF *)
+  END; (* IF *)
+  
+  InOut.WriteLn;
+  InOut.WriteLn
 END RunToCardTest;
 
 
@@ -692,7 +744,29 @@ VAR toLongCardTest : ARRAY [0..ToLongCardTestCount-1] OF ToLongCardTest;
 
 PROCEDURE InitToLongCardTests;
 BEGIN
-  (* TO DO *)
+  toLongCardTest[0].label := "CARD64.ToLongCard() for 0";
+  toLongCardTest[0].operand.highBits := 0;
+  toLongCardTest[0].operand.lowBits := 0;
+  toLongCardTest[0].expected := 0;
+  toLongCardTest[0].expStatus := Success;
+  
+  toLongCardTest[1].label := "CARD64.ToLongCard() for 1";
+  toLongCardTest[1].operand.highBits := 0;
+  toLongCardTest[1].operand.lowBits := 1;
+  toLongCardTest[1].expected := 1;
+  toLongCardTest[1].expStatus := Success;
+  
+  toLongCardTest[2].label := "CARD64.ToLongCard() for MAX(LONGCARD)";
+  toLongCardTest[2].operand.highBits := 0;
+  toLongCardTest[2].operand.lowBits := MAX(LONGCARD);
+  toLongCardTest[2].expected := 0FFFFFFFFH;
+  toLongCardTest[2].expStatus := Success;
+  
+  toLongCardTest[3].label := "CARD64.ToLongCard() for MAX(LONGCARD)+1";
+  toLongCardTest[3].operand.highBits := 1;
+  toLongCardTest[3].operand.lowBits := MAX(LONGCARD);
+  toLongCardTest[3].expected := 0; (* ignored *)
+  toLongCardTest[3].expStatus := Overflow
 END InitToLongCardTests;
 
 
@@ -704,8 +778,38 @@ END InitToLongCardTests;
 
 PROCEDURE RunToLongCardTest
   ( test : ToLongCardTest; VAR passed, failed : CARDINAL );
+VAR
+  stat : Status;
+  n : LONGCARD;
 BEGIN
-  (* TO DO *)
+  (* Print label *)
+  InOut.WriteString("*** ");
+  InOut.WriteString(test.label);
+  InOut.WriteString(" ***");
+  InOut.WriteLn;
+  
+  ToLongCard(test.operand, n, stat);
+  PrintLongCardResult(n); PrintStatus(stat);
+  IF test.expStatus = Success THEN
+    IF (n = test.expected) THEN
+      InOut.WriteString(PassNotice);
+      INC(passed)
+    ELSE
+      InOut.WriteString(FailNotice);
+      INC(failed)
+    END (* IF *)
+  ELSE (* test.expStatus # Success *)
+    IF stat = test.expStatus THEN
+      InOut.WriteString(PassNotice);
+      INC(passed)
+    ELSE
+      InOut.WriteString(FailNotice);
+      INC(failed)
+    END (* IF *)
+  END; (* IF *)
+  
+  InOut.WriteLn;
+  InOut.WriteLn
 END RunToLongCardTest;
 
 
@@ -732,7 +836,6 @@ END RunToLongCardTests;
 TYPE ToStringTest = RECORD
   operand : CARD64T;
   expected : NumberString;
-  expStatus : Status;
   label : LabelString
 END; (* ToStringTest *)
 
@@ -743,13 +846,107 @@ END; (* ToStringTest *)
  * Initialises tests for procedure ToString.
  * ----------------------------------------------------------------------- *)
 
-CONST ToStringTestCount = 21;
+CONST ToStringTestCount = 19;
 
 VAR toStringTest : ARRAY [0..ToStringTestCount-1] OF ToStringTest;
 
 PROCEDURE InitToStringTests;
+END InitToStringTests;
 BEGIN
-  (* TO DO *)
+  toStringTest[0].label := "CARD64.ToString() for 0";
+  toStringTest[0].operand.highBits := 0;
+  toStringTest[0].operand.lowBits := 0;
+  toStringTest[0].expected := "0";
+  
+  toStringTest[1].label := "CARD64.ToString() for 1";
+  toStringTest[1].operand.highBits := 0;
+  toStringTest[1].operand.lowBits := 1;
+  toStringTest[1].expected := "1";
+  
+  toStringTest[2].label := "CARD64.ToString() for 2";
+  toStringTest[2].operand.highBits := 0;
+  toStringTest[2].operand.lowBits := 2;
+  toStringTest[2].expected := "2";
+  
+  toStringTest[3].label := "CARD64.ToString() for 3";
+  toStringTest[3].operand.highBits := 0;
+  toStringTest[3].operand.lowBits := 3;
+  toStringTest[3].expected := "3";
+  
+  toStringTest[4].label := "CARD64.ToString() for 4";
+  toStringTest[4].operand.highBits := 0;
+  toStringTest[4].operand.lowBits := 4;
+  toStringTest[4].expected := "4";
+  
+  toStringTest[5].label := "CARD64.ToString() for 5";
+  toStringTest[5].operand.highBits := 0;
+  toStringTest[5].operand.lowBits := 5;
+  toStringTest[5].expected := "5";
+  
+  toStringTest[6].label := "CARD64.ToString() for 6";
+  toStringTest[6].operand.highBits := 0;
+  toStringTest[6].operand.lowBits := 6;
+  toStringTest[6].expected := "6";
+  
+  toStringTest[7].label := "CARD64.ToString() for 7";
+  toStringTest[7].operand.highBits := 0;
+  toStringTest[7].operand.lowBits := 7;
+  toStringTest[7].expected := "7";
+  
+  toStringTest[8].label := "CARD64.ToString() for 8";
+  toStringTest[8].operand.highBits := 0;
+  toStringTest[8].operand.lowBits := 8;
+  toStringTest[8].expected := "8";
+  
+  toStringTest[9].label := "CARD64.ToString() for 9";
+  toStringTest[9].operand.highBits := 0;
+  toStringTest[9].operand.lowBits := 9;
+  toStringTest[9].expected := "9";
+  
+  toStringTest[10].label := "CARD64.ToString() for 10";
+  toStringTest[10].operand.highBits := 0;
+  toStringTest[10].operand.lowBits := 10;
+  toStringTest[10].expected := "10";
+  
+  toStringTest[11].label := "CARD64.ToString() for 99";
+  toStringTest[11].operand.highBits := 0;
+  toStringTest[11].operand.lowBits := 99;
+  toStringTest[11].expected := "99";
+  
+  toStringTest[12].label := "CARD64.ToString() for 100";
+  toStringTest[12].operand.highBits := 0;
+  toStringTest[12].operand.lowBits := 100;
+  toStringTest[12].expected := "100";
+  
+  toStringTest[13].label := "CARD64.ToString() for 999";
+  toStringTest[13].operand.highBits := 0;
+  toStringTest[13].operand.lowBits := 999;
+  toStringTest[13].expected := "999";
+  
+  toStringTest[14].label := "CARD64.ToString() for 1000";
+  toStringTest[14].operand.highBits := 0;
+  toStringTest[14].operand.lowBits := 1000;
+  toStringTest[14].expected := "1000";
+  
+  toStringTest[15].label := "CARD64.ToString() for 4294967294";
+  toStringTest[15].operand.highBits := 0;
+  toStringTest[15].operand.lowBits := 4294967294;
+  toStringTest[15].expected := "4294967294";
+  
+  toStringTest[16].label := "CARD64.ToString() for 4294967295";
+  toStringTest[16].operand.highBits := 0;
+  toStringTest[16].operand.lowBits := 4294967295;
+  toStringTest[16].expected := "4294967295";
+  
+  toStringTest[17].label := "CARD64.ToString() for 4294967296";
+  toStringTest[17].operand.highBits := 1;
+  toStringTest[17].operand.lowBits := 0FFFFFFFFH;
+  toStringTest[17].expected := "4294967296";
+  
+  toStringTest[18].label := "CARD64.ToString() for 18446744073709551615";
+  toStringTest[18].operand.highBits := 0FFFFFFFFH;
+  toStringTest[18].operand.lowBits := 0FFFFFFFFH;
+  toStringTest[18].expected := "18446744073709551615"
 END InitToStringTests;
 
 
@@ -761,8 +958,28 @@ END InitToStringTests;
 
 PROCEDURE RunToStringTest
   ( test : ToStringTest; VAR passed, failed : CARDINAL );
+VAR
+  stat : Status;
+  str : NumberString;
 BEGIN
-  (* TO DO *)
+  (* Print label *)
+  InOut.WriteString("*** ");
+  InOut.WriteString(test.label);
+  InOut.WriteString(" ***");
+  InOut.WriteLn;
+  
+  ToString(test.operand, str, stat);
+  PrintStringResult(str); PrintStatus(stat);
+  IF eqStr(str, test.expected) THEN
+    InOut.WriteString(PassNotice);
+    INC(passed)
+  ELSE
+    InOut.WriteString(FailNotice);
+    INC(failed)
+  END; (* IF *)
+  
+  InOut.WriteLn;
+  InOut.WriteLn
 END RunToStringTest;
 
 
@@ -782,20 +999,65 @@ BEGIN
 END RunToStringTests;
 
 
+
 (* --------------------------------------------------------------------------
  * Procedure:  PrintResult(n)
  * --------------------------------------------------------------------------
  * Prints result label followed by value n. 
  * ----------------------------------------------------------------------- *)
 
+CONST ResultLabel = " result: ";
+
 PROCEDURE PrintResult ( n : CARD64T );
 BEGIN
-  InOut.WriteString(" result: ");
+  InOut.WriteString(ResultLabel);
   InOut.WriteHex(n.highBits, 8); (* not sure this will print leading zeros *)
   InOut.Write(":");
   InOut.WriteHex(n.lowBits, 8); (* not sure this will print leading zeros *)
   InOut.WriteLn
 END PrintResult;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  PrintCardResult(n)
+ * --------------------------------------------------------------------------
+ * Prints result label followed by value n. 
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE PrintCardResult ( n : CARDINAL );
+BEGIN
+  InOut.WriteString(ResultLabel);
+  InOut.WriteHex(n.highBits, 8); (* not sure this will print leading zeros *)
+  InOut.WriteLn
+END PrintCardResult;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  PrintLongCardResult(n)
+ * --------------------------------------------------------------------------
+ * Prints result label followed by value n. 
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE PrintLongCardResult ( n : LONGCARD );
+BEGIN
+  InOut.WriteString(ResultLabel);
+  InOut.WriteHex(n.highBits, 8); (* not sure this will print leading zeros *)
+  InOut.WriteLn
+END PrintLongCardResult;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  PrintStringResults(str)
+ * --------------------------------------------------------------------------
+ * Prints result label followed by value str. 
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE PrintStringResult ( VAR str : ARRAY OF CHAR );
+BEGIN
+  InOut.WriteString(ResultLabel);
+  InOut.WriteString(str);
+  InOut.WriteLn
+END PrintStringResult;
 
 
 (* --------------------------------------------------------------------------
