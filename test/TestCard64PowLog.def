@@ -1,0 +1,13 @@
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
+
+DEFINITION MODULE TestCard64PowLog;
+
+(* Test Suite for CARD64 Exponential and Logarithmic Operations *)
+
+PROCEDURE RunTests ( VAR passed, failed : CARDINAL );
+(* Exponentiation, logarithm and decimal digit count tests *)
+
+PROCEDURE testCount () : CARDINAL;
+(* Returns the number of tests in this test suite *)
+
+END TestCard64PowLog.
