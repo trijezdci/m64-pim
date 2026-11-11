@@ -1,0 +1,15 @@
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
+
+DEFINITION MODULE TestInt64ShiftOps;
+
+(* Test Suite for INT64 Bitshift Operations *)
+
+PROCEDURE RunTests ( VAR passed, failed : CARDINAL );
+(* Left shift, logical right and arithemtic right shift tests *)
+
+PROCEDURE testCount () : CARDINAL;
+(* Returns the number of tests in this test suite *)
+
+END TestInt64ShiftOps.
+
+
