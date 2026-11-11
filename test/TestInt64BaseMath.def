@@ -1,0 +1,13 @@
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
+
+DEFINITION MODULE TestInt64BaseMath;
+
+(* Test Suite for INT64 Arithmetic Operations *)
+
+PROCEDURE RunTests ( VAR passed, failed : CARDINAL );
+(* Abs/Neg, addition, subtraction, multiplication and division tests *)
+
+PROCEDURE testCount () : CARDINAL;
+(* Returns the number of tests in this test suite *)
+
+END TestInt64BaseMath.
