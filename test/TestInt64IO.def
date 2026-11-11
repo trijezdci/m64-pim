@@ -1,11 +1,13 @@
 (*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
 
-DEFINITION MODULE TestINT64IO;
+DEFINITION MODULE TestInt64IO;
 
-(* Tests for INT64IO *)
+(* Test Suite for Int64IO *)
 
 PROCEDURE RunTests ( VAR passed, failed : CARDINAL );
+(* Visual console IO tests *)
 
-END TestINT64IO.
+PROCEDURE testCount () : CARDINAL;
+(* Returns the number of tests in this test suite *)
 
-
+END TestInt64IO.

@@ -1,10 +1,13 @@
 (*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
 
-DEFINITION MODULE TestCARD64IO;
+DEFINITION MODULE TestCard64IO;
 
-(* Tests for CARD64IO *)
+(* Test Suite for Card64IO *)
 
 PROCEDURE RunTests ( VAR passed, failed : CARDINAL );
+(* Visual console IO tests *)
 
-END TestCARD64IO.
+PROCEDURE testCount () : CARDINAL;
+(* Returns the number of tests in this test suite *)
 
+END TestCard64IO.
