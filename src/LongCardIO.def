@@ -18,7 +18,7 @@ TYPE Status = ( Success, Overflow, NoInput, InvalidInput );
  * Read unformatted decimal number from console and pass it in n.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Read ( VAR n : LongCardIO; VAR stat : Status );
+PROCEDURE Read ( VAR n : LONGCARD; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------
@@ -27,7 +27,7 @@ PROCEDURE Read ( VAR n : LongCardIO; VAR stat : Status );
  * Write LONGCARD n as radix-16 number to console.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Write ( n : LongCardIO );
+PROCEDURE Write ( n : LONGCARD );
 
 
 (* --------------------------------------------------------------------------
@@ -51,7 +51,7 @@ PROCEDURE WriteHex ( n : LONGCARD );
  * 'x' | radix-16 | '0x' prefixed    | 8 digits
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE WriteF ( fmt : CHAR; n : LongCardIO );
+PROCEDURE WriteF ( fmt : CHAR; n : LONGCARD );
 
 
 (* --------------------------------------------------------------------------

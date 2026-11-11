@@ -14,12 +14,6 @@ IMPORT InOut, LongCardMath;
  * Read unformatted decimal number from console and pass it in n.
  * ----------------------------------------------------------------------- *)
 
-(* --------------------------------------------------------------------------
- * Procedure:  LongCardIO.Read(n, stat)
- * --------------------------------------------------------------------------
- * Read unformatted decimal number from console and pass it in n.
- * ----------------------------------------------------------------------- *)
-
 PROCEDURE Read ( VAR n : LONGCARD; VAR stat : Status );
 CONST
   MaxDiv10 = MAX(LONGCARD) DIV 10;
