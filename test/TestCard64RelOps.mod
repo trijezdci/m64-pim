@@ -145,7 +145,7 @@ END; (* ConstCompTest *)
 
 CONST ConstCompTestCount = 9;
 
-VAR constComptTest : ARRAY [0..ConstCompTestCount-1] OF ConstCompTest;
+VAR constCompTest : ARRAY [0..ConstCompTestCount-1] OF ConstCompTest;
 
 PROCEDURE InitConstCompTests;
 BEGIN
