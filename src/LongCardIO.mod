@@ -203,7 +203,7 @@ END WriteFmtDec;
 (* --------------------------------------------------------------------------
  * Procedure:  WriteFmtHex(n)
  * --------------------------------------------------------------------------
- * Write n as radix-16 numberw with 0x prefix to console.
+ * Write n as radix-16 number with 0x prefix to console.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE WriteFmtHex ( n : LONGCARD );
