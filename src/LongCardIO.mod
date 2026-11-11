@@ -156,7 +156,7 @@ BEGIN
     count := 1;
     RETURN
   ELSIF n = 1 THEN
-    digits] := "1";
+    digits := "1";
     count := 1;
     RETURN
   END;
@@ -185,7 +185,7 @@ END GetDigitSeq;
 PROCEDURE WriteFmtDec ( fmt : CHAR; n : LONGCARD );
 VAR
   index, weight : CARDINAL;
-  digits : ARRAY [0..MaxDecimalDigits] OF CHAR;
+  digits : ARRAY [0..LongCardMath.MaxDecimalDigits] OF CHAR;
 BEGIN
   index := 0;
   GetDigitSeq(n, digits, weight);
@@ -203,7 +203,7 @@ END WriteFmtDec;
 (* --------------------------------------------------------------------------
  * Procedure:  WriteFmtHex(n)
  * --------------------------------------------------------------------------
- * Write n as radix-16 numberw ith 0x prefix to console.
+ * Write n as radix-16 numberw with 0x prefix to console.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE WriteFmtHex ( n : LONGCARD );

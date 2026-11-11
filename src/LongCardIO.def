@@ -24,7 +24,7 @@ PROCEDURE Read ( VAR n : LONGCARD; VAR stat : Status );
 (* --------------------------------------------------------------------------
  * Procedure:  LongCardIO.Write(n)
  * --------------------------------------------------------------------------
- * Write LONGCARD n as radix-16 number to console.
+ * Write n as a decimal number unformatted to console.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE Write ( n : LONGCARD );
@@ -33,7 +33,7 @@ PROCEDURE Write ( n : LONGCARD );
 (* --------------------------------------------------------------------------
  * Procedure:  LongCardIO.WriteHex(n)
  * --------------------------------------------------------------------------
- * Write n unformatted to console.
+ * Write LONGCARD n as radix-16 number to console.
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE WriteHex ( n : LONGCARD );
