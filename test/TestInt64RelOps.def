@@ -1,0 +1,13 @@
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
+
+DEFINITION MODULE TestInt64RelOps;
+
+(* Test Suite for INT64 Relational Operations *)
+
+PROCEDURE RunTests ( VAR passed, failed : CARDINAL );
+(* Constant comparison, relational comparison and odd/even tests *)
+
+PROCEDURE testCount () : CARDINAL;
+(* Returns the number of tests in this test suite *)
+
+END TestInt64RelOps.
