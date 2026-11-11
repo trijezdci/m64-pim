@@ -5,9 +5,8 @@ DEFINITION MODULE Int64IO;
 (* Console IO library for Type INT64T *)
 
 
-IMPORT INT64;
-
-FROM INT64 IMPORT INT64T;
+FROM INT64 IMPORT
+  INT64T, Status;
 
 
 (* --------------------------------------------------------------------------
@@ -16,7 +15,7 @@ FROM INT64 IMPORT INT64T;
  * Read unformatted decimal number from console and pass it in i.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Read ( VAR i : INT64T; VAR stat : INT64.Status );
+PROCEDURE Read ( VAR i : INT64T; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------

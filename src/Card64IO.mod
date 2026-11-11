@@ -1,24 +1,23 @@
 (*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
 
-IMPLEMENTATION MODULE CARD64IO;
+IMPLEMENTATION MODULE Card64IO;
 
 (* Console IO library for Type CARD64T *)
 
 
-IMPORT CARD64;
+IMPORT CARD64, InOut;
 
-FROM CARD64 IMPORT CARD64T;
-
-IMPORT InOut;
+FROM CARD64 IMPORT
+  CARD64T, Status;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  CARD64IO.Read(n, stat)
+ * Procedure:  Card64IO.Read(n, stat)
  * --------------------------------------------------------------------------
  * Read unformatted decimal number from console and pass it in n.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Read ( VAR n : CARD64T; VAR stat : CARD64.Status );
+PROCEDURE Read ( VAR n : CARD64T; VAR stat : Status );
 VAR
   ch : CHAR;
   ten, val, digitVal : CARD64T;
@@ -64,7 +63,7 @@ END Read;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  CARD64IO.Write(n)
+ * Procedure:  Card64IO.Write(n)
  * --------------------------------------------------------------------------
  * Write n as a decimal number unformatted to console.
  * ----------------------------------------------------------------------- *)
@@ -84,7 +83,7 @@ END Write;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  CARD64IO.WriteF(fmt, n)
+ * Procedure:  Card64IO.WriteF(fmt, n)
  * --------------------------------------------------------------------------
  * Write i formatted to console following format fmt.
  *
@@ -108,7 +107,7 @@ END WriteF;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  WriteStatus(stat)
+ * Procedure:  Card64IO.WriteStatus(stat)
  * --------------------------------------------------------------------------
  * Write stat to console.
  * ----------------------------------------------------------------------- *)
@@ -116,13 +115,13 @@ END WriteF;
 PROCEDURE WriteStatus ( stat : Status );
 BEGIN 
   CASE stat OF
-    Success        : InOut.WriteString("Success")
-  | Underflow      : InOut.WriteString("Underflow")
-  | Overflow       : InOut.WriteString("Overflow")
-  | DivByZero      : InOut.WriteString("DivByZero")
-  | StrLenTooShort : InOut.WriteString("StrLenTooShort")
-  | NoInput        : InOut.WriteString("NoInput")
-  | InvalidInput   : InOut.WriteString("InvalidInput")
+    CARD64.Success        : InOut.WriteString("Success")
+  | CARD64.Underflow      : InOut.WriteString("Underflow")
+  | CARD64.Overflow       : InOut.WriteString("Overflow")
+  | CARD64.DivByZero      : InOut.WriteString("DivByZero")
+  | CARD64.StrLenTooShort : InOut.WriteString("StrLenTooShort")
+  | CARD64.NoInput        : InOut.WriteString("NoInput")
+  | CARD64.InvalidInput   : InOut.WriteString("InvalidInput")
   END (* CASE *)
 END WriteStatus;
 
@@ -141,7 +140,7 @@ PROCEDURE GetDigitSeq
   ( n : CARD64T; VAR digits : ARRAY OF CHAR; VAR count : CARDINAL );
 VAR
   index : CARDINAL;
-  ignore : CARD64.Status;
+  ignore : Status;
   ten, rem, digitVal : CARD64T;
 BEGIN
   IF CARD64.isZero(n) THEN
@@ -253,4 +252,4 @@ END InitShiftFactorTable;
 
 BEGIN
   InitShiftFactorTable
-END CARD64IO.
+END Card64IO.

@@ -1,26 +1,25 @@
 (*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
 
-DEFINITION MODULE CARD64IO;
+DEFINITION MODULE Card64IO;
 
 (* Console IO library for Type CARD64T *)
 
 
-IMPORT CARD64;
-
-FROM CARD64 IMPORT CARD64T;
+FROM CARD64 IMPORT
+  CARD64T, Status;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  CARD64.Read(n, stat)
+ * Procedure:  Card64IO.Read(n, stat)
  * --------------------------------------------------------------------------
  * Read unformatted decimal number from console and pass it in n.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Read ( VAR n : CARD64T; VAR stat : CARD64.Status );
+PROCEDURE Read ( VAR n : CARD64T; VAR stat : Status );
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  CARD64.Write(n)
+ * Procedure:  Card64IO.Write(n)
  * --------------------------------------------------------------------------
  * Write n unformatted to console.
  * ----------------------------------------------------------------------- *)
@@ -29,7 +28,7 @@ PROCEDURE Write ( n : CARD64T );
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  CARD64.WriteF(fmt, n)
+ * Procedure:  Card64IO.WriteF(fmt, n)
  * --------------------------------------------------------------------------
  * Write n formatted to console following format fmt.
  *
@@ -44,7 +43,7 @@ PROCEDURE WriteF ( fmt : CHAR; n : CARD64T );
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  WriteStatus(stat)
+ * Procedure:  Card64IO.WriteStatus(stat)
  * --------------------------------------------------------------------------
  * Write stat to console.
  * ----------------------------------------------------------------------- *)
@@ -52,5 +51,4 @@ PROCEDURE WriteF ( fmt : CHAR; n : CARD64T );
 PROCEDURE WriteStatus ( stat : Status );
 
 
-END CARD64IO.
-
+END Card64IO.
