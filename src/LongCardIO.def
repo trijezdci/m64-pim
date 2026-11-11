@@ -1,0 +1,66 @@
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
+
+DEFINITION MODULE LongCardIO;
+
+(* Console IO library for Type LONGCARD *)
+
+
+(* --------------------------------------------------------------------------
+ * Status type
+ * ----------------------------------------------------------------------- *)
+
+TYPE Status = ( Success, Overflow, NoInput, InvalidInput );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  LongCardIO.Read(n, stat)
+ * --------------------------------------------------------------------------
+ * Read unformatted decimal number from console and pass it in n.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Read ( VAR n : LongCardIO; VAR stat : Status );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  LongCardIO.Write(n)
+ * --------------------------------------------------------------------------
+ * Write LONGCARD n as radix-16 number to console.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Write ( n : LongCardIO );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  LongCardIO.WriteHex(n)
+ * --------------------------------------------------------------------------
+ * Write n unformatted to console.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE WriteHex ( n : LONGCARD );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  LongCardIO.WriteF(fmt, n)
+ * --------------------------------------------------------------------------
+ * Write n formatted to console following format fmt.
+ *
+ * fmt | radix    | formatting       | digit grouping
+ * ----+----------+------------------+---------------
+ * ',' | decimal  | comma separated  | 3 digits 
+ * '.' | decimal  | period separated | 3 digits
+ * 'x' | radix-16 | '0x' prefixed    | 8 digits
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE WriteF ( fmt : CHAR; n : LongCardIO );
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  LongCardIO.WriteStatus(stat)
+ * --------------------------------------------------------------------------
+ * Write stat to console.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE WriteStatus ( stat : Status );
+
+
+END LongCardIO.

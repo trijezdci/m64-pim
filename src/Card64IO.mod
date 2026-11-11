@@ -5,7 +5,7 @@ IMPLEMENTATION MODULE Card64IO;
 (* Console IO library for Type CARD64T *)
 
 
-IMPORT CARD64, InOut;
+IMPORT CARD64, LongCardIO, InOut;
 
 FROM CARD64 IMPORT
   CARD64T, Status;
@@ -85,7 +85,7 @@ END Write;
 (* --------------------------------------------------------------------------
  * Procedure:  Card64IO.WriteF(fmt, n)
  * --------------------------------------------------------------------------
- * Write i formatted to console following format fmt.
+ * Write n formatted to console following format fmt.
  *
  * fmt | radix    | separation       | digit grouping
  * ----+----------+------------------+---------------
@@ -186,11 +186,11 @@ BEGIN
   GetDigitSeq(n, digits, weight);
   WHILE digits[index] # CHR(0) DO
     InOut.Write(digits[index]);
+    DEC(weight)
     IF (weight MOD 3 = 0) AND (weight > 0) THEN
       InOut.Write(fmt)
     END; (* IF *)
     INC(index);
-    DEC(weight)
   END (* WHILE *)
 END WriteFmtDec;
 
@@ -205,51 +205,10 @@ PROCEDURE WriteFmtHex ( n : CARD64T );
 BEGIN
   InOut.Write("0");
   InOut.Write("x");
-  WriteLCHex(n.highBits);
+  LongCardIO.WriteHex(n.highBits);
   InOut.Write(":");
-  WriteLCHex(n.lowBits)
+  LongCardIO.WriteHex(n.lowBits)
 END WriteFmtHex;
 
 
-(* --------------------------------------------------------------------------
- * Procedure:  WriteLCHex(n)
- * --------------------------------------------------------------------------
- * Write LONGCARD n as radix-16 number to console.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE WriteLCHex ( n : LONGCARD );
-CONST
-  HexDigit = "0123456789ABCDEF";
-VAR
-  index : CARDINAL;
-BEGIN
-  FOR index := 0 TO 7 DO
-    InOut.Write(HexDigit[(n DIV shiftFactor[index]) MOD 16])
-  END (* FOR *)
-END WriteLCHex;
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  InitShiftFactorTable
- * --------------------------------------------------------------------------
- * Initialise table with powers of 2 for n = {28, 24, 20, 16, 12, 8, 4, 0}
- * ----------------------------------------------------------------------- *)
-
-VAR shiftFactor : ARRAY [0..7] OF LONGCARD;
-
-PROCEDURE InitShiftFactorTable;
-VAR
-  index : CARDINAL;
-BEGIN
-  shiftFactor[0] := 10000000H;
-  FOR index := 1 TO 7 DO
-    shiftFactor[index] := shiftFactor[index-1] DIV 16
-  END (* FOR *)
-END InitShiftFactorTable;
-
-
-(* Module initialisation *)
-
-BEGIN
-  InitShiftFactorTable
 END Card64IO.
