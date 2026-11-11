@@ -150,17 +150,17 @@ VAR setValTest : ARRAY [0..SetValTestCount-1] OF SetValTest;
 PROCEDURE InitSetValTests;
 BEGIN
   setValTest[0].label := "CARD64.SetZero";
-  setValTest[0].proc := SetZero;
+  setValTest[0].proc := CARD64.SetZero;
   setValTest[0].expected.highBits := 0;
   setValTest[0].expected.lowBits := 0;
   
   setValTest[1].label := "CARD64.SetOne";
-  setValTest[1].proc := SetOne;
+  setValTest[1].proc := CARD64.SetOne;
   setValTest[1].expected.highBits := 0;
   setValTest[1].expected.lowBits := 1;
   
   setValTest[2].label := "CARD64.SetMax";
-  setValTest[2].proc := SetMax;
+  setValTest[2].proc := CARD64.SetMax;
   setValTest[2].expected.highBits := 0FFFFFFFFH;
   setValTest[2].expected.lowBits := 0FFFFFFFFH
 END InitSetValTests;
@@ -336,7 +336,7 @@ BEGIN
   fromLongCardTest[1].expected.highBits := 0;
   fromLongCardTest[1].expected.lowBits := 1;
   
-  fromLongCardTest[2].label := "CARD64.FromLongCard(MAX(LONGCARD), n)"
+  fromLongCardTest[2].label := "CARD64.FromLongCard(MAX(LONGCARD), n)";
   fromLongCardTest[2].operand := MAX(LONGCARD);
   fromLongCardTest[2].expected.highBits := 0;
   fromLongCardTest[2].expected.lowBits := 0FFFFFFFFH
@@ -527,7 +527,7 @@ BEGIN
   fromStringTest[18].label := "CARD64.FromString('18446744073709551615', n, stat)";
   fromStringTest[18].operand := "18446744073709551615";
   fromStringTest[18].expected.highBits := 0FFFFFFFFH;
-  fromStringTest[18].expected.lowBits := 0FFFFFFFFH
+  fromStringTest[18].expected.lowBits := 0FFFFFFFFH;
   fromStringTest[18].expStatus := Success;
   
   fromStringTest[19].label := "CARD64.FromString('18446744073709551616', n, stat)";
@@ -654,7 +654,7 @@ BEGIN
   
   toCardTest[3].label := "CARD64.ToCard() for MAX(CARDINAL)+1";
   toCardTest[3].operand.highBits := 1;
-  toCardTest[3].operand.lowBits := MAX(CARDINAL);
+  toCardTest[3].operand.lowBits := 0;
   toCardTest[3].expected := 0; (* ignored *)
   toCardTest[3].expStatus := Overflow
 END InitToCardTests;
@@ -762,7 +762,7 @@ BEGIN
   
   toLongCardTest[3].label := "CARD64.ToLongCard() for MAX(LONGCARD)+1";
   toLongCardTest[3].operand.highBits := 1;
-  toLongCardTest[3].operand.lowBits := MAX(LONGCARD);
+  toLongCardTest[3].operand.lowBits := 0;
   toLongCardTest[3].expected := 0; (* ignored *)
   toLongCardTest[3].expStatus := Overflow
 END InitToLongCardTests;

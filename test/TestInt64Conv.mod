@@ -5,10 +5,6 @@ IMPLEMENTATION MODULE TestInt64Conv;
 (* Test Suite for INT64 Constant Assignments and Type Conversions *)
 
 
-IMPORT CARD64;
-
-FROM CARD64 IMPORT CARD64T;
-
 IMPORT INT64;
 
 FROM INT64 IMPORT INT64T;
@@ -158,22 +154,22 @@ VAR setValTest : ARRAY [0..SetValTestCount-1] OF SetValTest;
 PROCEDURE InitSetValTests;
 BEGIN
   setValTest[0].label := "INT64.SetZero";
-  setValTest[0].proc := SetZero;
+  setValTest[0].proc := INT64.SetZero;
   setValTest[0].expected.highBits := 0;
   setValTest[0].expected.lowBits := 0;
   
   setValTest[1].label := "INT64.SetOne";
-  setValTest[1].proc := SetOne;
+  setValTest[1].proc := INT64.SetOne;
   setValTest[1].expected.highBits := 0;
   setValTest[1].expected.lowBits := 1;
   
   setValTest[2].label := "INT64.SetMin";
-  setValTest[2].proc := SetMin;
+  setValTest[2].proc := INT64.SetMin;
   setValTest[2].expected.highBits := MIN(LONGINT); (* 0x80000000 *)
   setValTest[2].expected.lowBits := 0;
 
   setValTest[3].label := "INT64.SetMax";
-  setValTest[3].proc := SetMax;
+  setValTest[3].proc := INT64.SetMax;
   setValTest[3].expected.highBits := MAX(LONGINT); (* 0x7FFFFFFF *)
   setValTest[3].expected.lowBits := MAX(LONGCARD); (* 0xFFFFFFFF *)
 END InitSetValTests;
@@ -250,17 +246,17 @@ VAR fromCardTest : ARRAY [0..FromCardTestCount-1] OF FromCardTest;
 
 PROCEDURE InitFromCardTests;
 BEGIN
-  fromCardTest[0].label := "INT64.FromCard(0, i)";
+  fromCardTest[0].label := "INT64.FromCard(0, n)";
   fromCardTest[0].operand := 0;
   fromCardTest[0].expected.highBits := 0;
   fromCardTest[0].expected.lowBits := 0;
   
-  fromCardTest[1].label := "INT64.FromCard(1, i)";
+  fromCardTest[1].label := "INT64.FromCard(1, n)";
   fromCardTest[1].operand := 1;
   fromCardTest[1].expected.highBits := 0;
   fromCardTest[1].expected.lowBits := 1;
   
-  fromCardTest[2].label := "INT64.FromCard(MAX(CARDINAL), i)";
+  fromCardTest[2].label := "INT64.FromCard(MAX(CARDINAL), n)";
   fromCardTest[2].operand := MAX(CARDINAL);
   fromCardTest[2].expected.highBits := 0;
   fromCardTest[2].expected.lowBits := MAX(CARDINAL)
@@ -349,7 +345,7 @@ BEGIN
   fromLongCardTest[1].expected.highBits := 0;
   fromLongCardTest[1].expected.lowBits := 1;
   
-  fromLongCardTest[2].label := "INT64.FromLongCard(MAX(LONGCARD), n)"
+  fromLongCardTest[2].label := "INT64.FromLongCard(MAX(LONGCARD), n)";
   fromLongCardTest[2].operand := MAX(LONGCARD);
   fromLongCardTest[2].expected.highBits := 0;
   fromLongCardTest[2].expected.lowBits := MAX(LONGCARD)
