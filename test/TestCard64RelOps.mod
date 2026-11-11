@@ -9,7 +9,7 @@ IMPORT CARD64;
 
 FROM CARD64 IMPORT CARD64T;
 
-IMPORT InOut, LongCardIO, Card64IO;
+IMPORT InOut;
 
 
 (* --------------------------------------------------------------------------
@@ -143,65 +143,65 @@ END; (* ConstCompTest *)
  * Initialises tests for SetZero, SetOne, SetMax.
  * ----------------------------------------------------------------------- *)
 
-CONST ConstComptTestCount = 9;
+CONST ConstCompTestCount = 9;
 
 VAR constComptTest : ARRAY [0..ConstCompTestCount-1] OF ConstCompTest;
 
 PROCEDURE InitConstCompTests;
 BEGIN
-  constComptTest[0].label := "CARD64.isZero(0:0)";
-  constComptTest[0].proc := CARD64.isZero;
-  constComptTest[0].operand.highBits := 0;
-  constComptTest[0].operand.lowBits := 0;
-  constComptTest[0].expected := TRUE;
+  constCompTest[0].label := "CARD64.isZero(0:0)";
+  constCompTest[0].proc := CARD64.isZero;
+  constCompTest[0].operand.highBits := 0;
+  constCompTest[0].operand.lowBits := 0;
+  constCompTest[0].expected := TRUE;
   
-  constComptTest[1].label := "CARD64.isZero(0:1)";
-  constComptTest[1].proc := CARD64.isZero;
-  constComptTest[1].operand.highBits := 0;
-  constComptTest[1].operand.lowBits := 1;
-  constComptTest[1].expected := FALSE;
+  constCompTest[1].label := "CARD64.isZero(0:1)";
+  constCompTest[1].proc := CARD64.isZero;
+  constCompTest[1].operand.highBits := 0;
+  constCompTest[1].operand.lowBits := 1;
+  constCompTest[1].expected := FALSE;
   
-  constComptTest[2].label := "CARD64.isZero(1:0)";
-  constComptTest[2].proc := CARD64.isZero;
-  constComptTest[2].operand.highBits := 1;
-  constComptTest[2].operand.lowBits := 0;
-  constComptTest[2].expected := FALSE;
+  constCompTest[2].label := "CARD64.isZero(1:0)";
+  constCompTest[2].proc := CARD64.isZero;
+  constCompTest[2].operand.highBits := 1;
+  constCompTest[2].operand.lowBits := 0;
+  constCompTest[2].expected := FALSE;
   
-  constComptTest[3].label := "CARD64.isOne(0:0)";
-  constComptTest[3].proc := CARD64.isOne;
-  constComptTest[3].operand.highBits := 0;
-  constComptTest[3].operand.lowBits := 0;
-  constComptTest[3].expected := FALSE;
+  constCompTest[3].label := "CARD64.isOne(0:0)";
+  constCompTest[3].proc := CARD64.isOne;
+  constCompTest[3].operand.highBits := 0;
+  constCompTest[3].operand.lowBits := 0;
+  constCompTest[3].expected := FALSE;
   
-  constComptTest[4].label := "CARD64.isOne(0:1)";
-  constComptTest[4].proc := CARD64.isOne;
-  constComptTest[4].operand.highBits := 0;
-  constComptTest[4].operand.lowBits := 1;
-  constComptTest[4].expected := TRUE;
+  constCompTest[4].label := "CARD64.isOne(0:1)";
+  constCompTest[4].proc := CARD64.isOne;
+  constCompTest[4].operand.highBits := 0;
+  constCompTest[4].operand.lowBits := 1;
+  constCompTest[4].expected := TRUE;
   
-  constComptTest[5].label := "CARD64.isOne(1:0)";
-  constComptTest[5].proc := CARD64.isOne;
-  constComptTest[5].operand.highBits := 1;
-  constComptTest[5].operand.lowBits := 0;
-  constComptTest[5].expected := FALSE;
+  constCompTest[5].label := "CARD64.isOne(1:0)";
+  constCompTest[5].proc := CARD64.isOne;
+  constCompTest[5].operand.highBits := 1;
+  constCompTest[5].operand.lowBits := 0;
+  constCompTest[5].expected := FALSE;
   
-  constComptTest[6].label := "CARD64.isMax(0:0FFFFFFFF)";
-  constComptTest[6].proc := CARD64.isMax;
-  constComptTest[6].operand.highBits := 0;
-  constComptTest[6].operand.lowBits := 0FFFFFFFFH;
-  constComptTest[6].expected := FALSE;
+  constCompTest[6].label := "CARD64.isMax(0:0FFFFFFFF)";
+  constCompTest[6].proc := CARD64.isMax;
+  constCompTest[6].operand.highBits := 0;
+  constCompTest[6].operand.lowBits := 0FFFFFFFFH;
+  constCompTest[6].expected := FALSE;
   
-  constComptTest[7].label := "CARD64.isMax(0FFFFFFFF:0)";
-  constComptTest[7].proc := CARD64.isMax;
-  constComptTest[7].operand.highBits := 0FFFFFFFFH;
-  constComptTest[7].operand.lowBits := 0;
-  constComptTest[7].expected := FALSE;
+  constCompTest[7].label := "CARD64.isMax(0FFFFFFFF:0)";
+  constCompTest[7].proc := CARD64.isMax;
+  constCompTest[7].operand.highBits := 0FFFFFFFFH;
+  constCompTest[7].operand.lowBits := 0;
+  constCompTest[7].expected := FALSE;
   
-  constComptTest[8].label := "CARD64.isMax(0FFFFFFFF:0FFFFFFFF)";
-  constComptTest[8].proc := CARD64.isMax;
-  constComptTest[8].operand.highBits := 0FFFFFFFFH;
-  constComptTest[8].operand.lowBits := 0FFFFFFFFH;
-  constComptTest[8].expected := TRUE
+  constCompTest[8].label := "CARD64.isMax(0FFFFFFFF:0FFFFFFFF)";
+  constCompTest[8].proc := CARD64.isMax;
+  constCompTest[8].operand.highBits := 0FFFFFFFFH;
+  constCompTest[8].operand.lowBits := 0FFFFFFFFH;
+  constCompTest[8].expected := TRUE
 END InitConstCompTests;
 
 
@@ -214,7 +214,6 @@ END InitConstCompTests;
 PROCEDURE RunConstCompTest
   ( test : ConstCompTest; VAR passed, failed : CARDINAL );
 VAR
-  n : CARD64T;
   res : BOOLEAN;
 BEGIN
   (* Print label *)
@@ -271,9 +270,9 @@ END; (* OddEvenTest *)
  * Initialises tests for odd.
  * ----------------------------------------------------------------------- *)
 
-CONST OddEvenTestCount = 10;
+CONST OddEvenTestCount = 11;
 
-VAR oddEvenTest : ARRAY [0..oddEvenTestCount-1] OF oddEvenTest;
+VAR oddEvenTest : ARRAY [0..OddEvenTestCount-1] OF OddEvenTest;
 
 PROCEDURE InitOddEvenTests;
 BEGIN
@@ -307,30 +306,30 @@ BEGIN
   oddEvenTest[5].operand.lowBits := 5;
   oddEvenTest[5].expected := TRUE;
   
-  oddEvenTest[5].label := "CARD64.odd(1:0)";
-  oddEvenTest[5].operand.highBits := 1;
-  oddEvenTest[5].operand.lowBits := 0;
-  oddEvenTest[5].expected := FALSE;
-  
-  oddEvenTest[6].label := "CARD64.odd(1:1)";
+  oddEvenTest[6].label := "CARD64.odd(1:0)";
   oddEvenTest[6].operand.highBits := 1;
-  oddEvenTest[6].operand.lowBits := 1;
-  oddEvenTest[6].expected := TRUE;
+  oddEvenTest[6].operand.lowBits := 0;
+  oddEvenTest[6].expected := FALSE;
   
-  oddEvenTest[7].label := "CARD64.odd(0FFFFFFFF:0";
-  oddEvenTest[7].operand.highBits := 0FFFFFFFFH;
-  oddEvenTest[7].operand.lowBits := 0;
-  oddEvenTest[7].expected := FALSE;
+  oddEvenTest[7].label := "CARD64.odd(1:1)";
+  oddEvenTest[7].operand.highBits := 1;
+  oddEvenTest[7].operand.lowBits := 1;
+  oddEvenTest[7].expected := TRUE;
   
-  oddEvenTest[8].label := "CARD64.odd(0FFFFFFFF:1";
+  oddEvenTest[8].label := "CARD64.odd(0FFFFFFFF:0)";
   oddEvenTest[8].operand.highBits := 0FFFFFFFFH;
-  oddEvenTest[8].operand.lowBits := 1;
+  oddEvenTest[8].operand.lowBits := 0;
   oddEvenTest[8].expected := FALSE;
-
-  oddEvenTest[9].label := "CARD64.odd(0FFFFFFFF:0FFFFFFFF";
+  
+  oddEvenTest[9].label := "CARD64.odd(0FFFFFFFF:1)";
   oddEvenTest[9].operand.highBits := 0FFFFFFFFH;
-  oddEvenTest[9].operand.lowBits := 0FFFFFFFFH;
-  oddEvenTest[9].expected := FALSE
+  oddEvenTest[9].operand.lowBits := 1;
+  oddEvenTest[9].expected := TRUE;
+
+  oddEvenTest[10].label := "CARD64.odd(0FFFFFFFF:0FFFFFFFF)";
+  oddEvenTest[10].operand.highBits := 0FFFFFFFFH;
+  oddEvenTest[10].operand.lowBits := 0FFFFFFFFH;
+  oddEvenTest[10].expected := TRUE
 END InitOddEvenTests;
 
 
@@ -343,7 +342,6 @@ END InitOddEvenTests;
 PROCEDURE RunOddEvenTest
   ( test : OddEvenTest; VAR passed, failed : CARDINAL );
 VAR
-  n : CARD64T;
   res : BOOLEAN;
 BEGIN
   (* Print label *)
@@ -788,7 +786,6 @@ END InitRelOpTests;
 PROCEDURE RunRelOpTest
   ( test : RelOpTest; VAR passed, failed : CARDINAL );
 VAR
-  n : CARD64T;
   res : BOOLEAN;
 BEGIN
   (* Print label *)
@@ -857,8 +854,3 @@ BEGIN (* TestCard64RelOps *)
   InitOddEvenTests;
   InitRelOpTests
 END TestCard64RelOps.
-
-
-
-
-
