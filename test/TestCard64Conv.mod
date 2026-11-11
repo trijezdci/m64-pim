@@ -9,7 +9,7 @@ IMPORT CARD64;
 
 FROM CARD64 IMPORT CARD64T;
 
-IMPORT InOut, CARD64IO;
+IMPORT InOut, Card64IO;
 
 
 (* --------------------------------------------------------------------------
@@ -1096,7 +1096,7 @@ END PrintStringResult;
 PROCEDURE PrintStatus ( stat : Status );
 BEGIN
   InOut.WriteString(" status: ");
-  CARD64IO.WriteStatus(stat);
+  Card64IO.WriteStatus(stat);
   InOut.WriteLn
 END PrintStatus;
 
