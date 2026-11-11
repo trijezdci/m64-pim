@@ -13,7 +13,7 @@ IMPORT CARD64;
 
 FROM CARD64 IMPORT CARD64T;
 
-IMPORT InOut;
+IMPORT LongCardIO, InOut;
 
 
 (* --------------------------------------------------------------------------
@@ -219,13 +219,14 @@ BEGIN
   
   index := 0;
   GetDigitSeq(i, digits, weight);
+  DEC(weight);
   WHILE digits[index] # CHR(0) DO
     InOut.Write(digits[index]);
+    DEC(weight);
     IF (weight MOD 3 = 0) AND (weight > 0) THEN
-      InOut.Write(fmt)
+      InOut.Write(fmt);
     END; (* IF *)
-    INC(index);
-    DEC(weight)
+    INC(index)
   END (* WHILE *)
 END WriteFmtDec;
 
@@ -240,52 +241,10 @@ PROCEDURE WriteFmtHex ( i : INT64T );
 BEGIN
   InOut.Write("0");
   InOut.Write("x");
-  WriteLCHex(LONGCARD(i.highBits));
+  LongCardIO.WriteHex(LONGCARD(i.highBits));
   InOut.Write(":");
-  WriteLCHex(i.lowBits)
+  LongCardIO.WriteHex(i.lowBits)
 END WriteFmtHex;
 
 
-(* --------------------------------------------------------------------------
- * Procedure:  WriteLCHex(n)
- * --------------------------------------------------------------------------
- * Write LONGCARD n as radix-16 number to console.
- * ----------------------------------------------------------------------- *)
-
-
-PROCEDURE WriteLCHex ( n : LONGCARD );
-CONST
-  HexDigit = "0123456789ABCDEF";
-VAR
-  index : CARDINAL;
-BEGIN
-  FOR index := 0 TO 7 DO
-    InOut.Write(HexDigit[(n DIV shiftFactor[index]) MOD 16])
-  END (* FOR *)
-END WriteLCHex;
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  InitShiftFactorTable
- * --------------------------------------------------------------------------
- * Initialise table with powers of 2 for n = {28, 24, 20, 16, 12, 8, 4, 0}
- * ----------------------------------------------------------------------- *)
-
-VAR shiftFactor : ARRAY [0..7] OF LONGCARD;
-
-PROCEDURE InitShiftFactorTable;
-VAR
-  index : CARDINAL;
-BEGIN
-  shiftFactor[0] := 10000000H;
-  FOR index := 1 TO 7 DO
-    shiftFactor[index] := shiftFactor[index-1] DIV 16
-  END (* FOR *)
-END InitShiftFactorTable;
-
-
-(* Module initialisation *)
-
-BEGIN
-  InitShiftFactorTable
 END Int64IO.

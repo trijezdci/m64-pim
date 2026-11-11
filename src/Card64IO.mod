@@ -186,11 +186,11 @@ BEGIN
   GetDigitSeq(n, digits, weight);
   WHILE digits[index] # CHR(0) DO
     InOut.Write(digits[index]);
-    DEC(weight)
+    DEC(weight);
     IF (weight MOD 3 = 0) AND (weight > 0) THEN
       InOut.Write(fmt)
     END; (* IF *)
-    INC(index);
+    INC(index)
   END (* WHILE *)
 END WriteFmtDec;
 
