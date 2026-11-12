@@ -104,7 +104,7 @@ CONST FailNotice = " failed";
  * Maximum test label length
  * ----------------------------------------------------------------------- *)
 
-CONST MaxLabelLength = 47;
+CONST MaxLabelLength = 63;
 
 
 (* --------------------------------------------------------------------------
@@ -185,11 +185,7 @@ PROCEDURE RunSetValTest ( test : SetValTest; VAR passed, failed : CARDINAL );
 VAR
   i : INT64T;
 BEGIN
-  (* Print label *)
-  InOut.WriteString("*** ");
-  InOut.WriteString(test.label);
-  InOut.WriteString(" ***");
-  InOut.WriteLn;
+  PrintLabel(test.label);
   
   test.proc(i);
   PrintResult(i);
@@ -274,11 +270,7 @@ PROCEDURE RunFromCardTest
 VAR
   i : INT64T;
 BEGIN
-  (* Print label *)
-  InOut.WriteString("*** ");
-  InOut.WriteString(test.label);
-  InOut.WriteString(" ***");
-  InOut.WriteLn;
+  PrintLabel(test.label);
   
   FromCard(test.operand, i);
   PrintResult(i);
@@ -363,11 +355,7 @@ PROCEDURE RunFromLongCardTest
 VAR
   i : INT64T;
 BEGIN
-  (* Print label *)
-  InOut.WriteString("*** ");
-  InOut.WriteString(test.label);
-  InOut.WriteString(" ***");
-  InOut.WriteLn;
+  PrintLabel(test.label);
   
   FromLongCard(test.operand, i);
   PrintResult(i);
@@ -462,11 +450,7 @@ PROCEDURE RunFromIntTest
 VAR
   i : INT64T;
 BEGIN
-  (* Print label *)
-  InOut.WriteString("*** ");
-  InOut.WriteString(test.label);
-  InOut.WriteString(" ***");
-  InOut.WriteLn;
+  PrintLabel(test.label);
   
   FromInt(test.operand, i);
   PrintResult(i);
@@ -561,11 +545,7 @@ PROCEDURE RunFromLongIntTest
 VAR
   i : INT64T;
 BEGIN
-  (* Print label *)
-  InOut.WriteString("*** ");
-  InOut.WriteString(test.label);
-  InOut.WriteString(" ***");
-  InOut.WriteLn;
+  PrintLabel(test.label);
   
   FromLongInt(test.operand, i);
   PrintResult(i);
@@ -666,11 +646,7 @@ VAR
   stat : Status;
   n : CARDINAL;
 BEGIN
-  (* Print label *)
-  InOut.WriteString("*** ");
-  InOut.WriteString(test.label);
-  InOut.WriteString(" ***");
-  InOut.WriteLn;
+  PrintLabel(test.label);
   
   ToCard(test.operand, n, stat);
   PrintCardResult(n); PrintStatus(stat);
@@ -781,11 +757,7 @@ VAR
   stat : Status;
   n : LONGCARD;
 BEGIN
-  (* Print label *)
-  InOut.WriteString("*** ");
-  InOut.WriteString(test.label);
-  InOut.WriteString(" ***");
-  InOut.WriteLn;
+  PrintLabel(test.label);
   
   ToLongCard(test.operand, n, stat);
   PrintLongCardResult(n); PrintStatus(stat);
@@ -907,11 +879,7 @@ VAR
   stat : Status;
   i : INTEGER;
 BEGIN
-  (* Print label *)
-  InOut.WriteString("*** ");
-  InOut.WriteString(test.label);
-  InOut.WriteString(" ***");
-  InOut.WriteLn;
+  PrintLabel(test.label);
   
   ToInt(test.operand, i, stat);
   PrintIntResult(i); PrintStatus(stat);
@@ -1034,11 +1002,7 @@ VAR
   stat : Status;
   i : LONGINT;
 BEGIN
-  (* Print label *)
-  InOut.WriteString("*** ");
-  InOut.WriteString(test.label);
-  InOut.WriteString(" ***");
-  InOut.WriteLn;
+  PrintLabel(test.label);
   
   ToLongInt(test.operand, i, stat);
   PrintLongIntResult(i); PrintStatus(stat);
@@ -1257,11 +1221,7 @@ VAR
   stat : Status;
   str : NumberString;
 BEGIN
-  (* Print label *)
-  InOut.WriteString("*** ");
-  InOut.WriteString(test.label);
-  InOut.WriteString(" ***");
-  InOut.WriteLn;
+  PrintLabel(test.label);
   
   ToString(test.operand, str, stat);
   PrintStringResult(str); PrintStatus(stat);
@@ -1321,6 +1281,21 @@ BEGIN
     RETURN TRUE
   END (* IF *)
 END eqStr;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  PrintLabel(label)
+ * --------------------------------------------------------------------------
+ * Prints test label string. 
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE PrintLabel ( label : LabelString );
+BEGIN
+  InOut.WriteString("*** ");
+  InOut.WriteString(label);
+  InOut.WriteString(" ***");
+  InOut.WriteLn;
+END PrintLabel;
 
 
 (* --------------------------------------------------------------------------

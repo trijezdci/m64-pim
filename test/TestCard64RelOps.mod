@@ -216,11 +216,7 @@ PROCEDURE RunConstCompTest
 VAR
   res : BOOLEAN;
 BEGIN
-  (* Print label *)
-  InOut.WriteString("*** ");
-  InOut.WriteString(test.label);
-  InOut.WriteString(" ***");
-  InOut.WriteLn;
+  PrintLabel(test.label);
   
   res := test.proc(test.operand);
   PrintBoolResult(res);
@@ -344,11 +340,7 @@ PROCEDURE RunOddEvenTest
 VAR
   res : BOOLEAN;
 BEGIN
-  (* Print label *)
-  InOut.WriteString("*** ");
-  InOut.WriteString(test.label);
-  InOut.WriteString(" ***");
-  InOut.WriteLn;
+  PrintLabel(test.label);
   
   res := CARD64.odd(test.operand);
   PrintBoolResult(res);
@@ -788,11 +780,7 @@ PROCEDURE RunRelOpTest
 VAR
   res : BOOLEAN;
 BEGIN
-  (* Print label *)
-  InOut.WriteString("*** ");
-  InOut.WriteString(test.label);
-  InOut.WriteString(" ***");
-  InOut.WriteLn;
+  PrintLabel(test.label);
   
   res := test.proc(test.left, test.right);
   PrintBoolResult(res);
@@ -823,6 +811,21 @@ BEGIN
     RunRelOpTest(relOpTest[index], passed, failed)
   END (* FOR *)
 END RunRelOpTests;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  PrintLabel(label)
+ * --------------------------------------------------------------------------
+ * Prints test label string. 
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE PrintLabel ( label : LabelString );
+BEGIN
+  InOut.WriteString("*** ");
+  InOut.WriteString(label);
+  InOut.WriteString(" ***");
+  InOut.WriteLn;
+END PrintLabel;
 
 
 (* --------------------------------------------------------------------------
