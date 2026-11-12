@@ -762,9 +762,9 @@ VAR
 BEGIN
   PrintLabelForRelOp(relOpId, test.args);
   
-  res := test.proc(test.left, test.right);
+  res := test.operation.proc(test.left, test.right);
   PrintBoolResult(res);
-  IF (res = test.expected) THEN
+  IF (res = test.operation.expected) THEN
     InOut.WriteString(PassNotice);
     INC(passed)
   ELSE
