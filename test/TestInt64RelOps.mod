@@ -421,7 +421,7 @@ END; (* RelOpTest *)
  * Initialises tests for  eq, neq, gt, gteq, lt and lteq
  * ----------------------------------------------------------------------- *)
 
-CONST RelOpTestCount = 49;
+CONST RelOpTestCount = 50;
 
 VAR relOpTest : ARRAY [0..RelOpTestCount-1] OF RelOpTest;
 
@@ -763,69 +763,69 @@ BEGIN
   relOpTest[41].right.lowBits := 0;
   relOpTest[41].expected := TRUE;
   
-  relOpTest[41].label := "INT64.gteq(0, 1)";
-  relOpTest[41].proc := INT64.gteq;
-  relOpTest[41].left.highBits := 0;
-  relOpTest[41].left.lowBits := 0;
-  relOpTest[41].right.highBits := 0;
-  relOpTest[41].right.lowBits := 1;
-  relOpTest[41].expected := FALSE;
-  
-  relOpTest[42].label := "INT64.gteq(1, 0)";
+  relOpTest[42].label := "INT64.gteq(0, 1)";
   relOpTest[42].proc := INT64.gteq;
   relOpTest[42].left.highBits := 0;
-  relOpTest[42].left.lowBits := 1;
+  relOpTest[42].left.lowBits := 0;
   relOpTest[42].right.highBits := 0;
-  relOpTest[42].right.lowBits := 0;
-  relOpTest[42].expected := TRUE;
+  relOpTest[42].right.lowBits := 1;
+  relOpTest[42].expected := FALSE;
   
-  relOpTest[43].label := "INT64.gteq(1, MAX(LONGCARD)+2)";
+  relOpTest[43].label := "INT64.gteq(1, 0)";
   relOpTest[43].proc := INT64.gteq;
   relOpTest[43].left.highBits := 0;
   relOpTest[43].left.lowBits := 1;
-  relOpTest[43].right.highBits := 1;
-  relOpTest[43].right.lowBits := 1;
-  relOpTest[43].expected := FALSE;
+  relOpTest[43].right.highBits := 0;
+  relOpTest[43].right.lowBits := 0;
+  relOpTest[43].expected := TRUE;
   
-  relOpTest[44].label := "INT64.gteq(MAX(LONGCARD)+2, 1)";
+  relOpTest[44].label := "INT64.gteq(1, MAX(LONGCARD)+2)";
   relOpTest[44].proc := INT64.gteq;
-  relOpTest[44].left.highBits := 1;
+  relOpTest[44].left.highBits := 0;
   relOpTest[44].left.lowBits := 1;
-  relOpTest[44].right.highBits := 0;
+  relOpTest[44].right.highBits := 1;
   relOpTest[44].right.lowBits := 1;
-  relOpTest[44].expected := TRUE;
+  relOpTest[44].expected := FALSE;
   
-  relOpTest[45].label := "INT64.gteq(MAX(LONGCARD), MAX(LONGCARD)+1)";
+  relOpTest[45].label := "INT64.gteq(MAX(LONGCARD)+2, 1)";
   relOpTest[45].proc := INT64.gteq;
-  relOpTest[45].left.highBits := 0;
-  relOpTest[45].left.lowBits := 0FFFFFFFFH;
-  relOpTest[45].right.highBits := 1;
-  relOpTest[45].right.lowBits := 0;
-  relOpTest[45].expected := FALSE;
+  relOpTest[45].left.highBits := 1;
+  relOpTest[45].left.lowBits := 1;
+  relOpTest[45].right.highBits := 0;
+  relOpTest[45].right.lowBits := 1;
+  relOpTest[45].expected := TRUE;
   
-  relOpTest[46].label := "INT64.gteq(MAX(LONGCARD)+1, MAX(LONGCARD))";
+  relOpTest[46].label := "INT64.gteq(MAX(LONGCARD), MAX(LONGCARD)+1)";
   relOpTest[46].proc := INT64.gteq;
-  relOpTest[46].left.highBits := 1;
-  relOpTest[46].left.lowBits := 0;
-  relOpTest[46].right.highBits := 0;
-  relOpTest[46].right.lowBits := 0FFFFFFFFH;
-  relOpTest[46].expected := TRUE;
+  relOpTest[46].left.highBits := 0;
+  relOpTest[46].left.lowBits := 0FFFFFFFFH;
+  relOpTest[46].right.highBits := 1;
+  relOpTest[46].right.lowBits := 0;
+  relOpTest[46].expected := FALSE;
   
-  relOpTest[47].label := "INT64.gteq(MAX(INT64T)-1, MAX(INT64T))";
+  relOpTest[47].label := "INT64.gteq(MAX(LONGCARD)+1, MAX(LONGCARD))";
   relOpTest[47].proc := INT64.gteq;
-  relOpTest[47].left.highBits := 2147483647;
-  relOpTest[47].left.lowBits := 0FFFFFFFEH;
-  relOpTest[47].right.highBits := 2147483647;
+  relOpTest[47].left.highBits := 1;
+  relOpTest[47].left.lowBits := 0;
+  relOpTest[47].right.highBits := 0;
   relOpTest[47].right.lowBits := 0FFFFFFFFH;
-  relOpTest[47].expected := FALSE;
+  relOpTest[47].expected := TRUE;
   
-  relOpTest[48].label := "INT64.gteq(MAX(INT64T), MAX(INT64T))";
+  relOpTest[48].label := "INT64.gteq(MAX(INT64T)-1, MAX(INT64T))";
   relOpTest[48].proc := INT64.gteq;
   relOpTest[48].left.highBits := 2147483647;
-  relOpTest[48].left.lowBits := 0FFFFFFFFH;
+  relOpTest[48].left.lowBits := 0FFFFFFFEH;
   relOpTest[48].right.highBits := 2147483647;
   relOpTest[48].right.lowBits := 0FFFFFFFFH;
-  relOpTest[48].expected := TRUE
+  relOpTest[48].expected := FALSE;
+  
+  relOpTest[49].label := "INT64.gteq(MAX(INT64T), MAX(INT64T))";
+  relOpTest[49].proc := INT64.gteq;
+  relOpTest[49].left.highBits := 2147483647;
+  relOpTest[49].left.lowBits := 0FFFFFFFFH;
+  relOpTest[49].right.highBits := 2147483647;
+  relOpTest[49].right.lowBits := 0FFFFFFFFH;
+  relOpTest[49].expected := TRUE
 END InitRelOpTests;
 
 
