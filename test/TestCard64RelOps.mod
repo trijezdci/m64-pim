@@ -386,7 +386,7 @@ END; (* RelOp *)
 
 TYPE RelOpTest = RECORD
   operation : ARRAY [Eq..Gteq] OF RelOp;
-  left, right : INT64T;
+  left, right : CARD64T;
   args : LabelString
 END; (* RelOpTest *)
 
