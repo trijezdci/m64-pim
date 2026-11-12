@@ -5,11 +5,9 @@ IMPLEMENTATION MODULE TestCard64RelOps;
 (* Test Suite for CARD64 Relational Operations *)
 
 
-IMPORT CARD64;
+IMPORT CARD64, InOut;
 
 FROM CARD64 IMPORT CARD64T;
-
-IMPORT InOut;
 
 
 (* --------------------------------------------------------------------------
@@ -49,7 +47,7 @@ BEGIN
   InOut.WriteString("Relational Operation Tests for CARD64");
   InOut.WriteLn; InOut.WriteLn;
   
-  (* run all conversion tests *)
+  (* run all relational operation tests *)
   RunRelOpTests(passed, failed);
   
   (* print summary *)
@@ -379,11 +377,17 @@ END RunOddEvenTests;
 
 TYPE RelOpProc = PROCEDURE ( VAR CARD64T, VAR CARD64T ) : BOOLEAN;
 
-TYPE RelOpTest = RECORD
+TYPE RelOpId = ( Eq, Neq, Lt, Lteq, Gt, Gteq );
+
+TYPE RelOp = RECORD
   proc : RelOpProc;
-  left, right : CARD64T;
-  expected : BOOLEAN;
-  label : LabelString
+  expected : BOOLEAN
+END; (* RelOp *)
+
+TYPE RelOpTest = RECORD
+  operation : ARRAY [Eq..Gteq] OF RelOp;
+  left, right : INT64T;
+  args : LabelString
 END; (* RelOpTest *)
 
 
@@ -393,398 +397,210 @@ END; (* RelOpTest *)
  * Initialises tests for  eq, neq, gt, gteq, lt and lteq
  * ----------------------------------------------------------------------- *)
 
-CONST RelOpTestCount = 46;
+CONST RelOpTestGroupCount = 11;
 
-VAR relOpTest : ARRAY [0..RelOpTestCount-1] OF RelOpTest;
+CONST RelOpTestCount = RelOpTestGroupCount * ORD(MAX(RelOpId))+1;
+
+VAR relOpTest : ARRAY [0..RelOpTestGroupCount-1] OF RelOpTest;
 
 PROCEDURE InitRelOpTests;
+VAR
+  index : CARDINAL;
 BEGIN
-  relOpTest[0].label := "CARD64.eq(0, 0)";
-  relOpTest[0].proc := CARD64.eq;
+  (* operations *)
+  FOR index := 0 TO RelOpTestGroupCount-1 DO
+    relopTest[index].operation[Eq].proc := CARD64.eq;
+    relopTest[index].operation[Neq].proc := CARD64.neq;
+    relopTest[index].operation[Lt].proc := CARD64.lt;
+    relopTest[index].operation[Lteq].proc := CARD64.lteq;
+    relopTest[index].operation[Gt].proc := CARD64.gt;
+    relopTest[index].operation[Gteq].proc := CARD64.gteq
+  END; (* FOR *)
+  
+  
+  (* operands *)
+  relOpTest[0].args := "(0, 0)";
   relOpTest[0].left.highBits := 0;
   relOpTest[0].left.lowBits := 0;
   relOpTest[0].right.highBits := 0;
   relOpTest[0].right.lowBits := 0;
-  relOpTest[0].expected := TRUE;
+
+  (* expected results *)
+  relopTest[0].operation[Eq].expected := TRUE;
+  relopTest[0].operation[Neq].expected := FALSE;
+  relopTest[0].operation[Lt].expected := FALSE;
+  relopTest[0].operation[Lteq].expected := TRUE;
+  relopTest[0].operation[Gt].expected := FALSE;
+  relopTest[0].operation[Gteq].expected := TRUE;
   
-  relOpTest[1].label := "CARD64.eq(0, 1)";
-  relOpTest[1].proc := CARD64.eq;
+  (* operands *)
+  relOpTest[1].args := "(0, 1)";
   relOpTest[1].left.highBits := 0;
   relOpTest[1].left.lowBits := 0;
   relOpTest[1].right.highBits := 0;
   relOpTest[1].right.lowBits := 1;
-  relOpTest[1].expected := FALSE;
-  
-  relOpTest[2].label := "CARD64.eq(1, 0)";
-  relOpTest[2].proc := CARD64.eq;
+
+  (* expected results *)
+  relopTest[1].operation[Eq].expected := FALSE;
+  relopTest[1].operation[Neq].expected := TRUE;
+  relopTest[1].operation[Lt].expected := TRUE;
+  relopTest[1].operation[Lteq].expected := TRUE;
+  relopTest[1].operation[Gt].expected := FALSE;
+  relopTest[1].operation[Gteq].expected := FALSE;
+   
+  (* operands *)
+  relOpTest[2].args := "(1, 0)";
   relOpTest[2].left.highBits := 0;
   relOpTest[2].left.lowBits := 1;
   relOpTest[2].right.highBits := 0;
   relOpTest[2].right.lowBits := 0;
-  relOpTest[2].expected := FALSE;
+
+  (* expected results *)
+  relopTest[2].operation[Eq].expected := FALSE;
+  relopTest[2].operation[Neq].expected := TRUE;
+  relopTest[2].operation[Lt].expected := FALSE;
+  relopTest[2].operation[Lteq].expected := FALSE;
+  relopTest[2].operation[Gt].expected := TRUE;
+  relopTest[2].operation[Gteq].expected := TRUE;
+   
+  (* operands *)
+  relOpTest[3].args := "(1, MAX(LONGCARD)+2)";
+  relOpTest[3].left.highBits := 0;
+  relOpTest[3].left.lowBits := 1;
+  relOpTest[3].right.highBits := 1;
+  relOpTest[3].right.lowBits := 1;
+
+  (* expected results *)
+  relopTest[3].operation[Eq].expected := FALSE;
+  relopTest[3].operation[Neq].expected := TRUE;
+  relopTest[3].operation[Lt].expected := TRUE;
+  relopTest[3].operation[Lteq].expected := TRUE;
+  relopTest[3].operation[Gt].expected := FALSE;
+  relopTest[3].operation[Gteq].expected := FALSE;
   
-  relOpTest[3].label := "CARD64.eq(MAX(LONGCARD)+1, 0)";
-  relOpTest[3].proc := CARD64.eq;
-  relOpTest[3].left.highBits := 1;
-  relOpTest[3].left.lowBits := 0;
-  relOpTest[3].right.highBits := 0;
-  relOpTest[3].right.lowBits := 0;
-  relOpTest[3].expected := FALSE;
-  
-  relOpTest[4].label := "CARD64.eq(MAX(LONGCARD)+2, 1)";
-  relOpTest[4].proc := CARD64.eq;
-  relOpTest[4].left.highBits := 1;
-  relOpTest[4].left.lowBits := 1;
+  (* operands *)
+  relOpTest[4].args := "(MAX(LONGCARD), 0)";
+  relOpTest[4].left.highBits := 0;
+  relOpTest[4].left.lowBits := 0FFFFFFFFH;
   relOpTest[4].right.highBits := 0;
-  relOpTest[4].right.lowBits := 1;
-  relOpTest[4].expected := FALSE;
-  
-  relOpTest[5].label := "CARD64.neq(0, 0)";
-  relOpTest[5].proc := CARD64.neq;
+  relOpTest[4].right.lowBits := 0;
+
+  (* expected results *)
+  relopTest[4].operation[Eq].expected := FALSE;
+  relopTest[4].operation[Neq].expected := TRUE;
+  relopTest[4].operation[Lt].expected := FALSE;
+  relopTest[4].operation[Lteq].expected := FALSE;
+  relopTest[4].operation[Gt].expected := TRUE;
+  relopTest[4].operation[Gteq].expected := TRUE;
+   
+  (* operands *)
+  relOpTest[5].args := "(MAX(LONGCARD), (MAX(LONGCARD)+1)";
   relOpTest[5].left.highBits := 0;
-  relOpTest[5].left.lowBits := 0;
-  relOpTest[5].right.highBits := 0;
+  relOpTest[5].left.lowBits := 0FFFFFFFFH;
+  relOpTest[5].right.highBits := 1;
   relOpTest[5].right.lowBits := 0;
-  relOpTest[5].expected := FALSE;
+
+  (* expected results *)
+  relopTest[5].operation[Eq].expected := FALSE;
+  relopTest[5].operation[Neq].expected := TRUE;
+  relopTest[5].operation[Lt].expected := TRUE;
+  relopTest[5].operation[Lteq].expected := TRUE;
+  relopTest[5].operation[Gt].expected := FALSE;
+  relopTest[5].operation[Gteq].expected := FALSE;
   
-  relOpTest[6].label := "CARD64.neq(0, 1)";
-  relOpTest[6].proc := CARD64.neq;
-  relOpTest[6].left.highBits := 0;
+  (* operands *)
+  relOpTest[6].args := "(MAX(LONGCARD)+1, 0)";
+  relOpTest[6].left.highBits := 1;
   relOpTest[6].left.lowBits := 0;
   relOpTest[6].right.highBits := 0;
-  relOpTest[6].right.lowBits := 1;
-  relOpTest[6].expected := TRUE;
-  
-  relOpTest[7].label := "CARD64.neq(1, 0)";
-  relOpTest[7].proc := CARD64.neq;
-  relOpTest[7].left.highBits := 0;
-  relOpTest[7].left.lowBits := 1;
-  relOpTest[7].right.highBits := 0;
-  relOpTest[7].right.lowBits := 0;
-  relOpTest[7].expected := TRUE;
-  
-  relOpTest[8].label := "CARD64.neq(MAX(LONGCARD)+1, 0)";
-  relOpTest[8].proc := CARD64.neq;
-  relOpTest[8].left.highBits := 1;
-  relOpTest[8].left.lowBits := 0;
-  relOpTest[8].right.highBits := 0;
-  relOpTest[8].right.lowBits := 0;
-  relOpTest[8].expected := TRUE;
-  
-  relOpTest[9].label := "CARD64.neq(MAX(LONGCARD)+2, 1)";
-  relOpTest[9].proc := CARD64.neq;
-  relOpTest[9].left.highBits := 1;
-  relOpTest[9].left.lowBits := 1;
-  relOpTest[9].right.highBits := 0;
-  relOpTest[9].right.lowBits := 1;
-  relOpTest[9].expected := TRUE;
-  
-  relOpTest[10].label := "CARD64.lt(0, 0)";
-  relOpTest[10].proc := CARD64.lt;
-  relOpTest[10].left.highBits := 0;
-  relOpTest[10].left.lowBits := 0;
-  relOpTest[10].right.highBits := 0;
-  relOpTest[10].right.lowBits := 0;
-  relOpTest[10].expected := FALSE;
-  
-  relOpTest[11].label := "CARD64.lt(0, 1)";
-  relOpTest[11].proc := CARD64.lt;
-  relOpTest[11].left.highBits := 0;
-  relOpTest[11].left.lowBits := 0;
-  relOpTest[11].right.highBits := 0;
-  relOpTest[11].right.lowBits := 1;
-  relOpTest[11].expected := TRUE;
-  
-  relOpTest[12].label := "CARD64.lt(1, 0)";
-  relOpTest[12].proc := CARD64.lt;
-  relOpTest[12].left.highBits := 0;
-  relOpTest[12].left.lowBits := 1;
-  relOpTest[12].right.highBits := 0;
-  relOpTest[12].right.lowBits := 0;
-  relOpTest[12].expected := FALSE;
-  
-  relOpTest[13].label := "CARD64.lt(1, MAX(LONGCARD)+2)";
-  relOpTest[13].proc := CARD64.lt;
-  relOpTest[13].left.highBits := 0;
-  relOpTest[13].left.lowBits := 1;
-  relOpTest[13].right.highBits := 1;
-  relOpTest[13].right.lowBits := 1;
-  relOpTest[13].expected := TRUE;
-  
-  relOpTest[14].label := "CARD64.lt(MAX(LONGCARD)+2, 1)";
-  relOpTest[14].proc := CARD64.lt;
-  relOpTest[14].left.highBits := 1;
-  relOpTest[14].left.lowBits := 1;
-  relOpTest[14].right.highBits := 0;
-  relOpTest[14].right.lowBits := 1;
-  relOpTest[14].expected := FALSE;
-  
-  relOpTest[15].label := "CARD64.lt(MAX(LONGCARD), MAX(LONGCARD)+1)";
-  relOpTest[15].proc := CARD64.lt;
-  relOpTest[15].left.highBits := 0;
-  relOpTest[15].left.lowBits := 0FFFFFFFFH;
-  relOpTest[15].right.highBits := 1;
-  relOpTest[15].right.lowBits := 0;
-  relOpTest[15].expected := TRUE;
-  
-  relOpTest[16].label := "CARD64.lt(MAX(LONGCARD)+1, MAX(LONGCARD))";
-  relOpTest[16].proc := CARD64.lt;
-  relOpTest[16].left.highBits := 1;
-  relOpTest[16].left.lowBits := 0;
-  relOpTest[16].right.highBits := 0;
-  relOpTest[16].right.lowBits := 0FFFFFFFFH;
-  relOpTest[16].expected := FALSE;
-  
-  relOpTest[17].label := "CARD64.lt(MAX(CARD64T)-1, MAX(CARD64T))";
-  relOpTest[17].proc := CARD64.lt;
-  relOpTest[17].left.highBits := 0FFFFFFFFH;
-  relOpTest[17].left.lowBits := 0FFFFFFFEH;
-  relOpTest[17].right.highBits := 0FFFFFFFFH;
-  relOpTest[17].right.lowBits := 0FFFFFFFFH;
-  relOpTest[17].expected := TRUE;
-  
-  relOpTest[18].label := "CARD64.lt(MAX(CARD64T), MAX(CARD64T))";
-  relOpTest[18].proc := CARD64.lt;
-  relOpTest[18].left.highBits := 0FFFFFFFFH;
-  relOpTest[18].left.lowBits := 0FFFFFFFFH;
-  relOpTest[18].right.highBits := 0FFFFFFFFH;
-  relOpTest[18].right.lowBits := 0FFFFFFFFH;
-  relOpTest[18].expected := FALSE;
-  
-  relOpTest[19].label := "CARD64.lteq(0, 0)";
-  relOpTest[19].proc := CARD64.lteq;
-  relOpTest[19].left.highBits := 0;
-  relOpTest[19].left.lowBits := 0;
-  relOpTest[19].right.highBits := 0;
-  relOpTest[19].right.lowBits := 0;
-  relOpTest[19].expected := TRUE;
-  
-  relOpTest[20].label := "CARD64.lteq(0, 1)";
-  relOpTest[20].proc := CARD64.lteq;
-  relOpTest[20].left.highBits := 0;
-  relOpTest[20].left.lowBits := 0;
-  relOpTest[20].right.highBits := 0;
-  relOpTest[20].right.lowBits := 1;
-  relOpTest[20].expected := TRUE;
-  
-  relOpTest[21].label := "CARD64.lteq(1, 0)";
-  relOpTest[21].proc := CARD64.lteq;
-  relOpTest[21].left.highBits := 0;
-  relOpTest[21].left.lowBits := 1;
-  relOpTest[21].right.highBits := 0;
-  relOpTest[21].right.lowBits := 0;
-  relOpTest[21].expected := FALSE;
-  
-  relOpTest[22].label := "CARD64.lteq(1, MAX(LONGCARD)+2)";
-  relOpTest[22].proc := CARD64.lteq;
-  relOpTest[22].left.highBits := 0;
-  relOpTest[22].left.lowBits := 1;
-  relOpTest[22].right.highBits := 1;
-  relOpTest[22].right.lowBits := 1;
-  relOpTest[22].expected := TRUE;
-  
-  relOpTest[23].label := "CARD64.lteq(MAX(LONGCARD)+2, 1)";
-  relOpTest[23].proc := CARD64.lteq;
-  relOpTest[23].left.highBits := 1;
-  relOpTest[23].left.lowBits := 1;
-  relOpTest[23].right.highBits := 0;
-  relOpTest[23].right.lowBits := 1;
-  relOpTest[23].expected := FALSE;
-  
-  relOpTest[24].label := "CARD64.lteq(MAX(LONGCARD), MAX(LONGCARD)+1)";
-  relOpTest[24].proc := CARD64.lteq;
-  relOpTest[24].left.highBits := 0;
-  relOpTest[24].left.lowBits := 0FFFFFFFFH;
-  relOpTest[24].right.highBits := 1;
-  relOpTest[24].right.lowBits := 0;
-  relOpTest[24].expected := TRUE;
-  
-  relOpTest[25].label := "CARD64.lteq(MAX(LONGCARD)+1, MAX(LONGCARD))";
-  relOpTest[25].proc := CARD64.lteq;
-  relOpTest[25].left.highBits := 1;
-  relOpTest[25].left.lowBits := 0;
-  relOpTest[25].right.highBits := 0;
-  relOpTest[25].right.lowBits := 0FFFFFFFFH;
-  relOpTest[25].expected := FALSE;
-  
-  relOpTest[26].label := "CARD64.lteq(MAX(CARD64T)-1, MAX(CARD64T))";
-  relOpTest[26].proc := CARD64.lteq;
-  relOpTest[26].left.highBits := 0FFFFFFFFH;
-  relOpTest[26].left.lowBits := 0FFFFFFFEH;
-  relOpTest[26].right.highBits := 0FFFFFFFFH;
-  relOpTest[26].right.lowBits := 0FFFFFFFFH;
-  relOpTest[26].expected := TRUE;
-  
-  relOpTest[27].label := "CARD64.lteq(MAX(CARD64T), MAX(CARD64T))";
-  relOpTest[27].proc := CARD64.lteq;
-  relOpTest[27].left.highBits := 0FFFFFFFFH;
-  relOpTest[27].left.lowBits := 0FFFFFFFFH;
-  relOpTest[27].right.highBits := 0FFFFFFFFH;
-  relOpTest[27].right.lowBits := 0FFFFFFFFH;
-  relOpTest[27].expected := TRUE;
-  
-  relOpTest[28].label := "CARD64.gt(0, 0)";
-  relOpTest[28].proc := CARD64.gt;
-  relOpTest[28].left.highBits := 0;
-  relOpTest[28].left.lowBits := 0;
-  relOpTest[28].right.highBits := 0;
-  relOpTest[28].right.lowBits := 0;
-  relOpTest[28].expected := FALSE;
-  
-  relOpTest[29].label := "CARD64.gt(0, 1)";
-  relOpTest[29].proc := CARD64.gt;
-  relOpTest[29].left.highBits := 0;
-  relOpTest[29].left.lowBits := 0;
-  relOpTest[29].right.highBits := 0;
-  relOpTest[29].right.lowBits := 1;
-  relOpTest[29].expected := FALSE;
-  
-  relOpTest[30].label := "CARD64.gt(1, 0)";
-  relOpTest[30].proc := CARD64.gt;
-  relOpTest[30].left.highBits := 0;
-  relOpTest[30].left.lowBits := 1;
-  relOpTest[30].right.highBits := 0;
-  relOpTest[30].right.lowBits := 0;
-  relOpTest[30].expected := TRUE;
-  
-  relOpTest[31].label := "CARD64.gt(1, MAX(LONGCARD)+2)";
-  relOpTest[31].proc := CARD64.gt;
-  relOpTest[31].left.highBits := 0;
-  relOpTest[31].left.lowBits := 1;
-  relOpTest[31].right.highBits := 1;
-  relOpTest[31].right.lowBits := 1;
-  relOpTest[31].expected := FALSE;
-  
-  relOpTest[32].label := "CARD64.gt(MAX(LONGCARD)+2, 1)";
-  relOpTest[32].proc := CARD64.gt;
-  relOpTest[32].left.highBits := 1;
-  relOpTest[32].left.lowBits := 1;
-  relOpTest[32].right.highBits := 0;
-  relOpTest[32].right.lowBits := 1;
-  relOpTest[32].expected := TRUE;
-  
-  relOpTest[33].label := "CARD64.gt(MAX(LONGCARD), MAX(LONGCARD)+1)";
-  relOpTest[33].proc := CARD64.gt;
-  relOpTest[33].left.highBits := 0;
-  relOpTest[33].left.lowBits := 0FFFFFFFFH;
-  relOpTest[33].right.highBits := 1;
-  relOpTest[33].right.lowBits := 0;
-  relOpTest[33].expected := FALSE;
-  
-  relOpTest[34].label := "CARD64.gt(MAX(LONGCARD)+1, MAX(LONGCARD))";
-  relOpTest[34].proc := CARD64.gt;
-  relOpTest[34].left.highBits := 1;
-  relOpTest[34].left.lowBits := 0;
-  relOpTest[34].right.highBits := 0;
-  relOpTest[34].right.lowBits := 0FFFFFFFFH;
-  relOpTest[34].expected := TRUE;
-  
-  relOpTest[35].label := "CARD64.gt(MAX(CARD64T)-1, MAX(CARD64T))";
-  relOpTest[35].proc := CARD64.gt;
-  relOpTest[35].left.highBits := 0FFFFFFFFH;
-  relOpTest[35].left.lowBits := 0FFFFFFFEH;
-  relOpTest[35].right.highBits := 0FFFFFFFFH;
-  relOpTest[35].right.lowBits := 0FFFFFFFFH;
-  relOpTest[35].expected := FALSE;
+  relOpTest[6].right.lowBits := 0;
 
-  relOpTest[36].label := "CARD64.gt(MAX(CARD64T), MAX(CARD64T))";
-  relOpTest[36].proc := CARD64.gt;
-  relOpTest[36].left.highBits := 0FFFFFFFFH;
-  relOpTest[36].left.lowBits := 0FFFFFFFFH;
-  relOpTest[36].right.highBits := 0FFFFFFFFH;
-  relOpTest[36].right.lowBits := 0FFFFFFFFH;
-  relOpTest[36].expected := FALSE;
+  (* expected results *)
+  relopTest[6].operation[Eq].expected := FALSE;
+  relopTest[6].operation[Neq].expected := TRUE;
+  relopTest[6].operation[Lt].expected := FALSE;
+  relopTest[6].operation[Lteq].expected := FALSE;
+  relopTest[6].operation[Gt].expected := TRUE;
+  relopTest[6].operation[Gteq].expected := TRUE;
+   
+  (* operands *)
+  relOpTest[7].args := "(MAX(LONGCARD)+1, MAX(LONGCARD))";
+  relOpTest[7].left.highBits := 1;
+  relOpTest[7].left.lowBits := 0;
+  relOpTest[7].right.highBits := 0;
+  relOpTest[7].right.lowBits := 0FFFFFFFFH;
+
+  (* expected results *)
+  relopTest[7].operation[Eq].expected := FALSE;
+  relopTest[7].operation[Neq].expected := TRUE;
+  relopTest[7].operation[Lt].expected := FALSE;
+  relopTest[7].operation[Lteq].expected := FALSE;
+  relopTest[7].operation[Gt].expected := TRUE;
+  relopTest[7].operation[Gteq].expected := TRUE;
+   
+  (* operands *)
+  relOpTest[8].args := "(MAX(LONGCARD)+2, 1)";
+  relOpTest[8].left.highBits := 1;
+  relOpTest[8].left.lowBits := 1;
+  relOpTest[8].right.highBits := 0;
+  relOpTest[8].right.lowBits := 1;
+
+  (* expected results *)
+  relopTest[8].operation[Eq].expected := FALSE;
+  relopTest[8].operation[Neq].expected := TRUE;
+  relopTest[8].operation[Lt].expected := FALSE;
+  relopTest[8].operation[Lteq].expected := FALSE;
+  relopTest[8].operation[Gt].expected := TRUE;
+  relopTest[8].operation[Gteq].expected := TRUE;
   
-  relOpTest[37].label := "CARD64.gteq(0, 0)";
-  relOpTest[37].proc := CARD64.gteq;
-  relOpTest[37].left.highBits := 0;
-  relOpTest[37].left.lowBits := 0;
-  relOpTest[37].right.highBits := 0;
-  relOpTest[37].right.lowBits := 0;
-  relOpTest[37].expected := TRUE;
+  (* operands *)
+  relOpTest[9].args := "(MAX(CARD64T)-1, MAX(CARD64T))";
+  relOpTest[9].left.highBits := 0FFFFFFFFH;
+  relOpTest[9].left.lowBits := 0FFFFFFFEH;
+  relOpTest[9].right.highBits := 0FFFFFFFFH;
+  relOpTest[9].right.lowBits := 0FFFFFFFFH;
   
-  relOpTest[38].label := "CARD64.gteq(0, 1)";
-  relOpTest[38].proc := CARD64.gteq;
-  relOpTest[38].left.highBits := 0;
-  relOpTest[38].left.lowBits := 0;
-  relOpTest[38].right.highBits := 0;
-  relOpTest[38].right.lowBits := 1;
-  relOpTest[38].expected := FALSE;
+  (* expected results *)
+  relopTest[9].operation[Eq].expected := FALSE;
+  relopTest[9].operation[Neq].expected := TRUE;
+  relopTest[9].operation[Lt].expected := TRUE;
+  relopTest[9].operation[Lteq].expected := TRUE;
+  relopTest[9].operation[Gt].expected := FALSE;
+  relopTest[9].operation[Gteq].expected := FALSE;
   
-  relOpTest[39].label := "CARD64.gteq(1, 0)";
-  relOpTest[39].proc := CARD64.gteq;
-  relOpTest[39].left.highBits := 0;
-  relOpTest[39].left.lowBits := 1;
-  relOpTest[39].right.highBits := 0;
-  relOpTest[39].right.lowBits := 0;
-  relOpTest[39].expected := TRUE;
-  
-  relOpTest[40].label := "CARD64.gteq(1, MAX(LONGCARD)+2)";
-  relOpTest[40].proc := CARD64.gteq;
-  relOpTest[40].left.highBits := 0;
-  relOpTest[40].left.lowBits := 1;
-  relOpTest[40].right.highBits := 1;
-  relOpTest[40].right.lowBits := 1;
-  relOpTest[40].expected := FALSE;
-  
-  relOpTest[41].label := "CARD64.gteq(MAX(LONGCARD)+2, 1)";
-  relOpTest[41].proc := CARD64.gteq;
-  relOpTest[41].left.highBits := 1;
-  relOpTest[41].left.lowBits := 1;
-  relOpTest[41].right.highBits := 0;
-  relOpTest[41].right.lowBits := 1;
-  relOpTest[41].expected := TRUE;
-  
-  relOpTest[42].label := "CARD64.gteq(MAX(LONGCARD), MAX(LONGCARD)+1)";
-  relOpTest[42].proc := CARD64.gteq;
-  relOpTest[42].left.highBits := 0;
-  relOpTest[42].left.lowBits := 0FFFFFFFFH;
-  relOpTest[42].right.highBits := 1;
-  relOpTest[42].right.lowBits := 0;
-  relOpTest[42].expected := FALSE;
-  
-  relOpTest[43].label := "CARD64.gteq(MAX(LONGCARD)+1, MAX(LONGCARD))";
-  relOpTest[43].proc := CARD64.gteq;
-  relOpTest[43].left.highBits := 1;
-  relOpTest[43].left.lowBits := 0;
-  relOpTest[43].right.highBits := 0;
-  relOpTest[43].right.lowBits := 0FFFFFFFFH;
-  relOpTest[43].expected := TRUE;
-  
-  relOpTest[44].label := "CARD64.gteq(MAX(CARD64T)-1, MAX(CARD64T))";
-  relOpTest[44].proc := CARD64.gteq;
-  relOpTest[44].left.highBits := 0FFFFFFFFH;
-  relOpTest[44].left.lowBits := 0FFFFFFFEH;
-  relOpTest[44].right.highBits := 0FFFFFFFFH;
-  relOpTest[44].right.lowBits := 0FFFFFFFFH;
-  relOpTest[44].expected := FALSE;
-  
-  relOpTest[45].label := "CARD64.gteq(MAX(CARD64T), MAX(CARD64T))";
-  relOpTest[45].proc := CARD64.gteq;
-  relOpTest[45].left.highBits := 0FFFFFFFFH;
-  relOpTest[45].left.lowBits := 0FFFFFFFFH;
-  relOpTest[45].right.highBits := 0FFFFFFFFH;
-  relOpTest[45].right.lowBits := 0FFFFFFFFH;
-  relOpTest[45].expected := TRUE
+  (* operands *)
+  relOpTest[10].args := "(MAX(CARD64T), MAX(CARD64T))";
+  relOpTest[10].left.highBits := 0FFFFFFFFH;
+  relOpTest[10].left.lowBits := 0FFFFFFFFH;
+  relOpTest[10].right.highBits := 0FFFFFFFFH;
+  relOpTest[10].right.lowBits := 0FFFFFFFFH;
+
+  (* expected results *)
+  relopTest[10].operation[Eq].expected := TRUE;
+  relopTest[10].operation[Neq].expected := FALSE;
+  relopTest[10].operation[Lt].expected := FALSE;
+  relopTest[10].operation[Lteq].expected := TRUE;
+  relopTest[10].operation[Gt].expected := FALSE;
+  relopTest[10].operation[Gteq].expected := TRUE
 END InitRelOpTests;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  RunRelOpTest(test, passed, failed)
+ * Procedure:  RunRelOpTest(relOp, test, passed, failed)
  * --------------------------------------------------------------------------
  * Run test and update the appropriate counter. 
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE RunRelOpTest
-  ( test : RelOpTest; VAR passed, failed : CARDINAL );
+  ( relOp : RelOpId; test : RelOpTest; VAR passed, failed : CARDINAL );
 VAR
   res : BOOLEAN;
 BEGIN
-  PrintLabel(test.label);
+  PrintLabelForRelOp(relOp, test.args);
   
-  res := test.proc(test.left, test.right);
+  res := test.operation[relOp].proc(test.left, test.right);
   PrintBoolResult(res);
-  IF (res = test.expected) THEN
+  IF (res = test.operation[relOp].expected) THEN
     InOut.WriteString(PassNotice);
     INC(passed)
   ELSE
@@ -805,10 +621,13 @@ END RunRelOpTest;
 
 PROCEDURE RunRelOpTests ( VAR passed, failed : CARDINAL );
 VAR
+  relOp : RelOpId;
   index : CARDINAL;
 BEGIN
-  FOR index := 0 TO RelOpTestCount-1 DO
-    RunRelOpTest(relOpTest[index], passed, failed)
+  FOR relOp := MIN(RelOpId) TO MAX(RelOpId) DO
+    FOR index := 0 TO RelOpTestGroupCount-1 DO
+      RunRelOpTest(relOp, relOpTest[index], passed, failed)
+    END (* FOR *)
   END (* FOR *)
 END RunRelOpTests;
 
@@ -826,6 +645,29 @@ BEGIN
   InOut.WriteString(" ***");
   InOut.WriteLn;
 END PrintLabel;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  PrintLabelForRelOp(label)
+ * --------------------------------------------------------------------------
+ * Prints test label string for relOp with args. 
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE PrintLabelForRelOp ( relOp : RelOpId; args : LabelString );
+BEGIN
+  InOut.WriteString("*** ");
+  CASE relOp OF
+    Eq   : InOut.WriteString("CARD64.eq")
+  | Neq  : InOut.WriteString("CARD64.neq")
+  | Lt   : InOut.WriteString("CARD64.lt")
+  | Lteq : InOut.WriteString("CARD64.lteq")
+  | Gt   : InOut.WriteString("CARD64.gt")
+  | Gteq : InOut.WriteString("CARD64.gteq")
+  END; (* CASE *)
+  InOut.WriteString(args);
+  InOut.WriteString(" ***");
+  InOut.WriteLn;
+END PrintLabelForRelOp;
 
 
 (* --------------------------------------------------------------------------
