@@ -858,7 +858,7 @@ END PrintBoolResult;
  * Module initialisation
  * ----------------------------------------------------------------------- *)
 
-BEGIN (* TestCard64RelOps *)
+BEGIN (* TestInt64RelOps *)
   InitConstCompTests;
   InitOddEvenTests;
   InitRelOpTests
