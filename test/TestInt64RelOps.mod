@@ -47,7 +47,7 @@ BEGIN
   InOut.WriteString("Relational Operation Tests for INT64");
   InOut.WriteLn; InOut.WriteLn;
   
-  (* run all conversion tests *)
+  (* run all relational operation tests *)
   RunRelOpTests(passed, failed);
   
   (* print summary *)
