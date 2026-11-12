@@ -750,17 +750,17 @@ END InitRelOpTests;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  RunRelOpTest(test, passed, failed)
+ * Procedure:  RunRelOpTest(relOp, test, passed, failed)
  * --------------------------------------------------------------------------
  * Run test and update the appropriate counter. 
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE RunRelOpTest
-  ( test : RelOpTest; VAR passed, failed : CARDINAL );
+  ( relOp : RelOpId; test : RelOpTest; VAR passed, failed : CARDINAL );
 VAR
   res : BOOLEAN;
 BEGIN
-  PrintLabel(test.label);
+  PrintLabelForRelOp(relOpId, test.args);
   
   res := test.proc(test.left, test.right);
   PrintBoolResult(res);
@@ -785,10 +785,13 @@ END RunRelOpTest;
 
 PROCEDURE RunRelOpTests ( VAR passed, failed : CARDINAL );
 VAR
+  relOp : RelOpId;
   index : CARDINAL;
 BEGIN
-  FOR index := 0 TO RelOpTestCount-1 DO
-    RunRelOpTest(relOpTest[index], passed, failed)
+  FOR relOp := MIN(RelOpId) TO MAX(RelOpId) DO
+    FOR index := 0 TO RelOpTestCount-1 DO
+      RunRelOpTest(relOp, relOpTest[index], passed, failed)
+    END (* FOR *)
   END (* FOR *)
 END RunRelOpTests;
 
@@ -806,6 +809,29 @@ BEGIN
   InOut.WriteString(" ***");
   InOut.WriteLn;
 END PrintLabel;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  PrintLabelForRelOp(label)
+ * --------------------------------------------------------------------------
+ * Prints test label string for relOp with args. 
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE PrintLabelForRelOp ( relOp : RelOpId; args : LabelString );
+BEGIN
+  InOut.WriteString("*** ");
+  CASE relOp OF
+    Eq   : InOut.WriteString("INT64.eq")
+  | Neq  : InOut.WriteString("INT64.neq")
+  | Lt   : InOut.WriteString("INT64.lt")
+  | Lteq : InOut.WriteString("INT64.lteq")
+  | Gt   : InOut.WriteString("INT64.gt")
+  | Gteq : InOut.WriteString("INT64.gteq")
+  END; (* CASE *)
+  InOut.WriteString(args);
+  InOut.WriteString(" ***");
+  InOut.WriteLn;
+END PrintLabelForRelOp;
 
 
 (* --------------------------------------------------------------------------
