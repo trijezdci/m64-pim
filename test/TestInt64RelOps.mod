@@ -443,8 +443,8 @@ BEGIN
     relopTest[index].operation[Neq].proc := INT64.neq;
     relopTest[index].operation[Lt].proc := INT64.lt;
     relopTest[index].operation[Lteq].proc := INT64.lteq;
-    relopTest[index].operation[Lt].proc := INT64.gt;
-    relopTest[index].operation[Lteq].proc := INT64.gteq
+    relopTest[index].operation[Gt].proc := INT64.gt;
+    relopTest[index].operation[Gteq].proc := INT64.gteq
   END; (* FOR *)
   
   (* operands *)
@@ -509,7 +509,6 @@ BEGIN
    
   (* operands *)
   relOpTest[4].args := "(MAX(LONGCARD)+2, 1)";
-  relOpTest[4].proc := INT64.eq;
   relOpTest[4].left.highBits := 1;
   relOpTest[4].left.lowBits := 1;
   relOpTest[4].right.highBits := 0;
@@ -563,10 +562,10 @@ BEGIN
   (* expected results *)
   relopTest[7].operation[Eq].expected := FALSE;
   relopTest[7].operation[Neq].expected := TRUE;
-  relopTest[7].operation[Lt].expected := TRUE;
-  relopTest[7].operation[Lteq].expected := TRUE;
-  relopTest[7].operation[Gt].expected := FALSE;
-  relopTest[7].operation[Gteq].expected := FALSE;
+  relopTest[7].operation[Lt].expected := FALSE;
+  relopTest[7].operation[Lteq].expected := FALSE;
+  relopTest[7].operation[Gt].expected := TRUE;
+  relopTest[7].operation[Gteq].expected := TRUE;
   
   (* operands *)
   relOpTest[8].args := "(-1, 1)";
@@ -594,7 +593,7 @@ BEGIN
   relopTest[9].operation[Eq].expected := FALSE;
   relopTest[9].operation[Neq].expected := TRUE;
   relopTest[9].operation[Lt].expected := FALSE;
-  relopTest[9].operation[Lteq].expected := TRUE;
+  relopTest[9].operation[Lteq].expected := FALSE;
   relopTest[9].operation[Gt].expected := TRUE;
   relopTest[9].operation[Gteq].expected := TRUE;
   
