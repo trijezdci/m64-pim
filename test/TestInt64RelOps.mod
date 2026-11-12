@@ -429,7 +429,7 @@ END; (* RelOpTest *)
 
 CONST RelOpTestGroupCount = 20;
 
-CONST RelOpTestCount = RelOpTestGroupCount * ORD(MAX(RelOpId)+1);
+CONST RelOpTestCount = RelOpTestGroupCount * ORD(MAX(RelOpId))+1;
 
 VAR relOpTest : ARRAY [0..RelOpTestGroupCount-1] OF RelOpTest;
 
@@ -760,11 +760,11 @@ PROCEDURE RunRelOpTest
 VAR
   res : BOOLEAN;
 BEGIN
-  PrintLabelForRelOp(relOpId, test.args);
+  PrintLabelForRelOp(relOp, test.args);
   
-  res := test.operation.proc(test.left, test.right);
+  res := test.operation[relOp].proc(test.left, test.right);
   PrintBoolResult(res);
-  IF (res = test.operation.expected) THEN
+  IF (res = test.operation[relOp].expected) THEN
     InOut.WriteString(PassNotice);
     INC(passed)
   ELSE
@@ -789,7 +789,7 @@ VAR
   index : CARDINAL;
 BEGIN
   FOR relOp := MIN(RelOpId) TO MAX(RelOpId) DO
-    FOR index := 0 TO RelOpTestCount-1 DO
+    FOR index := 0 TO RelOpTestGroupCount-1 DO
       RunRelOpTest(relOp, relOpTest[index], passed, failed)
     END (* FOR *)
   END (* FOR *)
