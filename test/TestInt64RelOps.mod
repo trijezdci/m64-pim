@@ -185,41 +185,41 @@ BEGIN
   constCompTest[5].operand.lowBits := 0;
   constCompTest[5].expected := FALSE;
   
-  constCompTest.label := "INT64.isMin(0:0)";
-  constCompTest.proc := INT64.isMin;
-  constCompTest.operand.highBits := 0;
-  constCompTest.operand.lowBits := 0;
-  constCompTest.expected := FALSE;
+  constCompTest[6].label := "INT64.isMin(0:0)";
+  constCompTest[6].proc := INT64.isMin;
+  constCompTest[6].operand.highBits := 0;
+  constCompTest[6].operand.lowBits := 0;
+  constCompTest[6].expected := FALSE;
   
-  constCompTest.label := "INT64.isMin(080000000:1)";
-  constCompTest.proc := INT64.isMin;
-  constCompTest.operand.highBits := -2147483648;
-  constCompTest.operand.lowBits := 1;
-  constCompTest.expected := FALSE;
+  constCompTest[7].label := "INT64.isMin(080000000:1)";
+  constCompTest[7].proc := INT64.isMin;
+  constCompTest[7].operand.highBits := -2147483648;
+  constCompTest[7].operand.lowBits := 1;
+  constCompTest[7].expected := FALSE;
   
-  constCompTest.label := "INT64.isMin(080000000:0)";
-  constCompTest.proc := INT64.isMin;
-  constCompTest.operand.highBits := -2147483648;
-  constCompTest.operand.lowBits := 0;
-  constCompTest.expected := TRUE;
+  constCompTest[8].label := "INT64.isMin(080000000:0)";
+  constCompTest[8].proc := INT64.isMin;
+  constCompTest[8].operand.highBits := -2147483648;
+  constCompTest[8].operand.lowBits := 0;
+  constCompTest[8].expected := TRUE;
   
-  constCompTest.label := "INT64.isMax(0:0FFFFFFFF)";
-  constCompTest.proc := INT64.isMax;
-  constCompTest.operand.highBits := 0;
-  constCompTest.operand.lowBits := 0FFFFFFFFH;
-  constCompTest.expected := FALSE;
+  constCompTest[9].label := "INT64.isMax(0:0FFFFFFFF)";
+  constCompTest[9].proc := INT64.isMax;
+  constCompTest[9].operand.highBits := 0;
+  constCompTest[9].operand.lowBits := 0FFFFFFFFH;
+  constCompTest[9].expected := FALSE;
   
-  constCompTest.label := "INT64.isMax(07FFFFFFF:0FFFFFFFE)";
-  constCompTest.proc := INT64.isMax;
-  constCompTest.operand.highBits := 2147483647;
-  constCompTest.operand.lowBits := 0FFFFFFFEH;
-  constCompTest.expected := FALSE;
+  constCompTest[10].label := "INT64.isMax(07FFFFFFF:0FFFFFFFE)";
+  constCompTest[10].proc := INT64.isMax;
+  constCompTest[10].operand.highBits := 2147483647;
+  constCompTest[10].operand.lowBits := 0FFFFFFFEH;
+  constCompTest[10].expected := FALSE;
   
-  constCompTest.label := "INT64.isMax(07FFFFFFF:0FFFFFFFF)";
-  constCompTest.proc := INT64.isMax;
-  constCompTest.operand.highBits := 2147483647;
-  constCompTest.operand.lowBits := 0FFFFFFFFH;
-  constCompTest.expected := TRUE
+  constCompTest[11].label := "INT64.isMax(07FFFFFFF:0FFFFFFFF)";
+  constCompTest[11].proc := INT64.isMax;
+  constCompTest[11].operand.highBits := 2147483647;
+  constCompTest[11].operand.lowBits := 0FFFFFFFFH;
+  constCompTest[11].expected := TRUE
 END InitConstCompTests;
 
 
