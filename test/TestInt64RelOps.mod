@@ -5,11 +5,9 @@ IMPLEMENTATION MODULE TestInt64RelOps;
 (* Test Suite for INT64 Relational Operations *)
 
 
-IMPORT INT64;
+IMPORT INT64, InOut;
 
 FROM INT64 IMPORT INT64T;
-
-IMPORT InOut;
 
 
 (* --------------------------------------------------------------------------
