@@ -730,7 +730,7 @@ BEGIN
   relopTest[18].operation[Lt].expected := TRUE;
   relopTest[18].operation[Lteq].expected := TRUE;
   relopTest[18].operation[Gt].expected := FALSE;
-  relopTest[18].operation[Gteq].expected := FALSE
+  relopTest[18].operation[Gteq].expected := FALSE;
   
   (* operands *)
   relOpTest[19].args := "(MIN(INT64T), MIN(INT64T))";
