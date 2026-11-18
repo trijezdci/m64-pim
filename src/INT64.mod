@@ -372,7 +372,7 @@ BEGIN
   (* shortcuts *)
   res[1] := CHR(0);
   IF isZero(i) THEN
-    re[0]s := "0";
+    res[0] := "0";
     stat := Success;
     RETURN
   ELSIF isOne(i) THEN
@@ -1261,6 +1261,6 @@ END InitPow2Table;
 (* Initialise data table *)
 
 BEGIN
-  minIntStr = "-9223372036854775808";
+  minIntStr := "-9223372036854775808";
   InitPow2Table
 END INT64.
