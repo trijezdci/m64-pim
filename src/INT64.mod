@@ -329,7 +329,7 @@ END ToLongInt;
  * Passes the unformatted decimal string representation of INT64T i in res.
  * ----------------------------------------------------------------------- *)
 
-VAR minIntStr : ARRAY [0..CARD64.MaxDecimalDigits+1] OF CHAR;
+VAR minIntStr : ARRAY [0..CARD64.MaxDecimalDigits+2] OF CHAR;
 
 PROCEDURE ToString
   ( i : INT64T; VAR res : ARRAY OF CHAR; VAR stat : Status );
