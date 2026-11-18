@@ -10,6 +10,7 @@ IMPLEMENTATION MODULE LongCardMath;
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE pow2 ( n : BitIndex ) : LONGCARD;
+BEGIN
   RETURN powerOf2[n]
 END pow2;
 
