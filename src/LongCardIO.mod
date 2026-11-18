@@ -151,15 +151,12 @@ VAR
   index : CARDINAL;
   rem, digitVal : LONGCARD;
 BEGIN
-  IF n = 0 THEN
-    digits := "0";
+  IF (n = 0) OR (n = 1) THEN
+    digits[0] := hexDigit[n];
+    digits[1] := CHR(0);
     count := 1;
     RETURN
-  ELSIF n = 1 THEN
-    digits := "1";
-    count := 1;
-    RETURN
-  END;
+  END; (* IF *)
   
   rem := n;
   (* calculate digit count *)
