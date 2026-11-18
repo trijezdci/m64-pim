@@ -1,6 +1,6 @@
 (*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
 
-IMPLEMENTATION MODULE LongCardMath;
+DEFINITION MODULE LongCardMath;
 
 FROM SYSTEM IMPORT
   TSIZE;
