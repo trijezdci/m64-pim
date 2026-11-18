@@ -108,7 +108,7 @@ BEGIN
       RETURN
     END; (* IF *)
     
-    MUL(val, ten, val, stat);
+    Mul(val, ten, val, stat);
     IF stat # Success THEN
       RETURN
     END; (* IF *)
@@ -192,12 +192,13 @@ BEGIN
   END; (* IF *)
   
   (* shortcuts *)
+  res[1] := CHR(0);
   IF isZero(n) THEN
-    res := "0";
+    res[0] := "0";
     stat := Success;
     RETURN
   ELSIF isOne(n) THEN
-    res := "1";
+    res[0] := "1";
     stat := Success;
     RETURN
   END; (* IF *)
@@ -213,8 +214,8 @@ BEGIN
   (* compute digits right to left *)
   WHILE index > 0 DO
     DEC(index);
-    CARD64.Mod(rem, ten, digitVal, stat);
-    CARD64.Div(rem, ten, rem, stat);
+    Mod(rem, ten, digitVal, stat);
+    Div(rem, ten, rem, stat);
     res[index] := CHR(ORD("0") + CARDINAL(digitVal.lowBits))
   END (* WHILE *)
 END ToString;
