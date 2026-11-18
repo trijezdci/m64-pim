@@ -106,7 +106,7 @@ VAR
   index : BitIndex;
 BEGIN
   powerOf2[0] := 1;
-  FOR index := 1 TO Bitwidth DO
+  FOR index := 1 TO Bitwidth-1 DO
     powerOf2[index] := powerOf2[index-1] * 2
   END (* FOR *)
 END InitPow2Table;
