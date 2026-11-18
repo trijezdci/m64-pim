@@ -17,13 +17,13 @@ FROM CARD64 IMPORT CARD64T;
  * ----------------------------------------------------------------------- *)
 
 CONST
-  Success = CARD64.Success;
-  Underflow = CARD64.Underflow;
-  Overflow = CARD64.Overflow;
-  DivByZero = CARD64.DivByZero;
+  Success        = CARD64.Success;
+  Underflow      = CARD64.Underflow;
+  Overflow       = CARD64.Overflow;
+  DivByZero      = CARD64.DivByZero;
   StrLenTooShort = CARD64.StrLenTooShort;
-  NoInput = CARD64.StrLenTooShort;
-  InvalidInput = CARD64.StrLenTooShort;
+  NoInput        = CARD64.NoInput;
+  InvalidInput   = CARD64.InvalidInput;
 
 
 (* --------------------------------------------------------------------------
