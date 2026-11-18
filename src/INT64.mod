@@ -329,7 +329,7 @@ END ToLongInt;
  * Passes the unformatted decimal string representation of INT64T i in res.
  * ----------------------------------------------------------------------- *)
 
-CONST MinIntStr = "-9223372036854775808";
+VAR minIntStr : ARRAY [0..CARD64.MaxDecimalDigits+1] OF CHAR;
 
 PROCEDURE ToString
   ( i : INT64T; VAR res : ARRAY OF CHAR; VAR stat : Status );
@@ -344,7 +344,7 @@ BEGIN
       stat := StrLenTooShort;
       RETURN
     END; (* IF *)
-    res := MinIntStr;
+    res := minIntStr;
     stat := Success;
     RETURN
   END; (* IF *)
@@ -370,12 +370,13 @@ BEGIN
   END; (* IF *)
   
   (* shortcuts *)
+  res[1] := CHR(0);
   IF isZero(i) THEN
-    res := "0";
+    re[0]s := "0";
     stat := Success;
     RETURN
   ELSIF isOne(i) THEN
-    res := "1";
+    res[0] := "1";
     stat := Success;
     RETURN
   END; (* IF *)
@@ -1260,5 +1261,6 @@ END InitPow2Table;
 (* Initialise data table *)
 
 BEGIN
+  minIntStr = "-9223372036854775808";
   InitPow2Table
 END INT64.
