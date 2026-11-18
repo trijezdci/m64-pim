@@ -82,14 +82,14 @@ END Write;
  * Write LONGCARD n as radix-16 number to console.
  * ----------------------------------------------------------------------- *)
 
+VAR hexDigit : ARRAY [0..16] OF CHAR;
+
 PROCEDURE WriteHex ( n : LONGCARD );
-CONST
-  HexDigit = "0123456789ABCDEF";
 VAR
   index : CARDINAL;
 BEGIN
   FOR index := 0 TO 7 DO
-    InOut.Write(HexDigit[(n DIV shiftFactor[index]) MOD 16])
+    InOut.Write(hexDigit[(n DIV shiftFactor[index]) MOD 16])
   END (* FOR *)
 END WriteHex;
 
@@ -236,5 +236,6 @@ END InitShiftFactorTable;
 (* Module initialisation *)
 
 BEGIN
+  hexDigit := "0123456789ABCDEF";
   InitShiftFactorTable
 END LongCardIO.
