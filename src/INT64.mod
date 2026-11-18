@@ -329,8 +329,6 @@ END ToLongInt;
  * Passes the unformatted decimal string representation of INT64T i in res.
  * ----------------------------------------------------------------------- *)
 
-VAR minIntStr : ARRAY [0..CARD64.MaxDecimalDigits+2] OF CHAR;
-
 PROCEDURE ToString
   ( i : INT64T; VAR res : ARRAY OF CHAR; VAR stat : Status );
 VAR
@@ -344,7 +342,7 @@ BEGIN
       stat := StrLenTooShort;
       RETURN
     END; (* IF *)
-    res := minIntStr;
+    AssignMinIntStr(res);
     stat := Success;
     RETURN
   END; (* IF *)
@@ -1220,6 +1218,30 @@ BEGIN
     RETURN FALSE
   END (* IF *)
 END prodUnderflowsLI;
+
+
+(* --------------------------------------------------------------------------
+ * String literal for MIN(INT64T)
+ * ----------------------------------------------------------------------- *)
+
+VAR
+  minIntStr : ARRAY [0..CARD64.MaxDecimalDigits+2] OF CHAR;
+
+
+(* --------------------------------------------------------------------------
+ * procedure AssignMinIntStr
+ * --------------------------------------------------------------------------
+ * Assigns string literal for MIN(INT64T) to str.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE AssignMinIntStr ( VAR str : ARRAY OF CHAR );
+VAR
+  index : CARDINAL;
+BEGIN
+  FOR index := 0 TO CARD64.MaxDecimalDigits+2 DO
+    str[index] := minIntStr[index]
+  END (* FOR *)
+END AssignMinIntStr;
 
 
 (* --------------------------------------------------------------------------
