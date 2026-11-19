@@ -163,12 +163,13 @@ VAR
   ignore : CARD64.Status;
   ten, rem, digitVal : CARD64T;
 BEGIN
+  digits[1] := CHR(0);
   IF INT64.isZero(i) THEN
-    digits := "0";
+    digits[0] := "0";
     count := 1;
     RETURN
   ELSIF INT64.isOne(i) THEN
-    digits := "1";
+    digits[0] := "1";
     count := 1;
     RETURN
   ELSIF INT64.isMin(i) THEN
