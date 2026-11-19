@@ -6,6 +6,8 @@ DEFINITION MODULE CARD64;
 
 FROM SYSTEM IMPORT TSIZE;
 
+FROM NumStat IMPORT Status;
+
 
 (* ---------------------------------------------------------------------------
  * 64-bit Cardinal Type
@@ -22,15 +24,6 @@ TYPE CARD64T = RECORD (* Requires 32-bit LONGCARD type *)
   highBits,
   lowBits : LONGCARD
 END; (* RECORD *)
-
-
-(* ---------------------------------------------------------------------------
- * Status Type
- * ------------------------------------------------------------------------ *)
-
-TYPE Status =
-  ( Success, Underflow, Overflow, DivByZero,
-    StrLenTooShort, NoInput, InvalidInput );
 
 
 (* --------------------------------------------------------------------------
