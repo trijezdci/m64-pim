@@ -143,12 +143,13 @@ VAR
   ignore : Status;
   ten, rem, digitVal : CARD64T;
 BEGIN
+  digits[1] := CHR(0);
   IF CARD64.isZero(n) THEN
-    digits := "0";
+    digits[0] := "0";
     count := 1;
     RETURN
   ELSIF CARD64.isOne(n) THEN
-    digits := "1";
+    digits[0] := "1";
     count := 1;
     RETURN
   END; (* IF *)
