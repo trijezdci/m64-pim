@@ -170,7 +170,7 @@ END WriteF;
  * Passes the decimal digit sequence for n in digits.
  * ----------------------------------------------------------------------- *)
 
-VAR minIntDigitSeq = ARRAY [0..CARD64.MaxDecimalDigits] OF CHAR;
+VAR minIntDigitSeq : ARRAY [0..CARD64.MaxDecimalDigits] OF CHAR;
 
 PROCEDURE GetDigitSeq
   ( i : INT64T; VAR digits : ARRAY OF CHAR; VAR count : CARDINAL );
@@ -265,5 +265,5 @@ END WriteFmtHex;
 
 
 BEGIN
-  minIntDigitSeq = "9223372036854775808";
+  minIntDigitSeq := "9223372036854775808";
 END Int64IO.
