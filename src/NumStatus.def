@@ -1,0 +1,40 @@
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
+
+DEFINITION MODULE NumStatus;
+
+(* Status Type for Numeric Libraries *)
+
+
+(* ---------------------------------------------------------------------------
+ * Status Type
+ * ------------------------------------------------------------------------ *)
+
+TYPE Status =
+  ( Success, Underflow, Overflow, DivByZero,
+    StrLenTooShort, NoInput, InvalidInput );
+
+
+(* ---------------------------------------------------------------------------
+ * Length of longest status identifier
+ * ------------------------------------------------------------------------ *)
+
+CONST MaxIdentLen = 14; (* LEN(StrLenTooShort) *)
+
+
+(* ---------------------------------------------------------------------------
+ * String Type for Status Identifiers
+ * ------------------------------------------------------------------------ *)
+
+TYPE IdentString = POINTER TO ARRAY [0..MaxIdentLen] OF CHAR;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  NumStatus.identString(stat)
+ * --------------------------------------------------------------------------
+ * Returns a pointer to the identifier string for status stat.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE identString ( stat : Status ) : IdentString;
+
+
+END NumStatus.
