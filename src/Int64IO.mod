@@ -175,6 +175,7 @@ PROCEDURE GetDigitSeq
 VAR
   index : CARDINAL;
   ignore : CARD64.Status;
+  magnitude : INT64T;
   ten, rem, digitVal : CARD64T;
 BEGIN
   digits[1] := CHR(0);
@@ -193,7 +194,8 @@ BEGIN
   END; (* IF *)
   
   IF i.highBits < 0 THEN
-    INT64.Abs(i, rem, ignore)
+    INT64.Abs(i, magnitude, ignore);
+    INT64.ToCard64(magnitude, rem, ignore)
   ELSE
     rem.highBits := LONGCARD(i.highBits);
     rem.lowBits := i.lowBits
@@ -267,7 +269,7 @@ END WriteFmtHex;
  * ----------------------------------------------------------------------- *)
 
 VAR
-  minIntDigitSeq : ARRAY [0..CARD64.MaxDecimalDigits] OF CHAR;
+  minIntDigitSeq : ARRAY [0..CARD64.MaxDecimalDigits+1] OF CHAR;
 
 
 (* --------------------------------------------------------------------------
@@ -280,7 +282,7 @@ PROCEDURE AssignMinIntDigitSeq ( VAR str : ARRAY OF CHAR );
 VAR
   index : CARDINAL;
 BEGIN
-  FOR index := 0 TO CARD64.MaxDecimalDigits DO
+  FOR index := 0 TO CARD64.MaxDecimalDigits+1 DO
     str[index] := minIntDigitSeq[index]
   END (* FOR *)
 END AssignMinIntDigitSeq;
