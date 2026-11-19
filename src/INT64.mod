@@ -16,6 +16,8 @@ FROM CARD64 IMPORT CARD64T;
  * Workaround for MOCKA enumeration bug -- remove for other compilers.
  * ----------------------------------------------------------------------- *)
 
+(* TO DO : Fix this bug in DfScopes and DfFiles *)
+
 CONST
   Success        = CARD64.Success;
   Underflow      = CARD64.Underflow;

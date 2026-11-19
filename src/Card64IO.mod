@@ -30,7 +30,7 @@ BEGIN
   IF NOT InOut.Done() THEN
     stat := CARD64.NoInput;
     RETURN
-  END (* IF *)
+  END; (* IF *)
   
   IF ch = "+" THEN
     InOut.Read(ch)
