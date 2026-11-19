@@ -17,6 +17,22 @@ IMPORT LongCardIO, InOut;
 
 
 (* --------------------------------------------------------------------------
+ * Workaround for MOCKA enumeration bug -- remove for other compilers.
+ * ----------------------------------------------------------------------- *)
+
+(* TO DO : Fix this bug in DfScopes and DfFiles *)
+
+CONST
+  Success        = CARD64.Success;
+  Underflow      = CARD64.Underflow;
+  Overflow       = CARD64.Overflow;
+  DivByZero      = CARD64.DivByZero;
+  StrLenTooShort = CARD64.StrLenTooShort;
+  NoInput        = CARD64.NoInput;
+  InvalidInput   = CARD64.InvalidInput;
+
+
+(* --------------------------------------------------------------------------
  * Procedure:  Int64IO.Read(i, stat)
  * --------------------------------------------------------------------------
  * Read unformatted decimal number from console and pass it in i.
@@ -34,7 +50,7 @@ BEGIN
   
   InOut.Read(ch);
   IF NOT InOut.Done() THEN
-    stat := INT64.NoInput;
+    stat := NoInput;
     RETURN
   END; (* IF *)
   
@@ -44,13 +60,13 @@ BEGIN
   END; (* IF *)
   
   IF (ch < "0") OR (ch > "9") THEN
-    stat := INT64.InvalidInput;
+    stat := InvalidInput;
     RETURN
   END; (* IF *)
   
   WHILE InOut.Done() AND (ch >= "0") AND (ch <= "9") DO
     CARD64.Mul(val, ten, val, stat);
-    IF stat # CARD64.Success THEN
+    IF stat # Success THEN
       RETURN
     END; (* IF *)
     
@@ -58,7 +74,7 @@ BEGIN
     digitVal.lowBits := ORD(ch) - ORD("0");
     
     CARD64.Add(val, digitVal, val, stat);
-    IF stat # CARD64.Success THEN
+    IF stat # Success THEN
       RETURN
     END; (* IF *)
     
@@ -73,19 +89,19 @@ BEGIN
   
   IF minusSign THEN
     IF CARD64.gt(val, minIntMagnitude) THEN
-      stat := INT64.Underflow;
+      stat := Underflow;
       RETURN
     END; (* IF *)
     IF CARD64.eq(val, minIntMagnitude) THEN
       INT64.SetMin(i);
-      stat := INT64.Success
+      stat := Success
     ELSE
       INT64.FromCard64(val, i, stat);
       INT64.Neg(i, i, stat)
     END (* IF *)
   ELSE (* no minus sign *)
     IF CARD64.gt(val, maxIntMagnitude) THEN
-      stat := INT64.Overflow;
+      stat := Overflow;
       RETURN
     END; (* IF *)
     INT64.FromCard64(val, i, stat)
@@ -154,7 +170,7 @@ END WriteF;
  * Passes the decimal digit sequence for n in digits.
  * ----------------------------------------------------------------------- *)
 
-CONST MinIntDigitSeq = "9223372036854775808";
+VAR minIntDigitSeq = ARRAY [0..CARD64.MaxDecimalDigits] OF CHAR;
 
 PROCEDURE GetDigitSeq
   ( i : INT64T; VAR digits : ARRAY OF CHAR; VAR count : CARDINAL );
@@ -173,7 +189,7 @@ BEGIN
     count := 1;
     RETURN
   ELSIF INT64.isMin(i) THEN
-    digits := MinIntDigitSeq;
+    digits := minIntDigitSeq;
     count := CARD64.MaxDecimalDigits;
     RETURN
   END; (* IF *)
@@ -248,4 +264,6 @@ BEGIN
 END WriteFmtHex;
 
 
+BEGIN
+  minIntDigitSeq = "9223372036854775808";
 END Int64IO.
