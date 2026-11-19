@@ -6,7 +6,7 @@ DEFINITION MODULE CARD64;
 
 FROM SYSTEM IMPORT TSIZE;
 
-FROM NumStat IMPORT Status;
+FROM NumStatus IMPORT Status;
 
 
 (* ---------------------------------------------------------------------------
