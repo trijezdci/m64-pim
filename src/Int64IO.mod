@@ -170,8 +170,6 @@ END WriteF;
  * Passes the decimal digit sequence for n in digits.
  * ----------------------------------------------------------------------- *)
 
-VAR minIntDigitSeq : ARRAY [0..CARD64.MaxDecimalDigits] OF CHAR;
-
 PROCEDURE GetDigitSeq
   ( i : INT64T; VAR digits : ARRAY OF CHAR; VAR count : CARDINAL );
 VAR
@@ -189,7 +187,7 @@ BEGIN
     count := 1;
     RETURN
   ELSIF INT64.isMin(i) THEN
-    digits := minIntDigitSeq;
+    AssignMinIntDigitSeq(digits);
     count := CARD64.MaxDecimalDigits;
     RETURN
   END; (* IF *)
@@ -262,6 +260,30 @@ BEGIN
   InOut.Write(":");
   LongCardIO.WriteHex(i.lowBits)
 END WriteFmtHex;
+
+
+(* --------------------------------------------------------------------------
+ * Digit sequence for MIN(INT64T)
+ * ----------------------------------------------------------------------- *)
+
+VAR
+  minIntDigitSeq : ARRAY [0..CARD64.MaxDecimalDigits] OF CHAR;
+
+
+(* --------------------------------------------------------------------------
+ * procedure AssignMinIntStr
+ * --------------------------------------------------------------------------
+ * Assigns string literal for MIN(INT64T) to str.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE AssignMinIntDigitSeq ( VAR str : ARRAY OF CHAR );
+VAR
+  index : CARDINAL;
+BEGIN
+  FOR index := 0 TO CARD64.MaxDecimalDigits DO
+    str[index] := minIntDigitSeq[index]
+  END (* FOR *)
+END AssignMinIntDigitSeq;
 
 
 BEGIN
