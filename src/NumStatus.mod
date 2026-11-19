@@ -15,7 +15,7 @@ TYPE IdentStr = ARRAY [0..MaxIdentLen] OF CHAR;
 
 TYPE IdentStrTable = ARRAY [MIN(Status)..MAX(Status)] OF IdentStr;
 
-VAR identStr = IdentStrTable;
+VAR identStr : IdentStrTable;
 
 
 (* --------------------------------------------------------------------------
