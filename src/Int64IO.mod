@@ -36,7 +36,7 @@ BEGIN
   IF NOT InOut.Done() THEN
     stat := INT64.NoInput;
     RETURN
-  END (* IF *)
+  END; (* IF *)
   
   IF (ch = "-") OR (ch = "+") THEN
     minusSign := (ch = "-");
