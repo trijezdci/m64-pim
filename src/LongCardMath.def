@@ -2,8 +2,9 @@
 
 DEFINITION MODULE LongCardMath;
 
-FROM SYSTEM IMPORT
-  TSIZE;
+(* Math Library for Type LONGCARD *)
+
+FROM SYSTEM IMPORT TSIZE;
 
 
 (* --------------------------------------------------------------------------

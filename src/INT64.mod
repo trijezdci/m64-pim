@@ -11,21 +11,7 @@ IMPORT CARD64;
 
 FROM CARD64 IMPORT CARD64T;
 
-
-(* --------------------------------------------------------------------------
- * Workaround for MOCKA enumeration bug -- remove for other compilers.
- * ----------------------------------------------------------------------- *)
-
-(* TO DO : Fix this bug in DfScopes and DfFiles *)
-
-CONST
-  Success        = CARD64.Success;
-  Underflow      = CARD64.Underflow;
-  Overflow       = CARD64.Overflow;
-  DivByZero      = CARD64.DivByZero;
-  StrLenTooShort = CARD64.StrLenTooShort;
-  NoInput        = CARD64.NoInput;
-  InvalidInput   = CARD64.InvalidInput;
+FROM NumStatus IMPORT Status;
 
 
 (* --------------------------------------------------------------------------

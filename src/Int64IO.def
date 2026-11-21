@@ -5,8 +5,9 @@ DEFINITION MODULE Int64IO;
 (* Console IO library for Type INT64T *)
 
 
-FROM INT64 IMPORT
-  INT64T, Status;
+FROM INT64 IMPORT INT64T;
+
+FROM NumStatus IMPORT Status;
 
 
 (* --------------------------------------------------------------------------

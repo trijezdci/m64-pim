@@ -4,12 +4,7 @@ DEFINITION MODULE LongCardIO;
 
 (* Console IO library for Type LONGCARD *)
 
-
-(* --------------------------------------------------------------------------
- * Status type
- * ----------------------------------------------------------------------- *)
-
-TYPE Status = ( Success, Overflow, NoInput, InvalidInput );
+FROM NumStatus IMPORT Status;
 
 
 (* --------------------------------------------------------------------------
@@ -52,15 +47,6 @@ PROCEDURE WriteHex ( n : LONGCARD );
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE WriteF ( fmt : CHAR; n : LONGCARD );
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  LongCardIO.WriteStatus(stat)
- * --------------------------------------------------------------------------
- * Write stat to console.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE WriteStatus ( stat : Status );
 
 
 END LongCardIO.

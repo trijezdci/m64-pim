@@ -7,8 +7,9 @@ IMPLEMENTATION MODULE Card64IO;
 
 IMPORT CARD64, LongCardIO, InOut;
 
-FROM CARD64 IMPORT
-  CARD64T, Status;
+FROM CARD64 IMPORT CARD64T;
+
+FROM NumStatus IMPORT Status;
 
 
 (* --------------------------------------------------------------------------
@@ -104,26 +105,6 @@ BEGIN
     Write(n)
   END (* IF *)
 END WriteF;
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  Card64IO.WriteStatus(stat)
- * --------------------------------------------------------------------------
- * Write stat to console.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE WriteStatus ( stat : Status );
-BEGIN 
-  CASE stat OF
-    CARD64.Success        : InOut.WriteString("Success")
-  | CARD64.Underflow      : InOut.WriteString("Underflow")
-  | CARD64.Overflow       : InOut.WriteString("Overflow")
-  | CARD64.DivByZero      : InOut.WriteString("DivByZero")
-  | CARD64.StrLenTooShort : InOut.WriteString("StrLenTooShort")
-  | CARD64.NoInput        : InOut.WriteString("NoInput")
-  | CARD64.InvalidInput   : InOut.WriteString("InvalidInput")
-  END (* CASE *)
-END WriteStatus;
 
 
 (* **************************************************************************

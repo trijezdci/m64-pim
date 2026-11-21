@@ -5,8 +5,9 @@ DEFINITION MODULE Card64IO;
 (* Console IO library for Type CARD64T *)
 
 
-FROM CARD64 IMPORT
-  CARD64T, Status;
+FROM CARD64 IMPORT CARD64T;
+
+FROM NumStatus IMPORT Status;
 
 
 (* --------------------------------------------------------------------------
@@ -40,15 +41,6 @@ PROCEDURE Write ( n : CARD64T );
  * ----------------------------------------------------------------------- *)
 
 PROCEDURE WriteF ( fmt : CHAR; n : CARD64T );
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  Card64IO.WriteStatus(stat)
- * --------------------------------------------------------------------------
- * Write stat to console.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE WriteStatus ( stat : Status );
 
 
 END Card64IO.

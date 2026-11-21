@@ -1,0 +1,20 @@
+(*!m2pim+mocka*) (* Copyright (C) 2026 by Benjamin Kowarsch *)
+
+DEFINITION MODULE NumStatusIO;
+
+(* Console IO library for Type NumStatus.Status *)
+
+FROM NumStatus IMPORT Status;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  NumStatusIO.Write(stat)
+ * --------------------------------------------------------------------------
+ * Write stat to console.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE Write ( stat : Status );
+
+
+END NumStatusIO.
+

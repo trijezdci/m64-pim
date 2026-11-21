@@ -7,6 +7,8 @@ IMPLEMENTATION MODULE LongCardIO;
 
 IMPORT InOut, LongCardMath;
 
+FROM NumStatus IMPORT Status;
+
 
 (* --------------------------------------------------------------------------
  * Procedure:  LongCardIO.Read(n, stat)
@@ -116,23 +118,6 @@ BEGIN
     Write(n)
   END (* IF *)
 END WriteF;
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  LongCardIO.WriteStatus(stat)
- * --------------------------------------------------------------------------
- * Write stat to console.
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE WriteStatus ( stat : Status );
-BEGIN 
-  CASE stat OF
-    Success        : InOut.WriteString("Success")
-  | Overflow       : InOut.WriteString("Overflow")
-  | NoInput        : InOut.WriteString("NoInput")
-  | InvalidInput   : InOut.WriteString("InvalidInput")
-  END (* CASE *)
-END WriteStatus;
 
 
 (* **************************************************************************

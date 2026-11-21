@@ -2,6 +2,8 @@
 
 IMPLEMENTATION MODULE LongCardMath;
 
+(* Math Library for Type LONGCARD *)
+
 
 (* --------------------------------------------------------------------------
  * Function:  LongCardMath.pow2(n)
