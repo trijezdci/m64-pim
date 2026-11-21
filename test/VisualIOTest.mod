@@ -173,7 +173,7 @@ BEGIN
   intTest[3].expected.radix16 := "0xFFFFFFFF:80000000";
 
   intTest[4].label := "INT64: MIN(INT64T)";
-  intTest[4].value.highBits := 80000000H;
+  intTest[4].value.highBits := MIN(LONGINT);
   intTest[4].value.lowBits := 0;
   intTest[4].expected.unformatted := "-9223372036854775808";
   intTest[4].expected.dotSeparated := "-9.223.372.036.854.775.808";
