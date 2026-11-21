@@ -29,7 +29,7 @@ BEGIN
   
   InOut.Read(ch);
   IF NOT InOut.Done() THEN
-    stat := CARD64.NoInput;
+    stat := NoInput;
     RETURN
   END; (* IF *)
   
@@ -38,13 +38,13 @@ BEGIN
   END; (* IF *)
   
   IF (ch < "0") OR (ch > "9") THEN
-    stat := CARD64.InvalidInput;
+    stat := InvalidInput;
     RETURN
   END; (* IF *)
   
   WHILE InOut.Done() AND (ch >= "0") AND (ch <= "9") DO
     CARD64.Mul(val, ten, val, stat);
-    IF stat # CARD64.Success THEN
+    IF stat # Success THEN
       RETURN
     END; (* IF *)
     
@@ -52,7 +52,7 @@ BEGIN
     digitVal.lowBits := ORD(ch) - ORD("0");
     
     CARD64.Add(val, digitVal, val, stat);
-    IF stat # CARD64.Success THEN
+    IF stat # Success THEN
       RETURN
     END; (* IF *)
     
