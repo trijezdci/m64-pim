@@ -437,12 +437,12 @@ VAR
 BEGIN
   (* operations *)
   FOR index := 0 TO RelOpTestGroupCount-1 DO
-    relopTest[index].operation[Eq].proc := INT64.eq;
-    relopTest[index].operation[Neq].proc := INT64.neq;
-    relopTest[index].operation[Lt].proc := INT64.lt;
-    relopTest[index].operation[Lteq].proc := INT64.lteq;
-    relopTest[index].operation[Gt].proc := INT64.gt;
-    relopTest[index].operation[Gteq].proc := INT64.gteq
+    relOpTest[index].operation[Eq].proc := INT64.eq;
+    relOpTest[index].operation[Neq].proc := INT64.neq;
+    relOpTest[index].operation[Lt].proc := INT64.lt;
+    relOpTest[index].operation[Lteq].proc := INT64.lteq;
+    relOpTest[index].operation[Gt].proc := INT64.gt;
+    relOpTest[index].operation[Gteq].proc := INT64.gteq
   END; (* FOR *)
   
   (* operands *)
@@ -453,12 +453,12 @@ BEGIN
   relOpTest[0].right.lowBits := 0;
 
   (* expected results *)
-  relopTest[0].operation[Eq].expected := TRUE;
-  relopTest[0].operation[Neq].expected := FALSE;
-  relopTest[0].operation[Lt].expected := FALSE;
-  relopTest[0].operation[Lteq].expected := TRUE;
-  relopTest[0].operation[Gt].expected := FALSE;
-  relopTest[0].operation[Gteq].expected := TRUE;
+  relOpTest[0].operation[Eq].expected := TRUE;
+  relOpTest[0].operation[Neq].expected := FALSE;
+  relOpTest[0].operation[Lt].expected := FALSE;
+  relOpTest[0].operation[Lteq].expected := TRUE;
+  relOpTest[0].operation[Gt].expected := FALSE;
+  relOpTest[0].operation[Gteq].expected := TRUE;
   
   (* operands *)
   relOpTest[1].args := "(0, 1)";
@@ -468,12 +468,12 @@ BEGIN
   relOpTest[1].right.lowBits := 1;
 
   (* expected results *)
-  relopTest[1].operation[Eq].expected := FALSE;
-  relopTest[1].operation[Neq].expected := TRUE;
-  relopTest[1].operation[Lt].expected := TRUE;
-  relopTest[1].operation[Lteq].expected := TRUE;
-  relopTest[1].operation[Gt].expected := FALSE;
-  relopTest[1].operation[Gteq].expected := FALSE;
+  relOpTest[1].operation[Eq].expected := FALSE;
+  relOpTest[1].operation[Neq].expected := TRUE;
+  relOpTest[1].operation[Lt].expected := TRUE;
+  relOpTest[1].operation[Lteq].expected := TRUE;
+  relOpTest[1].operation[Gt].expected := FALSE;
+  relOpTest[1].operation[Gteq].expected := FALSE;
    
   (* operands *)
   relOpTest[2].args := "(1, 0)";
@@ -483,12 +483,12 @@ BEGIN
   relOpTest[2].right.lowBits := 0;
 
   (* expected results *)
-  relopTest[2].operation[Eq].expected := FALSE;
-  relopTest[2].operation[Neq].expected := TRUE;
-  relopTest[2].operation[Lt].expected := FALSE;
-  relopTest[2].operation[Lteq].expected := FALSE;
-  relopTest[2].operation[Gt].expected := TRUE;
-  relopTest[2].operation[Gteq].expected := TRUE;
+  relOpTest[2].operation[Eq].expected := FALSE;
+  relOpTest[2].operation[Neq].expected := TRUE;
+  relOpTest[2].operation[Lt].expected := FALSE;
+  relOpTest[2].operation[Lteq].expected := FALSE;
+  relOpTest[2].operation[Gt].expected := TRUE;
+  relOpTest[2].operation[Gteq].expected := TRUE;
    
   (* operands *)
   relOpTest[3].args := "(MAX(LONGCARD)+1, 0)";
@@ -498,12 +498,12 @@ BEGIN
   relOpTest[3].right.lowBits := 0;
 
   (* expected results *)
-  relopTest[3].operation[Eq].expected := FALSE;
-  relopTest[3].operation[Neq].expected := TRUE;
-  relopTest[3].operation[Lt].expected := FALSE;
-  relopTest[3].operation[Lteq].expected := FALSE;
-  relopTest[3].operation[Gt].expected := TRUE;
-  relopTest[3].operation[Gteq].expected := TRUE;
+  relOpTest[3].operation[Eq].expected := FALSE;
+  relOpTest[3].operation[Neq].expected := TRUE;
+  relOpTest[3].operation[Lt].expected := FALSE;
+  relOpTest[3].operation[Lteq].expected := FALSE;
+  relOpTest[3].operation[Gt].expected := TRUE;
+  relOpTest[3].operation[Gteq].expected := TRUE;
    
   (* operands *)
   relOpTest[4].args := "(MAX(LONGCARD)+2, 1)";
@@ -513,12 +513,12 @@ BEGIN
   relOpTest[4].right.lowBits := 1;
 
   (* expected results *)
-  relopTest[4].operation[Eq].expected := FALSE;
-  relopTest[4].operation[Neq].expected := TRUE;
-  relopTest[4].operation[Lt].expected := FALSE;
-  relopTest[4].operation[Lteq].expected := FALSE;
-  relopTest[4].operation[Gt].expected := TRUE;
-  relopTest[4].operation[Gteq].expected := TRUE;
+  relOpTest[4].operation[Eq].expected := FALSE;
+  relOpTest[4].operation[Neq].expected := TRUE;
+  relOpTest[4].operation[Lt].expected := FALSE;
+  relOpTest[4].operation[Lteq].expected := FALSE;
+  relOpTest[4].operation[Gt].expected := TRUE;
+  relOpTest[4].operation[Gteq].expected := TRUE;
   
   (* operands *)
   relOpTest[5].args := "(MAX(INT64T)-1, MAX(INT64T))";
@@ -528,12 +528,12 @@ BEGIN
   relOpTest[5].right.lowBits := 0FFFFFFFFH;
   
   (* expected results *)
-  relopTest[5].operation[Eq].expected := FALSE;
-  relopTest[5].operation[Neq].expected := TRUE;
-  relopTest[5].operation[Lt].expected := TRUE;
-  relopTest[5].operation[Lteq].expected := TRUE;
-  relopTest[5].operation[Gt].expected := FALSE;
-  relopTest[5].operation[Gteq].expected := FALSE;
+  relOpTest[5].operation[Eq].expected := FALSE;
+  relOpTest[5].operation[Neq].expected := TRUE;
+  relOpTest[5].operation[Lt].expected := TRUE;
+  relOpTest[5].operation[Lteq].expected := TRUE;
+  relOpTest[5].operation[Gt].expected := FALSE;
+  relOpTest[5].operation[Gteq].expected := FALSE;
   
   (* operands *)
   relOpTest[6].args := "(MAX(INT64T), MAX(INT64T))";
@@ -543,12 +543,12 @@ BEGIN
   relOpTest[6].right.lowBits := 0FFFFFFFFH;
 
   (* expected results *)
-  relopTest[6].operation[Eq].expected := TRUE;
-  relopTest[6].operation[Neq].expected := FALSE;
-  relopTest[6].operation[Lt].expected := FALSE;
-  relopTest[6].operation[Lteq].expected := TRUE;
-  relopTest[6].operation[Gt].expected := FALSE;
-  relopTest[6].operation[Gteq].expected := TRUE;
+  relOpTest[6].operation[Eq].expected := TRUE;
+  relOpTest[6].operation[Neq].expected := FALSE;
+  relOpTest[6].operation[Lt].expected := FALSE;
+  relOpTest[6].operation[Lteq].expected := TRUE;
+  relOpTest[6].operation[Gt].expected := FALSE;
+  relOpTest[6].operation[Gteq].expected := TRUE;
   
   (* operands *)
   relOpTest[7].args := "(-1, 0)";
@@ -558,12 +558,12 @@ BEGIN
   relOpTest[7].right.lowBits := 0;
 
   (* expected results *)
-  relopTest[7].operation[Eq].expected := FALSE;
-  relopTest[7].operation[Neq].expected := TRUE;
-  relopTest[7].operation[Lt].expected := TRUE;
-  relopTest[7].operation[Lteq].expected := TRUE;
-  relopTest[7].operation[Gt].expected := FALSE;
-  relopTest[7].operation[Gteq].expected := FALSE;
+  relOpTest[7].operation[Eq].expected := FALSE;
+  relOpTest[7].operation[Neq].expected := TRUE;
+  relOpTest[7].operation[Lt].expected := TRUE;
+  relOpTest[7].operation[Lteq].expected := TRUE;
+  relOpTest[7].operation[Gt].expected := FALSE;
+  relOpTest[7].operation[Gteq].expected := FALSE;
   
   (* operands *)
   relOpTest[8].args := "(0, -1)";
@@ -573,12 +573,12 @@ BEGIN
   relOpTest[8].right.lowBits := 0FFFFFFFFH;
   
   (* expected results *)
-  relopTest[8].operation[Eq].expected := FALSE;
-  relopTest[8].operation[Neq].expected := TRUE;
-  relopTest[8].operation[Lt].expected := FALSE;
-  relopTest[8].operation[Lteq].expected := FALSE;
-  relopTest[8].operation[Gt].expected := TRUE;
-  relopTest[8].operation[Gteq].expected := TRUE;
+  relOpTest[8].operation[Eq].expected := FALSE;
+  relOpTest[8].operation[Neq].expected := TRUE;
+  relOpTest[8].operation[Lt].expected := FALSE;
+  relOpTest[8].operation[Lteq].expected := FALSE;
+  relOpTest[8].operation[Gt].expected := TRUE;
+  relOpTest[8].operation[Gteq].expected := TRUE;
   
   (* operands *)
   relOpTest[9].args := "(-1, 1)";
@@ -588,12 +588,12 @@ BEGIN
   relOpTest[9].right.lowBits := 1;
 
   (* expected results *)
-  relopTest[9].operation[Eq].expected := FALSE;
-  relopTest[9].operation[Neq].expected := TRUE;
-  relopTest[9].operation[Lt].expected := TRUE;
-  relopTest[9].operation[Lteq].expected := TRUE;
-  relopTest[9].operation[Gt].expected := FALSE;
-  relopTest[9].operation[Gteq].expected := FALSE;
+  relOpTest[9].operation[Eq].expected := FALSE;
+  relOpTest[9].operation[Neq].expected := TRUE;
+  relOpTest[9].operation[Lt].expected := TRUE;
+  relOpTest[9].operation[Lteq].expected := TRUE;
+  relOpTest[9].operation[Gt].expected := FALSE;
+  relOpTest[9].operation[Gteq].expected := FALSE;
   
   (* operands *)
   relOpTest[10].args := "(1, -1)";
@@ -603,12 +603,12 @@ BEGIN
   relOpTest[10].right.lowBits := 0FFFFFFFFH;
 
   (* expected results *)
-  relopTest[10].operation[Eq].expected := FALSE;
-  relopTest[10].operation[Neq].expected := TRUE;
-  relopTest[10].operation[Lt].expected := FALSE;
-  relopTest[10].operation[Lteq].expected := FALSE;
-  relopTest[10].operation[Gt].expected := TRUE;
-  relopTest[10].operation[Gteq].expected := TRUE;
+  relOpTest[10].operation[Eq].expected := FALSE;
+  relOpTest[10].operation[Neq].expected := TRUE;
+  relOpTest[10].operation[Lt].expected := FALSE;
+  relOpTest[10].operation[Lteq].expected := FALSE;
+  relOpTest[10].operation[Gt].expected := TRUE;
+  relOpTest[10].operation[Gteq].expected := TRUE;
   
   (* operands *)
   relOpTest[11].args := "(-1, -1)";
@@ -618,12 +618,12 @@ BEGIN
   relOpTest[11].right.lowBits := 0FFFFFFFFH;
 
   (* expected results *)
-  relopTest[11].operation[Eq].expected := TRUE;
-  relopTest[11].operation[Neq].expected := FALSE;
-  relopTest[11].operation[Lt].expected := FALSE;
-  relopTest[11].operation[Lteq].expected := TRUE;
-  relopTest[11].operation[Gt].expected := FALSE;
-  relopTest[11].operation[Gteq].expected := TRUE;
+  relOpTest[11].operation[Eq].expected := TRUE;
+  relOpTest[11].operation[Neq].expected := FALSE;
+  relOpTest[11].operation[Lt].expected := FALSE;
+  relOpTest[11].operation[Lteq].expected := TRUE;
+  relOpTest[11].operation[Gt].expected := FALSE;
+  relOpTest[11].operation[Gteq].expected := TRUE;
   
   (* operands *)
   relOpTest[12].args := "(-1, -2)";
@@ -633,12 +633,12 @@ BEGIN
   relOpTest[12].right.lowBits := 0FFFFFFFEH;
 
   (* expected results *)
-  relopTest[12].operation[Eq].expected := FALSE;
-  relopTest[12].operation[Neq].expected := TRUE;
-  relopTest[12].operation[Lt].expected := FALSE;
-  relopTest[12].operation[Lteq].expected := FALSE;
-  relopTest[12].operation[Gt].expected := TRUE;
-  relopTest[12].operation[Gteq].expected := TRUE;
+  relOpTest[12].operation[Eq].expected := FALSE;
+  relOpTest[12].operation[Neq].expected := TRUE;
+  relOpTest[12].operation[Lt].expected := FALSE;
+  relOpTest[12].operation[Lteq].expected := FALSE;
+  relOpTest[12].operation[Gt].expected := TRUE;
+  relOpTest[12].operation[Gteq].expected := TRUE;
   
   (* operands *)
   relOpTest[13].args := "(-2, -1)";
@@ -648,12 +648,12 @@ BEGIN
   relOpTest[13].right.lowBits := 0FFFFFFFFH;
 
   (* expected results *)
-  relopTest[13].operation[Eq].expected := FALSE;
-  relopTest[13].operation[Neq].expected := TRUE;
-  relopTest[13].operation[Lt].expected := TRUE;
-  relopTest[13].operation[Lteq].expected := TRUE;
-  relopTest[13].operation[Gt].expected := FALSE;
-  relopTest[13].operation[Gteq].expected := FALSE;
+  relOpTest[13].operation[Eq].expected := FALSE;
+  relOpTest[13].operation[Neq].expected := TRUE;
+  relOpTest[13].operation[Lt].expected := TRUE;
+  relOpTest[13].operation[Lteq].expected := TRUE;
+  relOpTest[13].operation[Gt].expected := FALSE;
+  relOpTest[13].operation[Gteq].expected := FALSE;
   
   (* operands *)
   relOpTest[14].args := "(-MAX(LONGCARD)-1, 0)";
@@ -663,12 +663,12 @@ BEGIN
   relOpTest[14].right.lowBits := 0;
 
   (* expected results *)
-  relopTest[14].operation[Eq].expected := FALSE;
-  relopTest[14].operation[Neq].expected := TRUE;
-  relopTest[14].operation[Lt].expected := TRUE;
-  relopTest[14].operation[Lteq].expected := TRUE;
-  relopTest[14].operation[Gt].expected := FALSE;
-  relopTest[14].operation[Gteq].expected := FALSE;
+  relOpTest[14].operation[Eq].expected := FALSE;
+  relOpTest[14].operation[Neq].expected := TRUE;
+  relOpTest[14].operation[Lt].expected := TRUE;
+  relOpTest[14].operation[Lteq].expected := TRUE;
+  relOpTest[14].operation[Gt].expected := FALSE;
+  relOpTest[14].operation[Gteq].expected := FALSE;
     
   (* operands *)
   relOpTest[15].args := "(-MAX(LONGCARD), 1)";
@@ -678,12 +678,12 @@ BEGIN
   relOpTest[15].right.lowBits := 1;
   
   (* expected results *)
-  relopTest[15].operation[Eq].expected := FALSE;
-  relopTest[15].operation[Neq].expected := TRUE;
-  relopTest[15].operation[Lt].expected := TRUE;
-  relopTest[15].operation[Lteq].expected := TRUE;
-  relopTest[15].operation[Gt].expected := FALSE;
-  relopTest[15].operation[Gteq].expected := FALSE;
+  relOpTest[15].operation[Eq].expected := FALSE;
+  relOpTest[15].operation[Neq].expected := TRUE;
+  relOpTest[15].operation[Lt].expected := TRUE;
+  relOpTest[15].operation[Lteq].expected := TRUE;
+  relOpTest[15].operation[Gt].expected := FALSE;
+  relOpTest[15].operation[Gteq].expected := FALSE;
   
   (* operands *)
   relOpTest[16].args := "(-MAX(LONGCARD)-1, -MAX(LONGCARD)-1)";
@@ -693,12 +693,12 @@ BEGIN
   relOpTest[16].right.lowBits := 0;
   
   (* expected results *)
-  relopTest[16].operation[Eq].expected := TRUE;
-  relopTest[16].operation[Neq].expected := FALSE;
-  relopTest[16].operation[Lt].expected := FALSE;
-  relopTest[16].operation[Lteq].expected := TRUE;
-  relopTest[16].operation[Gt].expected := FALSE;
-  relopTest[16].operation[Gteq].expected := TRUE;
+  relOpTest[16].operation[Eq].expected := TRUE;
+  relOpTest[16].operation[Neq].expected := FALSE;
+  relOpTest[16].operation[Lt].expected := FALSE;
+  relOpTest[16].operation[Lteq].expected := TRUE;
+  relOpTest[16].operation[Gt].expected := FALSE;
+  relOpTest[16].operation[Gteq].expected := TRUE;
   
   (* operands *)
   relOpTest[17].args := "(MIN(INT64T), 0)";
@@ -708,12 +708,12 @@ BEGIN
   relOpTest[17].right.lowBits := 0;
   
   (* expected results *)
-  relopTest[17].operation[Eq].expected := FALSE;
-  relopTest[17].operation[Neq].expected := TRUE;
-  relopTest[17].operation[Lt].expected := TRUE;
-  relopTest[17].operation[Lteq].expected := TRUE;
-  relopTest[17].operation[Gt].expected := FALSE;
-  relopTest[17].operation[Gteq].expected := FALSE;
+  relOpTest[17].operation[Eq].expected := FALSE;
+  relOpTest[17].operation[Neq].expected := TRUE;
+  relOpTest[17].operation[Lt].expected := TRUE;
+  relOpTest[17].operation[Lteq].expected := TRUE;
+  relOpTest[17].operation[Gt].expected := FALSE;
+  relOpTest[17].operation[Gteq].expected := FALSE;
   
   (* operands *)
   relOpTest[18].args := "(MIN(INT64T), MIN(INT64T)+1)";
@@ -723,12 +723,12 @@ BEGIN
   relOpTest[18].right.lowBits := 1;
   
   (* expected results *)
-  relopTest[18].operation[Eq].expected := FALSE;
-  relopTest[18].operation[Neq].expected := TRUE;
-  relopTest[18].operation[Lt].expected := TRUE;
-  relopTest[18].operation[Lteq].expected := TRUE;
-  relopTest[18].operation[Gt].expected := FALSE;
-  relopTest[18].operation[Gteq].expected := FALSE;
+  relOpTest[18].operation[Eq].expected := FALSE;
+  relOpTest[18].operation[Neq].expected := TRUE;
+  relOpTest[18].operation[Lt].expected := TRUE;
+  relOpTest[18].operation[Lteq].expected := TRUE;
+  relOpTest[18].operation[Gt].expected := FALSE;
+  relOpTest[18].operation[Gteq].expected := FALSE;
   
   (* operands *)
   relOpTest[19].args := "(MIN(INT64T), MIN(INT64T))";
@@ -738,12 +738,12 @@ BEGIN
   relOpTest[19].right.lowBits := 0;
   
   (* expected results *)
-  relopTest[19].operation[Eq].expected := TRUE;
-  relopTest[19].operation[Neq].expected := FALSE;
-  relopTest[19].operation[Lt].expected := FALSE;
-  relopTest[19].operation[Lteq].expected := TRUE;
-  relopTest[19].operation[Gt].expected := FALSE;
-  relopTest[19].operation[Gteq].expected := TRUE
+  relOpTest[19].operation[Eq].expected := TRUE;
+  relOpTest[19].operation[Neq].expected := FALSE;
+  relOpTest[19].operation[Lt].expected := FALSE;
+  relOpTest[19].operation[Lteq].expected := TRUE;
+  relOpTest[19].operation[Gt].expected := FALSE;
+  relOpTest[19].operation[Gteq].expected := TRUE
 END InitRelOpTests;
 
 
