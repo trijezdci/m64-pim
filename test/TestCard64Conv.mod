@@ -511,7 +511,7 @@ BEGIN
   fromStringTest[17].label := "CARD64.FromString('4294967296', n, stat)";
   fromStringTest[17].operand := "4294967296";
   fromStringTest[17].expected.highBits := 1;
-  fromStringTest[17].expected.lowBits := 0FFFFFFFFH;
+  fromStringTest[17].expected.lowBits := 0;
   fromStringTest[17].expStatus := Success;
   
   fromStringTest[18].label := "CARD64.FromString('18446744073709551615', n, stat)";

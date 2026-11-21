@@ -1064,7 +1064,7 @@ END; (* ToStringTest *)
  * Initialises tests for procedure ToString.
  * ----------------------------------------------------------------------- *)
 
-CONST ToStringTestCount = 25;
+CONST ToStringTestCount = 27;
 
 VAR toStringTest : ARRAY [0..ToStringTestCount-1] OF ToStringTest;
 
@@ -1185,29 +1185,29 @@ BEGIN
   toStringTest[22].operand.lowBits := 0FFFFFC18H;
   toStringTest[22].expected := "-1000";
   
-  (* MIN(LONGINT)+1 *)
+  (* -MAX(LONGCARD) = -2^32 + 1 *)
   toStringTest[23].label := "INT64.ToString() for -4294967295";
   toStringTest[23].operand.highBits := -1;
   toStringTest[23].operand.lowBits := 1;
   toStringTest[23].expected := "-4294967295";
   
-  (* MIN(LONGINT) *)
-  toStringTest[23].label := "INT64.ToString() for -4294967296";
-  toStringTest[23].operand.highBits := -1;
-  toStringTest[23].operand.lowBits := 0;
-  toStringTest[23].expected := "-42949672956";
+  (* -(MAX(LONGCARD)+1) = -2^32 *)
+  toStringTest[24].label := "INT64.ToString() for -4294967296";
+  toStringTest[24].operand.highBits := -1;
+  toStringTest[24].operand.lowBits := 0;
+  toStringTest[24].expected := "-4294967296";
   
-  (* MIN(LONGINT)-1 *)
-  toStringTest[23].label := "INT64.ToString() for -4294967297";
-  toStringTest[23].operand.highBits := -2;
-  toStringTest[23].operand.lowBits := 0FFFFFFFFH;
-  toStringTest[23].expected := "-42949672956";
+  (* -(MAX(LONGCARD)+2) = -2^32 - 1 *)
+  toStringTest[25].label := "INT64.ToString() for -4294967297";
+  toStringTest[25].operand.highBits := -2;
+  toStringTest[25].operand.lowBits := 0FFFFFFFFH;
+  toStringTest[25].expected := "-4294967297";
   
   (* MIN(INT64T) *)
-  toStringTest[24].label := "INT64.ToString() for -9223372036854775808";
-  toStringTest[24].operand.highBits := MIN(LONGINT);
-  toStringTest[24].operand.lowBits := 0;
-  toStringTest[24].expected := "-9223372036854775808"
+  toStringTest[26].label := "INT64.ToString() for -9223372036854775808";
+  toStringTest[26].operand.highBits := MIN(LONGINT);
+  toStringTest[26].operand.lowBits := 0;
+  toStringTest[26].expected := "-9223372036854775808"
 END InitToStringTests;
 
 
