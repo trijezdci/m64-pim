@@ -65,7 +65,7 @@ END; (* ExpectedOutput *)
  * ----------------------------------------------------------------------- *)
 
 TYPE CardTest = RECORD
-  value : Card64T;
+  value : CARD64T;
   label : LabelString;
   expected : ExpectedOutput
 END; (* CardTest *)
