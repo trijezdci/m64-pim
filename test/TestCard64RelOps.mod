@@ -125,7 +125,7 @@ TYPE NumberString = ARRAY [0..MaxNumberLength] OF CHAR;
  * Test parameter type for CARD64 isZero, isOne and isMax
  * ----------------------------------------------------------------------- *)
 
-TYPE ConstCompProc = PROCEDURE ( VAR CARD64T ) : BOOLEAN;
+TYPE ConstCompProc = PROCEDURE ( CARD64T ) : BOOLEAN;
 
 TYPE ConstCompTest = RECORD
   proc : ConstCompProc;

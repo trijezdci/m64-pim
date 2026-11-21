@@ -125,7 +125,7 @@ TYPE NumberString = ARRAY [0..MaxNumberLength] OF CHAR;
  * Test parameter type for INT64 isZero, isOne and isMax
  * ----------------------------------------------------------------------- *)
 
-TYPE ConstCompProc = PROCEDURE ( VAR INT64T ) : BOOLEAN;
+TYPE ConstCompProc = PROCEDURE ( INT64T ) : BOOLEAN;
 
 TYPE ConstCompTest = RECORD
   proc : ConstCompProc;
@@ -191,13 +191,13 @@ BEGIN
   
   constCompTest[7].label := "INT64.isMin(080000000:1)";
   constCompTest[7].proc := INT64.isMin;
-  constCompTest[7].operand.highBits := -2147483648;
+  constCompTest[7].operand.highBits := MIN(LONGINT);
   constCompTest[7].operand.lowBits := 1;
   constCompTest[7].expected := FALSE;
   
   constCompTest[8].label := "INT64.isMin(080000000:0)";
   constCompTest[8].proc := INT64.isMin;
-  constCompTest[8].operand.highBits := -2147483648;
+  constCompTest[8].operand.highBits := MIN(LONGINT);
   constCompTest[8].operand.lowBits := 0;
   constCompTest[8].expected := TRUE;
   
@@ -349,7 +349,7 @@ BEGIN
   oddEvenTest[11].expected := TRUE;
 
   oddEvenTest[12].label := "INT64.odd(080000000:0)";
-  oddEvenTest[12].operand.highBits := -2147483648;
+  oddEvenTest[12].operand.highBits := MIN(LONGINT);
   oddEvenTest[12].operand.lowBits := 0;
   oddEvenTest[12].expected := FALSE
 END InitOddEvenTests;
@@ -702,7 +702,7 @@ BEGIN
   
   (* operands *)
   relOpTest[17].args := "(MIN(INT64T), 0)";
-  relOpTest[17].left.highBits := -2147483648;
+  relOpTest[17].left.highBits := MIN(LONGINT);
   relOpTest[17].left.lowBits := 0;
   relOpTest[17].right.highBits := 0;
   relOpTest[17].right.lowBits := 0;
@@ -717,9 +717,9 @@ BEGIN
   
   (* operands *)
   relOpTest[18].args := "(MIN(INT64T), MIN(INT64T)+1)";
-  relOpTest[18].left.highBits := -2147483648;
+  relOpTest[18].left.highBits := MIN(LONGINT);
   relOpTest[18].left.lowBits := 0;
-  relOpTest[18].right.highBits := -2147483648;
+  relOpTest[18].right.highBits := MIN(LONGINT);
   relOpTest[18].right.lowBits := 1;
   
   (* expected results *)
@@ -732,9 +732,9 @@ BEGIN
   
   (* operands *)
   relOpTest[19].args := "(MIN(INT64T), MIN(INT64T))";
-  relOpTest[19].left.highBits := -2147483648;
+  relOpTest[19].left.highBits := MIN(LONGINT);
   relOpTest[19].left.lowBits := 0;
-  relOpTest[19].right.highBits := -2147483648;
+  relOpTest[19].right.highBits := MIN(LONGINT);
   relOpTest[19].right.lowBits := 0;
   
   (* expected results *)
