@@ -409,12 +409,12 @@ VAR
 BEGIN
   (* operations *)
   FOR index := 0 TO RelOpTestGroupCount-1 DO
-    relopTest[index].operation[Eq].proc := CARD64.eq;
-    relopTest[index].operation[Neq].proc := CARD64.neq;
-    relopTest[index].operation[Lt].proc := CARD64.lt;
-    relopTest[index].operation[Lteq].proc := CARD64.lteq;
-    relopTest[index].operation[Gt].proc := CARD64.gt;
-    relopTest[index].operation[Gteq].proc := CARD64.gteq
+    relOpTest[index].operation[Eq].proc := CARD64.eq;
+    relOpTest[index].operation[Neq].proc := CARD64.neq;
+    relOpTest[index].operation[Lt].proc := CARD64.lt;
+    relOpTest[index].operation[Lteq].proc := CARD64.lteq;
+    relOpTest[index].operation[Gt].proc := CARD64.gt;
+    relOpTest[index].operation[Gteq].proc := CARD64.gteq
   END; (* FOR *)
   
   
@@ -426,12 +426,12 @@ BEGIN
   relOpTest[0].right.lowBits := 0;
 
   (* expected results *)
-  relopTest[0].operation[Eq].expected := TRUE;
-  relopTest[0].operation[Neq].expected := FALSE;
-  relopTest[0].operation[Lt].expected := FALSE;
-  relopTest[0].operation[Lteq].expected := TRUE;
-  relopTest[0].operation[Gt].expected := FALSE;
-  relopTest[0].operation[Gteq].expected := TRUE;
+  relOpTest[0].operation[Eq].expected := TRUE;
+  relOpTest[0].operation[Neq].expected := FALSE;
+  relOpTest[0].operation[Lt].expected := FALSE;
+  relOpTest[0].operation[Lteq].expected := TRUE;
+  relOpTest[0].operation[Gt].expected := FALSE;
+  relOpTest[0].operation[Gteq].expected := TRUE;
   
   (* operands *)
   relOpTest[1].args := "(0, 1)";
@@ -441,12 +441,12 @@ BEGIN
   relOpTest[1].right.lowBits := 1;
 
   (* expected results *)
-  relopTest[1].operation[Eq].expected := FALSE;
-  relopTest[1].operation[Neq].expected := TRUE;
-  relopTest[1].operation[Lt].expected := TRUE;
-  relopTest[1].operation[Lteq].expected := TRUE;
-  relopTest[1].operation[Gt].expected := FALSE;
-  relopTest[1].operation[Gteq].expected := FALSE;
+  relOpTest[1].operation[Eq].expected := FALSE;
+  relOpTest[1].operation[Neq].expected := TRUE;
+  relOpTest[1].operation[Lt].expected := TRUE;
+  relOpTest[1].operation[Lteq].expected := TRUE;
+  relOpTest[1].operation[Gt].expected := FALSE;
+  relOpTest[1].operation[Gteq].expected := FALSE;
    
   (* operands *)
   relOpTest[2].args := "(1, 0)";
@@ -456,12 +456,12 @@ BEGIN
   relOpTest[2].right.lowBits := 0;
 
   (* expected results *)
-  relopTest[2].operation[Eq].expected := FALSE;
-  relopTest[2].operation[Neq].expected := TRUE;
-  relopTest[2].operation[Lt].expected := FALSE;
-  relopTest[2].operation[Lteq].expected := FALSE;
-  relopTest[2].operation[Gt].expected := TRUE;
-  relopTest[2].operation[Gteq].expected := TRUE;
+  relOpTest[2].operation[Eq].expected := FALSE;
+  relOpTest[2].operation[Neq].expected := TRUE;
+  relOpTest[2].operation[Lt].expected := FALSE;
+  relOpTest[2].operation[Lteq].expected := FALSE;
+  relOpTest[2].operation[Gt].expected := TRUE;
+  relOpTest[2].operation[Gteq].expected := TRUE;
    
   (* operands *)
   relOpTest[3].args := "(1, MAX(LONGCARD)+2)";
@@ -471,12 +471,12 @@ BEGIN
   relOpTest[3].right.lowBits := 1;
 
   (* expected results *)
-  relopTest[3].operation[Eq].expected := FALSE;
-  relopTest[3].operation[Neq].expected := TRUE;
-  relopTest[3].operation[Lt].expected := TRUE;
-  relopTest[3].operation[Lteq].expected := TRUE;
-  relopTest[3].operation[Gt].expected := FALSE;
-  relopTest[3].operation[Gteq].expected := FALSE;
+  relOpTest[3].operation[Eq].expected := FALSE;
+  relOpTest[3].operation[Neq].expected := TRUE;
+  relOpTest[3].operation[Lt].expected := TRUE;
+  relOpTest[3].operation[Lteq].expected := TRUE;
+  relOpTest[3].operation[Gt].expected := FALSE;
+  relOpTest[3].operation[Gteq].expected := FALSE;
   
   (* operands *)
   relOpTest[4].args := "(MAX(LONGCARD), 0)";
@@ -486,12 +486,12 @@ BEGIN
   relOpTest[4].right.lowBits := 0;
 
   (* expected results *)
-  relopTest[4].operation[Eq].expected := FALSE;
-  relopTest[4].operation[Neq].expected := TRUE;
-  relopTest[4].operation[Lt].expected := FALSE;
-  relopTest[4].operation[Lteq].expected := FALSE;
-  relopTest[4].operation[Gt].expected := TRUE;
-  relopTest[4].operation[Gteq].expected := TRUE;
+  relOpTest[4].operation[Eq].expected := FALSE;
+  relOpTest[4].operation[Neq].expected := TRUE;
+  relOpTest[4].operation[Lt].expected := FALSE;
+  relOpTest[4].operation[Lteq].expected := FALSE;
+  relOpTest[4].operation[Gt].expected := TRUE;
+  relOpTest[4].operation[Gteq].expected := TRUE;
    
   (* operands *)
   relOpTest[5].args := "(MAX(LONGCARD), (MAX(LONGCARD)+1)";
@@ -501,12 +501,12 @@ BEGIN
   relOpTest[5].right.lowBits := 0;
 
   (* expected results *)
-  relopTest[5].operation[Eq].expected := FALSE;
-  relopTest[5].operation[Neq].expected := TRUE;
-  relopTest[5].operation[Lt].expected := TRUE;
-  relopTest[5].operation[Lteq].expected := TRUE;
-  relopTest[5].operation[Gt].expected := FALSE;
-  relopTest[5].operation[Gteq].expected := FALSE;
+  relOpTest[5].operation[Eq].expected := FALSE;
+  relOpTest[5].operation[Neq].expected := TRUE;
+  relOpTest[5].operation[Lt].expected := TRUE;
+  relOpTest[5].operation[Lteq].expected := TRUE;
+  relOpTest[5].operation[Gt].expected := FALSE;
+  relOpTest[5].operation[Gteq].expected := FALSE;
   
   (* operands *)
   relOpTest[6].args := "(MAX(LONGCARD)+1, 0)";
@@ -516,12 +516,12 @@ BEGIN
   relOpTest[6].right.lowBits := 0;
 
   (* expected results *)
-  relopTest[6].operation[Eq].expected := FALSE;
-  relopTest[6].operation[Neq].expected := TRUE;
-  relopTest[6].operation[Lt].expected := FALSE;
-  relopTest[6].operation[Lteq].expected := FALSE;
-  relopTest[6].operation[Gt].expected := TRUE;
-  relopTest[6].operation[Gteq].expected := TRUE;
+  relOpTest[6].operation[Eq].expected := FALSE;
+  relOpTest[6].operation[Neq].expected := TRUE;
+  relOpTest[6].operation[Lt].expected := FALSE;
+  relOpTest[6].operation[Lteq].expected := FALSE;
+  relOpTest[6].operation[Gt].expected := TRUE;
+  relOpTest[6].operation[Gteq].expected := TRUE;
    
   (* operands *)
   relOpTest[7].args := "(MAX(LONGCARD)+1, MAX(LONGCARD))";
@@ -531,12 +531,12 @@ BEGIN
   relOpTest[7].right.lowBits := 0FFFFFFFFH;
 
   (* expected results *)
-  relopTest[7].operation[Eq].expected := FALSE;
-  relopTest[7].operation[Neq].expected := TRUE;
-  relopTest[7].operation[Lt].expected := FALSE;
-  relopTest[7].operation[Lteq].expected := FALSE;
-  relopTest[7].operation[Gt].expected := TRUE;
-  relopTest[7].operation[Gteq].expected := TRUE;
+  relOpTest[7].operation[Eq].expected := FALSE;
+  relOpTest[7].operation[Neq].expected := TRUE;
+  relOpTest[7].operation[Lt].expected := FALSE;
+  relOpTest[7].operation[Lteq].expected := FALSE;
+  relOpTest[7].operation[Gt].expected := TRUE;
+  relOpTest[7].operation[Gteq].expected := TRUE;
    
   (* operands *)
   relOpTest[8].args := "(MAX(LONGCARD)+2, 1)";
@@ -546,12 +546,12 @@ BEGIN
   relOpTest[8].right.lowBits := 1;
 
   (* expected results *)
-  relopTest[8].operation[Eq].expected := FALSE;
-  relopTest[8].operation[Neq].expected := TRUE;
-  relopTest[8].operation[Lt].expected := FALSE;
-  relopTest[8].operation[Lteq].expected := FALSE;
-  relopTest[8].operation[Gt].expected := TRUE;
-  relopTest[8].operation[Gteq].expected := TRUE;
+  relOpTest[8].operation[Eq].expected := FALSE;
+  relOpTest[8].operation[Neq].expected := TRUE;
+  relOpTest[8].operation[Lt].expected := FALSE;
+  relOpTest[8].operation[Lteq].expected := FALSE;
+  relOpTest[8].operation[Gt].expected := TRUE;
+  relOpTest[8].operation[Gteq].expected := TRUE;
   
   (* operands *)
   relOpTest[9].args := "(MAX(CARD64T)-1, MAX(CARD64T))";
@@ -561,12 +561,12 @@ BEGIN
   relOpTest[9].right.lowBits := 0FFFFFFFFH;
   
   (* expected results *)
-  relopTest[9].operation[Eq].expected := FALSE;
-  relopTest[9].operation[Neq].expected := TRUE;
-  relopTest[9].operation[Lt].expected := TRUE;
-  relopTest[9].operation[Lteq].expected := TRUE;
-  relopTest[9].operation[Gt].expected := FALSE;
-  relopTest[9].operation[Gteq].expected := FALSE;
+  relOpTest[9].operation[Eq].expected := FALSE;
+  relOpTest[9].operation[Neq].expected := TRUE;
+  relOpTest[9].operation[Lt].expected := TRUE;
+  relOpTest[9].operation[Lteq].expected := TRUE;
+  relOpTest[9].operation[Gt].expected := FALSE;
+  relOpTest[9].operation[Gteq].expected := FALSE;
   
   (* operands *)
   relOpTest[10].args := "(MAX(CARD64T), MAX(CARD64T))";
@@ -576,12 +576,12 @@ BEGIN
   relOpTest[10].right.lowBits := 0FFFFFFFFH;
 
   (* expected results *)
-  relopTest[10].operation[Eq].expected := TRUE;
-  relopTest[10].operation[Neq].expected := FALSE;
-  relopTest[10].operation[Lt].expected := FALSE;
-  relopTest[10].operation[Lteq].expected := TRUE;
-  relopTest[10].operation[Gt].expected := FALSE;
-  relopTest[10].operation[Gteq].expected := TRUE
+  relOpTest[10].operation[Eq].expected := TRUE;
+  relOpTest[10].operation[Neq].expected := FALSE;
+  relOpTest[10].operation[Lt].expected := FALSE;
+  relOpTest[10].operation[Lteq].expected := TRUE;
+  relOpTest[10].operation[Gt].expected := FALSE;
+  relOpTest[10].operation[Gteq].expected := TRUE
 END InitRelOpTests;
 
 
