@@ -22,10 +22,10 @@ TYPE BitIndex = LONGCARD [0..Bitwidth-1];
 
 
 (* --------------------------------------------------------------------------
- * Maximum deximal digit count for LONGCARD values
+ * Maximum decimal digit count for LONGCARD values
  * ----------------------------------------------------------------------- *)
 
-CONST MaxDecimalDigits = (((Bitwidth-1) * 77) DIV 256) - 1;
+CONST MaxDecimalDigits = ((Bitwidth * 77) DIV 256) + 1;
 
 
 (* --------------------------------------------------------------------------

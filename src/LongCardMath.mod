@@ -133,7 +133,7 @@ VAR
   index : DigitRange;
 BEGIN
   powerOf10[0] := 1;
-  FOR index := 1 TO MaxDecimalDigits DO
+  FOR index := 1 TO MaxDecimalDigits - 1 DO
     powerOf10[index] := powerOf10[index-1] * 10
   END (* FOR *)
 END InitPow10Table;
@@ -142,8 +142,8 @@ END InitPow10Table;
 (* Module initialisation *)
 
 BEGIN
-  (* ASSERT MaxDecimalDigits matches Bitwidth *)
-  IF (((Bitwidth-1) * 77) DIV 256) >= MaxDecimalDigits THEN
+  (* ASSERT MaxDecimalDigits is large enough for Bitwidth *)
+  IF MaxDecimalDigits < (((Bitwidth * 77) DIV 256) + 1) THEN
     HALT
   END;
   
