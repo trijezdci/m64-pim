@@ -28,13 +28,6 @@ TYPE INT64T = RECORD  (* requires 32-bit LONGINT and LONGCARD types *)
 END; (* RECORD *)
 
 
-(* ---------------------------------------------------------------------------
- * Status Type
- * ------------------------------------------------------------------------ *)
-
-TYPE Status = CARD64.Status;
-
-
 (* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * NOTE : Not all classic Modula-2 compilers support records as return types
  * of functions.  For  portability,  all functions  that return a result  of
