@@ -26,12 +26,10 @@
 	.globl	_M2ROOT				# Imports
 	.globl	write
 	.globl	abort
-	.globl	errno
 
 	.globl	main				# Exports
 	.globl	GetArgs
 	.globl	GetEnv
-#	.globl	ErrNo
 	.globl	exit_
 	.globl	ReturnErr_
 	.globl	BoundErr_
@@ -106,12 +104,6 @@ GetEnv:
 	movl	env_,%ebx
 	movl	%ebx,(%eax)
 	ret
-
-# IMPLEMENTATION MODULE ErrNumbers
-# PROCEDURE ErrNo () : SHORTCARD;
-#ErrNo:
-#	movl	errno,%eax
-#	ret
 
 # IMPLEMENTATION MODULE SYSTEM
 # PROCEDURE HALT
