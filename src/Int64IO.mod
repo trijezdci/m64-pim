@@ -24,7 +24,7 @@ IMPORT LongCardIO, InOut;
  * Read unformatted decimal number from console and pass it in i.
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE Read ( VAR i : INT64T; VAR stat : INT64.Status );
+PROCEDURE Read ( VAR i : INT64T; VAR stat : Status );
 VAR
   ch : CHAR;
   minusSign : BOOLEAN;
@@ -160,7 +160,7 @@ PROCEDURE GetDigitSeq
   ( i : INT64T; VAR digits : ARRAY OF CHAR; VAR count : CARDINAL );
 VAR
   index : CARDINAL;
-  ignore : CARD64.Status;
+  ignore : Status;
   magnitude : INT64T;
   ten, rem, digitVal : CARD64T;
 BEGIN
