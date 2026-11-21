@@ -1020,7 +1020,8 @@ BEGIN
     RETURN
   END; (* IF *)
     
-  IF res.lowBits = 0 THEN
+  IF i.lowBits = 0 THEN
+    res.lowBits := 0;
     res.highBits := 0 - i.highBits
   ELSE (* borrow occurred *)
     res.lowBits := MAX(LONGCARD) - i.lowBits + 1;
