@@ -434,7 +434,7 @@ END isOne;
 
 PROCEDURE isMin ( i : INT64T ) : BOOLEAN;
 BEGIN
-  RETURN (i.highBits = MIN(LONGINT)) AND (i.lowBits = MAX(LONGCARD))
+  RETURN (i.highBits = MIN(LONGINT)) AND (i.lowBits = 0)
 END isMin;
 
 

@@ -222,7 +222,6 @@ BEGIN
   
   index := 0;
   GetDigitSeq(i, digits, weight);
-  DEC(weight);
   WHILE digits[index] # CHR(0) DO
     InOut.Write(digits[index]);
     DEC(weight);
