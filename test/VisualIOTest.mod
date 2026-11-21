@@ -5,7 +5,7 @@ MODULE VisualIOTest;
 (* --------------------------------------------------------------------------
  * Program Module: VisualIOTest
  * --------------------------------------------------------------------------
- * Visual tests for CARD64IO and INT64IO libraries.
+ * Visual tests for Card64IO and Int64IO libraries.
  * Prints edge-case values as unformatted, formatted and radix-16 output.
  * ----------------------------------------------------------------------- *)
 
@@ -17,7 +17,7 @@ IMPORT INT64;
 
 FROM INT64 IMPORT INT64T;
 
-IMPORT InOut, CARD64IO, INT64IO;
+IMPORT InOut, Card64IO, Int64IO;
 
 
 (* --------------------------------------------------------------------------
@@ -211,7 +211,7 @@ BEGIN
   
   (* Print actual unformatted output *)
   InOut.WriteString("    Unformatted, actual    : ");
-  CARD64IO.Write(test.value); InOut.WriteLn;
+  Card64IO.Write(test.value); InOut.WriteLn;
   InOut.WriteLn;
   
   (* Print expected formatted '.' separated output *)
@@ -221,7 +221,7 @@ BEGIN
   
   (* Print actual formatted '.' separated output *)
   InOut.WriteString("    '.' separated, actual  : ");
-  CARD64IO.WriteFmt(".", test.value); InOut.WriteLn;
+  Card64IO.WriteFmt(".", test.value); InOut.WriteLn;
   InOut.WriteLn;
  
   (* Print expected formatted ',' separated output *)
@@ -231,7 +231,7 @@ BEGIN
   
   (* Print actual formatted ',' separated output *)
   InOut.WriteString("    ',' separated, actual  : ");
-  CARD64IO.WriteFmt(",", test.value); InOut.WriteLn;
+  Card64IO.WriteFmt(",", test.value); InOut.WriteLn;
   InOut.WriteLn;
   
   (* Print expected radix-16 (hexadecimal) output *)
@@ -241,7 +241,7 @@ BEGIN
   
   (* Print actual radix-16 output *)
   InOut.WriteString("    radix-16, actual       : ");
-  CARD64IO.WriteFmt("x", test.value); InOut.WriteLn;
+  Card64IO.WriteFmt("x", test.value); InOut.WriteLn;
   InOut.WriteLn
 END PrintCardTest;
 
@@ -267,7 +267,7 @@ BEGIN
   
   (* Print actual unformatted output *)
   InOut.WriteString("    Unformatted, actual    : ");
-  INT64IO.Write(test.value); InOut.WriteLn;
+  Int64IO.Write(test.value); InOut.WriteLn;
   InOut.WriteLn;
   
   (* Print expected formatted '.' separated output *)
@@ -277,7 +277,7 @@ BEGIN
   
   (* Print actual formatted '.' separated output *)
   InOut.WriteString("    '.' separated, actual  : ");
-  INT64IO.WriteFmt(".", test.value); InOut.WriteLn;
+  Int64IO.WriteFmt(".", test.value); InOut.WriteLn;
   InOut.WriteLn;
  
   (* Print expected formatted ',' separated output *)
@@ -287,7 +287,7 @@ BEGIN
   
   (* Print actual formatted ',' separated output *)
   InOut.WriteString("    ',' separated, actual  : ");
-  INT64IO.WriteFmt(",", test.value); InOut.WriteLn;
+  Int64IO.WriteFmt(",", test.value); InOut.WriteLn;
   InOut.WriteLn;
   
   (* Print expected radix-16 (hexadecimal) output *)
@@ -297,7 +297,7 @@ BEGIN
   
   (* Print actual radix-16 output *)
   InOut.WriteString("    radix-16, actual       : ");
-  INT64IO.WriteFmt("x", test.value); InOut.WriteLn;
+  Int64IO.WriteFmt("x", test.value); InOut.WriteLn;
   InOut.WriteLn
 END PrintIntTest;
 
@@ -313,14 +313,14 @@ BEGIN (* VisualIOTest *)
   InitCardTests;
   InitIntTests;
   
-  InOut.WriteString("Visual IO Tests for CARD64IO");
+  InOut.WriteString("Visual IO Tests for Card64IO");
   InOut.WriteLn; InOut.WriteLn;
   
   FOR index := 0 TO CardTestCount-1 DO
     PrintCardTest(cardTest[index]);
   END; (* FOR *)
 
-  InOut.WriteString("Visual IO Tests for INT64IO");
+  InOut.WriteString("Visual IO Tests for Int64IO");
   InOut.WriteLn; InOut.WriteLn;
   
   FOR index := 0 TO IntTestCount-1 DO
