@@ -2,7 +2,7 @@
 
 MODULE TestConv;
 
-IMPORT InOut, TestCard64Conv, TestCard64Conv;
+IMPORT InOut, TestCard64Conv, TestInt64Conv;
 
 
 (* --------------------------------------------------------------------------
@@ -36,7 +36,7 @@ PROCEDURE Tally;
 BEGIN
   totalPassed := totalPassed + passed;
   totalFailed := totalFailed + failed;
-  passed := 0; failed = 0
+  passed := 0; failed := 0
 END Tally;
 
 
