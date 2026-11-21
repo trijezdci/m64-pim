@@ -175,7 +175,7 @@ BEGIN
     RETURN
   ELSIF INT64.isMin(i) THEN
     AssignMinIntDigitSeq(digits);
-    count := CARD64.MaxDecimalDigits;
+    count := CARD64.MaxDecimalDigits - 1;
     RETURN
   END; (* IF *)
   
@@ -254,7 +254,7 @@ END WriteFmtHex;
  * ----------------------------------------------------------------------- *)
 
 VAR
-  minIntDigitSeq : ARRAY [0..CARD64.MaxDecimalDigits+1] OF CHAR;
+  minIntDigitSeq : ARRAY [0..CARD64.MaxDecimalDigits] OF CHAR;
 
 
 (* --------------------------------------------------------------------------
@@ -267,7 +267,7 @@ PROCEDURE AssignMinIntDigitSeq ( VAR str : ARRAY OF CHAR );
 VAR
   index : CARDINAL;
 BEGIN
-  FOR index := 0 TO CARD64.MaxDecimalDigits+1 DO
+  FOR index := 0 TO CARD64.MaxDecimalDigits DO
     str[index] := minIntDigitSeq[index]
   END (* FOR *)
 END AssignMinIntDigitSeq;
