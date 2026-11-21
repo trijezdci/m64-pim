@@ -11,7 +11,7 @@ FROM INT64 IMPORT INT64T;
 
 FROM NumStatus IMPORT Status;
 
-IMPORT InOut, LongCardIO, Card64IO;
+IMPORT InOut, NumStatusIO, LongCardIO, Card64IO;
 
 
 (* --------------------------------------------------------------------------
@@ -274,7 +274,7 @@ VAR
 BEGIN
   PrintLabel(test.label);
   
-  FromCard(test.operand, i);
+  INT64.FromCard(test.operand, i);
   PrintResult(i);
   IF (i.highBits = test.expected.highBits) AND
      (i.lowBits = test.expected.lowBits) THEN
@@ -359,7 +359,7 @@ VAR
 BEGIN
   PrintLabel(test.label);
   
-  FromLongCard(test.operand, i);
+  INT64.FromLongCard(test.operand, i);
   PrintResult(i);
   IF (i.highBits = test.expected.highBits) AND
      (i.lowBits = test.expected.lowBits) THEN
@@ -454,7 +454,7 @@ VAR
 BEGIN
   PrintLabel(test.label);
   
-  FromInt(test.operand, i);
+  INT64.FromInt(test.operand, i);
   PrintResult(i);
   IF (i.highBits = test.expected.highBits) AND
      (i.lowBits = test.expected.lowBits) THEN
@@ -549,7 +549,7 @@ VAR
 BEGIN
   PrintLabel(test.label);
   
-  FromLongInt(test.operand, i);
+  INT64.FromLongInt(test.operand, i);
   PrintResult(i);
   IF (i.highBits = test.expected.highBits) AND
      (i.lowBits = test.expected.lowBits) THEN
@@ -650,7 +650,7 @@ VAR
 BEGIN
   PrintLabel(test.label);
   
-  ToCard(test.operand, n, stat);
+  INT64.ToCard(test.operand, n, stat);
   PrintCardResult(n); PrintStatus(stat);
   IF test.expStatus = Success THEN
     IF (n = test.expected) THEN
@@ -761,7 +761,7 @@ VAR
 BEGIN
   PrintLabel(test.label);
   
-  ToLongCard(test.operand, n, stat);
+  INT64.ToLongCard(test.operand, n, stat);
   PrintLongCardResult(n); PrintStatus(stat);
   IF test.expStatus = Success THEN
     IF (n = test.expected) THEN
@@ -883,7 +883,7 @@ VAR
 BEGIN
   PrintLabel(test.label);
   
-  ToInt(test.operand, i, stat);
+  INT64.ToInt(test.operand, i, stat);
   PrintIntResult(i); PrintStatus(stat);
   IF test.expStatus = Success THEN
     IF (i = test.expected) THEN
@@ -1006,7 +1006,7 @@ VAR
 BEGIN
   PrintLabel(test.label);
   
-  ToLongInt(test.operand, i, stat);
+  INT64.ToLongInt(test.operand, i, stat);
   PrintLongIntResult(i); PrintStatus(stat);
   IF test.expStatus = Success THEN
     IF (i = test.expected) THEN
@@ -1225,7 +1225,7 @@ VAR
 BEGIN
   PrintLabel(test.label);
   
-  ToString(test.operand, str, stat);
+  INT64.ToString(test.operand, str, stat);
   PrintStringResult(str); PrintStatus(stat);
   IF eqStr(str, test.expected) THEN
     InOut.WriteString(PassNotice);
@@ -1397,7 +1397,7 @@ END PrintStringResult;
 PROCEDURE PrintStatus ( stat : Status );
 BEGIN
   InOut.WriteString(" status: ");
-  Card64IO.WriteStatus(stat);
+  NumStatusIO.Write(stat);
   InOut.WriteLn
 END PrintStatus;
 
