@@ -375,7 +375,7 @@ END RunOddEvenTests;
  * Test parameter type for CARD64 eq, neq, gt, gteq, lt and lteq
  * ----------------------------------------------------------------------- *)
 
-TYPE RelOpProc = PROCEDURE ( VAR CARD64T, VAR CARD64T ) : BOOLEAN;
+TYPE RelOpProc = PROCEDURE ( CARD64T, CARD64T ) : BOOLEAN;
 
 TYPE RelOpId = ( Eq, Neq, Lt, Lteq, Gt, Gteq );
 

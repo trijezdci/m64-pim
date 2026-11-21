@@ -403,7 +403,7 @@ END RunOddEvenTests;
  * Test parameter type for INT64 eq, neq, gt, gteq, lt and lteq
  * ----------------------------------------------------------------------- *)
 
-TYPE RelOpProc = PROCEDURE ( VAR INT64T, VAR INT64T ) : BOOLEAN;
+TYPE RelOpProc = PROCEDURE ( INT64T, INT64T ) : BOOLEAN;
 
 TYPE RelOpId = ( Eq, Neq, Lt, Lteq, Gt, Gteq );
 
