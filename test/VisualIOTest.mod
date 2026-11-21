@@ -221,7 +221,7 @@ BEGIN
   
   (* Print actual formatted '.' separated output *)
   InOut.WriteString("    '.' separated, actual  : ");
-  Card64IO.WriteFmt(".", test.value); InOut.WriteLn;
+  Card64IO.WriteF(".", test.value); InOut.WriteLn;
   InOut.WriteLn;
  
   (* Print expected formatted ',' separated output *)
@@ -231,7 +231,7 @@ BEGIN
   
   (* Print actual formatted ',' separated output *)
   InOut.WriteString("    ',' separated, actual  : ");
-  Card64IO.WriteFmt(",", test.value); InOut.WriteLn;
+  Card64IO.WriteF(",", test.value); InOut.WriteLn;
   InOut.WriteLn;
   
   (* Print expected radix-16 (hexadecimal) output *)
@@ -241,7 +241,7 @@ BEGIN
   
   (* Print actual radix-16 output *)
   InOut.WriteString("    radix-16, actual       : ");
-  Card64IO.WriteFmt("x", test.value); InOut.WriteLn;
+  Card64IO.WriteF("x", test.value); InOut.WriteLn;
   InOut.WriteLn
 END PrintCardTest;
 
@@ -277,7 +277,7 @@ BEGIN
   
   (* Print actual formatted '.' separated output *)
   InOut.WriteString("    '.' separated, actual  : ");
-  Int64IO.WriteFmt(".", test.value); InOut.WriteLn;
+  Int64IO.WriteF(".", test.value); InOut.WriteLn;
   InOut.WriteLn;
  
   (* Print expected formatted ',' separated output *)
@@ -287,7 +287,7 @@ BEGIN
   
   (* Print actual formatted ',' separated output *)
   InOut.WriteString("    ',' separated, actual  : ");
-  Int64IO.WriteFmt(",", test.value); InOut.WriteLn;
+  Int64IO.WriteF(",", test.value); InOut.WriteLn;
   InOut.WriteLn;
   
   (* Print expected radix-16 (hexadecimal) output *)
@@ -297,7 +297,7 @@ BEGIN
   
   (* Print actual radix-16 output *)
   InOut.WriteString("    radix-16, actual       : ");
-  Int64IO.WriteFmt("x", test.value); InOut.WriteLn;
+  Int64IO.WriteF("x", test.value); InOut.WriteLn;
   InOut.WriteLn
 END PrintIntTest;
 
