@@ -144,16 +144,16 @@ BEGIN
   intTest[0].value.highBits := 0;
   intTest[0].value.lowBits := 0;
   intTest[0].expected.unformatted := "0";
-  intTest[0].expected.dotSeparated := "0";
-  intTest[0].expected.commaSeparated := "0";
+  intTest[0].expected.dotSeparated := " 0";
+  intTest[0].expected.commaSeparated := " 0";
   intTest[0].expected.radix16 := "0x00000000:00000000";
 
   intTest[1].label := "INT64: one";
   intTest[1].value.highBits := 0;
   intTest[1].value.lowBits := 1;
   intTest[1].expected.unformatted := "1";
-  intTest[1].expected.dotSeparated := "1";
-  intTest[1].expected.commaSeparated := "1";
+  intTest[1].expected.dotSeparated := " 1";
+  intTest[1].expected.commaSeparated := " 1";
   intTest[1].expected.radix16 := "0x00000000:00000001";
   
   intTest[2].label := "INT64: minus one";
@@ -184,8 +184,8 @@ BEGIN
   intTest[5].value.highBits := 7FFFFFFFH;
   intTest[5].value.lowBits := 0FFFFFFFFH;
   intTest[5].expected.unformatted := "9223372036854775807";
-  intTest[5].expected.dotSeparated := "9.223.372.036.854.775.807";
-  intTest[5].expected.commaSeparated := "9,223,372,036,854,775,807";
+  intTest[5].expected.dotSeparated := " 9.223.372.036.854.775.807";
+  intTest[5].expected.commaSeparated := " 9,223,372,036,854,775,807";
   intTest[5].expected.radix16 := "0x7FFFFFFF:FFFFFFFF"
  END InitIntTests;
 
