@@ -1,6 +1,8 @@
 #!/bin/sh
-#
-# Christian Maurer   v. 5. August 2012
+
+# 32-bit link script called by mocka -p
+
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 
 case $1 in
 '-elf' ) shift ;;
@@ -14,6 +16,6 @@ esac
 
 PRG=${1##*/}; shift
 
-gcc -D_REENTRANT -m32 -o $PRG /usr/local/m2/out/mocka/M2RTS.o $* $MOCKALINK
-## strip $PRG
-mv $PRG $M2BIN
+gcc -D_REENTRANT -no-pie -o "$PRG" "$SCRIPT_DIR/../lib/M2RTS.o" "$@"
+
+# EOF
