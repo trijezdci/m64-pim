@@ -6,7 +6,7 @@ IMPLEMENTATION MODULE NumStatusIO;
 
 IMPORT NumStatus;
 
-FROM NumStatus IMPORT Status;
+FROM NumStatus IMPORT Status, IdentString;
 
 
 (* --------------------------------------------------------------------------
