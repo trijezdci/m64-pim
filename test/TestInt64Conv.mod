@@ -847,7 +847,7 @@ BEGIN
   toIntTest[3].label := "INT64.ToInt() for MIN(INTEGER)";
   toIntTest[3].operand.highBits := -1;
   toIntTest[3].operand.lowBits := 080000000H;
-  toIntTest[3].expected := -2147483648;
+  toIntTest[3].expected := MIN(INTEGER);
   toIntTest[3].expStatus := Success;
   
   toIntTest[4].label := "INT64.ToInt() for MIN(INTEGER)-1";
@@ -969,7 +969,7 @@ BEGIN
   toLongIntTest[3].label := "INT64.ToLongInt() for MIN(LONGINT)";
   toLongIntTest[3].operand.highBits := -1;
   toLongIntTest[3].operand.lowBits := 080000000H;
-  toLongIntTest[3].expected := -2147483648;
+  toLongIntTest[3].expected := MIN(LONGINT);
   toLongIntTest[3].expStatus := Success;
   
   toLongIntTest[4].label := "INT64.ToLongInt() for MIN(LONGINT)-1";
@@ -1161,7 +1161,7 @@ BEGIN
   toStringTest[17].expected := "4294967296";
   
   toStringTest[18].label := "INT64.ToString() for 9223372036854775807";
-  toStringTest[18].operand.highBits := 0FFFFFFFFH;
+  toStringTest[18].operand.highBits := 2147483647;
   toStringTest[18].operand.lowBits := 0FFFFFFFFH;
   toStringTest[18].expected := "9223372036854775807";
 
@@ -1205,7 +1205,7 @@ BEGIN
   
   (* MIN(INT64T) *)
   toStringTest[24].label := "INT64.ToString() for -9223372036854775808";
-  toStringTest[24].operand.highBits := -2147483648;
+  toStringTest[24].operand.highBits := MIN(LONGINT);
   toStringTest[24].operand.lowBits := 0;
   toStringTest[24].expected := "-9223372036854775808"
 END InitToStringTests;
