@@ -4,9 +4,9 @@ IMPLEMENTATION MODULE NumStatusIO;
 
 (* Console IO library for Type NumStatus.Status *)
 
-IMPORT NumStatus;
+IMPORT InOut, NumStatus;
 
-FROM NumStatus IMPORT Status, IdentString;
+FROM NumStatus IMPORT Status;
 
 
 (* --------------------------------------------------------------------------
@@ -19,14 +19,14 @@ PROCEDURE Write ( stat : Status );
 VAR
   ch : CHAR;
   index : CARDINAL;
-  identStr : IdentString;
+  identStr : NumStatus.IdentString;
 BEGIN
   identStr := NumStatus.identString(stat);
   FOR index := 0 TO NumStatus.MaxIdentLen DO
     ch := identStr^[index];
     InOut.Write(ch);
     IF ch = CHR(0) THEN
-      EXIT
+      RETURN
     END (* IF *)
   END (* FOR *)
 END Write;
