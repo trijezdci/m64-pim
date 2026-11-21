@@ -143,10 +143,10 @@ END InitPow10Table;
 
 BEGIN
   (* ASSERT MaxDecimalDigits is large enough for Bitwidth *)
-  IF MaxDecimalDigits < (((Bitwidth * 77) DIV 256) + 1) THEN
+  IF ((Bitwidth * 77) DIV 256) >= MaxDecimalDigits THEN
     HALT
-  END;
-  
+  END; (* IF *)
+
   (* initialise tables *)
   InitPow2Table;
   InitPow10Table
