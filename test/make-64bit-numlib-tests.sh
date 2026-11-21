@@ -23,16 +23,19 @@ rm -f *.d *.r *.o *.s $TEST_PROGRAMS
 
 # compile test interfaces
 for mod in $TEST_LIBS; do
+    echo "*** compiling $mod.def ***"
     mocka -d "$LIB_DIR" -d "$SRC_DIR" -d "$TEST_DIR" -s "$mod"
 done
 
 # compile test implementations
 for mod in $TEST_LIBS; do
+    echo "*** compiling $mod.mod ***"
     mocka -d "$LIB_DIR" -d "$SRC_DIR" -d "$TEST_DIR" -S -c "$mod"
 done
 
 # compile and build test programs
 for prog in $TEST_PROGRAMS; do
+    echo "*** building $prog ***"
     mocka -d "$LIB_DIR" -d "$SRC_DIR" -d "$TEST_DIR" -S -c "$prog"
     mocka -d "$LIB_DIR" -d "$SRC_DIR" -d "$TEST_DIR" -S -p "$prog"
 done
