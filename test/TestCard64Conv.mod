@@ -9,6 +9,8 @@ IMPORT CARD64;
 
 FROM CARD64 IMPORT CARD64T;
 
+FROM NumStatus IMPORT Status;
+
 IMPORT InOut, LongCardIO, Card64IO;
 
 
