@@ -482,7 +482,7 @@ VAR
   borrow : LONGCARD;
 BEGIN
   IF lt(left, right) THEN
-    stat := Overflow;
+    stat := Underflow;
     RETURN
   END; (* IF *)
 
