@@ -520,11 +520,11 @@ BEGIN
   (* operand *)
   unaryOpTest[6].args := "(MAX(LONGCARD)+1)";
   unaryOpTest[6].operand.highBits := 1;
-  unaryOpTest[6].operand.lowBits := 1;
+  unaryOpTest[6].operand.lowBits := 0;
   
   (* expected results *)
   unaryOpTest[6].operation[Inc].expected.highBits := 1;
-  unaryOpTest[6].operation[Inc].expected.lowBits := 2;
+  unaryOpTest[6].operation[Inc].expected.lowBits := 1;
   unaryOpTest[6].operation[Inc].expStatus := Success;
 
   unaryOpTest[6].operation[Dec].expected.highBits := 0;
