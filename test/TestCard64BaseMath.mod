@@ -5,7 +5,7 @@ IMPLEMENTATION MODULE TestCard64BaseMath;
 (* Test Suite for CARD64 Basic Arithmetic Operations *)
 
 
-IMPORT CARD64, Card64IO, InOut;
+IMPORT CARD64, Card64IO, LongCardIO, NumStatusIO, InOut;
 
 FROM CARD64 IMPORT CARD64T;
 
@@ -586,7 +586,7 @@ VAR
   operation : UnaryOp;
   stat : Status;
 BEGIN
-  PrintLabelForUnaryOp(test.args);
+  PrintLabelForUnaryOp(unaryOp, test.args);
   
   operand := test.operand;
   operation := test.operation[unaryOp];
@@ -595,7 +595,8 @@ BEGIN
   PrintResult(operand); PrintStatus(stat);
   
   IF operation.expStatus = Success THEN
-    IF operand = operation.expected THEN
+    IF (operand.highBits = operation.expected.highBits) AND
+      ((operand.lowBits = operation.expected.lowBits) THEN
       InOut.WriteString(PassNotice);
       INC(passed)
     ELSE
@@ -1015,7 +1016,8 @@ BEGIN
   PrintResult(res); PrintStatus(stat);
 
   IF operation.expStatus = Success THEN
-    IF res = operation.expected THEN
+    IF (res.highBits = operation.expected.highBits) AND
+      (res.lowBits = operation.expected.lowBits)) THEN
       InOut.WriteString(PassNotice);
       INC(passed)
     ELSE
@@ -1080,7 +1082,7 @@ END PrintLabel;
 PROCEDURE PrintLabelForUnaryOp ( unaryOp : UnaryOpId; args : LabelString );
 BEGIN
   InOut.WriteString("*** ");
-  CASE relOp OF
+  CASE unaryOp OF
     Inc : InOut.WriteString("CARD64.Inc")
   | Dec : InOut.WriteString("CARD64.Dec")
   END; (* CASE *)
@@ -1099,7 +1101,7 @@ END PrintLabelForUnaryOp;
 PROCEDURE PrintLabelForBinOp ( binOp : BinOpId; args : LabelString );
 BEGIN
   InOut.WriteString("*** ");
-  CASE relOp OF
+  CASE binOp OF
     Add : InOut.WriteString("CARD64.Add")
   | Sub : InOut.WriteString("CARD64.Sub")
   | Mul : InOut.WriteString("CARD64.Mul")
