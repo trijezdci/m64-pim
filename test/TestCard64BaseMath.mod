@@ -596,7 +596,7 @@ BEGIN
   
   IF operation.expStatus = Success THEN
     IF (operand.highBits = operation.expected.highBits) AND
-      ((operand.lowBits = operation.expected.lowBits) THEN
+      (operand.lowBits = operation.expected.lowBits) THEN
       InOut.WriteString(PassNotice);
       INC(passed)
     ELSE
@@ -1017,7 +1017,7 @@ BEGIN
 
   IF operation.expStatus = Success THEN
     IF (res.highBits = operation.expected.highBits) AND
-      (res.lowBits = operation.expected.lowBits)) THEN
+      (res.lowBits = operation.expected.lowBits) THEN
       InOut.WriteString(PassNotice);
       INC(passed)
     ELSE
