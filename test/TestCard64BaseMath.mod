@@ -883,8 +883,8 @@ BEGIN
   binOpTest[7].operation[Sub].expected.lowBits := 01FFFEH;
   binOpTest[7].operation[Sub].expStatus := Success;
 
-  binOpTest[7].operation[Mul].expected.highBits := MAX(LONGCARD);
-  binOpTest[7].operation[Mul].expected.lowBits := 01FFFEH;
+  binOpTest[7].operation[Mul].expected.highBits := MAX(LONGCARD) - 1;
+  binOpTest[7].operation[Mul].expected.lowBits := 01FFFFH;
   binOpTest[7].operation[Mul].expStatus := Success;
 
   binOpTest[7].operation[Div].expected.highBits := 0;
