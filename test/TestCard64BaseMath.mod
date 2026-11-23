@@ -421,7 +421,7 @@ END; (* UnaryOpTest *)
 
 CONST UnaryOpTestGroupCount = 10;
 
-CONST UnaryOpTestCount = UnaryOpTestGroupCount * ORD(MAX(UnaryOpId)+1);
+CONST UnaryOpTestCount = UnaryOpTestGroupCount * (ORD(MAX(UnaryOpId)) + 1);
 
 VAR unaryOpTest : ARRAY [0..UnaryOpTestCount-1] OF UnaryOpTest;
 
@@ -665,7 +665,7 @@ END; (* BinOpTest *)
 
 CONST BinOpTestGroupCount = 12;
 
-CONST BinOpTestCount = BinOpTestGroupCount * ORD(MAX(BinOpId)+1);
+CONST BinOpTestCount = BinOpTestGroupCount * (ORD(MAX(BinOpId)) + 1);
 
 VAR binOpTest : ARRAY [0..BinOpTestGroupCount-1] OF BinOpTest;
 
