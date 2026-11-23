@@ -2,7 +2,7 @@
 
 MODULE TestBaseMath;
 
-IMPORT InOut, TestCard64BaseMath, TestInt64BaseMath;
+IMPORT InOut, TestCard64BaseMath (*, TestInt64BaseMath *);
 
 
 (* --------------------------------------------------------------------------
