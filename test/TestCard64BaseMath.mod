@@ -1139,7 +1139,7 @@ END PrintResult;
 PROCEDURE PrintCardResult ( n : CARDINAL );
 BEGIN
   InOut.WriteString(ResultLabel);
-  LongCardIO.Write(VAL(LONGCARD), n);
+  LongCardIO.Write(VAL(LONGCARD, n));
   InOut.WriteLn
 END PrintCardResult;
 
