@@ -5,9 +5,11 @@ IMPLEMENTATION MODULE TestCard64BaseMath;
 (* Test Suite for CARD64 Basic Arithmetic Operations *)
 
 
-IMPORT CARD64, InOut;
+IMPORT CARD64, Card64IO, InOut;
 
 FROM CARD64 IMPORT CARD64T;
+
+FROM NumStatus IMPORT Status;
 
 
 (* --------------------------------------------------------------------------
@@ -32,23 +34,23 @@ BEGIN
   (* clear counters *)
   passed := 0; failed := 0;
   
-  InOut.WriteString("Constant Comparison Tests for CARD64");
+  InOut.WriteString("Digit Count Tests for CARD64");
   InOut.WriteLn; InOut.WriteLn;
   
-  (* run all constant comparison tests *)
-  RunConstCompTests(passed, failed);
+  (* run digit count tests *)
+  RunDigitCountTests(passed, failed);
   
-  InOut.WriteString("Odd/Even Tests for CARD64");
+  InOut.WriteString("Unary Arithmentic Operation Tests for CARD64");
   InOut.WriteLn; InOut.WriteLn;
   
-  (* run all odd/even tests *)
-  RunOddEvenTests(passed, failed);
+  (* run all unary arithmetic operation tests *)
+  RunUnaryOpTests(passed, failed);
   
-  InOut.WriteString("Relational Operation Tests for CARD64");
+  InOut.WriteString("Binary Arithmentic Operation Tests for CARD64");
   InOut.WriteLn; InOut.WriteLn;
   
-  (* run all relational operation tests *)
-  RunRelOpTests(passed, failed);
+  (* run all binary arithmetic operation tests *)
+  RunBinOpTests(passed, failed);
   
   (* print summary *)
   
@@ -76,7 +78,7 @@ END RunTests;
 
 PROCEDURE testCount () : CARDINAL;
 BEGIN
-  RETURN ConstCompTestCount + OddEvenTestCount + RelOpTestCount;
+  RETURN DigitCountTestCount + UnaryOpTestCount + BinOpTestCount;
 END testCount;
 
 
@@ -122,102 +124,245 @@ TYPE NumberString = ARRAY [0..MaxNumberLength] OF CHAR;
 
 
 (* --------------------------------------------------------------------------
- * Test parameter type for CARD64 isZero, isOne and isMax
+ * Test parameter type for CARD64.digitCount
  * ----------------------------------------------------------------------- *)
 
-TYPE ConstCompProc = PROCEDURE ( VAR CARD64T ) : BOOLEAN;
-
-TYPE ConstCompTest = RECORD
-  proc : ConstCompProc;
+TYPE DigitCountTest = RECORD
   operand : CARD64T;
-  expected : BOOLEAN;
+  expected : CARDINAL;
   label : LabelString
-END; (* ConstCompTest *)
+END; (* DigitCountTest *)
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  InitConstCompTests
+ * Procedure:  InitDigitCountTests
  * --------------------------------------------------------------------------
- * Initialises tests for SetZero, SetOne, SetMax.
+ * Initialises tests for digitCount.
  * ----------------------------------------------------------------------- *)
 
-CONST ConstCompTestCount = 9;
+CONST DigitCountTestCount = 40;
 
-VAR constCompTest : ARRAY [0..ConstCompTestCount-1] OF ConstCompTest;
+VAR digitCountTest : ARRAY [0..DigitCountTestCount-1] OF DigitCountTest;
 
-PROCEDURE InitConstCompTests;
+PROCEDURE InitDigitCountTests;
 BEGIN
-  constCompTest[0].label := "CARD64.isZero(0:0)";
-  constCompTest[0].proc := CARD64.isZero;
-  constCompTest[0].operand.highBits := 0;
-  constCompTest[0].operand.lowBits := 0;
-  constCompTest[0].expected := TRUE;
+  digitCountTest[0].label := "CARD64.digitCount(0)";
+  digitCountTest[0].operand.highBits := 0;
+  digitCountTest[0].operand.lowBits := 0;
+  digitCountTest[0].expected := 1;
   
-  constCompTest[1].label := "CARD64.isZero(0:1)";
-  constCompTest[1].proc := CARD64.isZero;
-  constCompTest[1].operand.highBits := 0;
-  constCompTest[1].operand.lowBits := 1;
-  constCompTest[1].expected := FALSE;
+  digitCountTest[1].label := "CARD64.digitCount(9)";
+  digitCountTest[1].operand.highBits := 0;
+  digitCountTest[1].operand.lowBits := 9;
+  digitCountTest[1].expected := 1;
   
-  constCompTest[2].label := "CARD64.isZero(1:0)";
-  constCompTest[2].proc := CARD64.isZero;
-  constCompTest[2].operand.highBits := 1;
-  constCompTest[2].operand.lowBits := 0;
-  constCompTest[2].expected := FALSE;
+  digitCountTest[2].label := "CARD64.digitCount(10)";
+  digitCountTest[2].operand.highBits := 0;
+  digitCountTest[2].operand.lowBits := 10;
+  digitCountTest[2].expected := 2;
   
-  constCompTest[3].label := "CARD64.isOne(0:0)";
-  constCompTest[3].proc := CARD64.isOne;
-  constCompTest[3].operand.highBits := 0;
-  constCompTest[3].operand.lowBits := 0;
-  constCompTest[3].expected := FALSE;
+  digitCountTest[3].label := "CARD64.digitCount(99)";
+  digitCountTest[3].operand.highBits := 0;
+  digitCountTest[3].operand.lowBits := 99;
+  digitCountTest[3].expected := 2;
   
-  constCompTest[4].label := "CARD64.isOne(0:1)";
-  constCompTest[4].proc := CARD64.isOne;
-  constCompTest[4].operand.highBits := 0;
-  constCompTest[4].operand.lowBits := 1;
-  constCompTest[4].expected := TRUE;
+  digitCountTest[4].label := "CARD64.digitCount(100)";
+  digitCountTest[4].operand.highBits := 0;
+  digitCountTest[4].operand.lowBits := 100;
+  digitCountTest[4].expected := 3;
   
-  constCompTest[5].label := "CARD64.isOne(1:0)";
-  constCompTest[5].proc := CARD64.isOne;
-  constCompTest[5].operand.highBits := 1;
-  constCompTest[5].operand.lowBits := 0;
-  constCompTest[5].expected := FALSE;
+  digitCountTest[5].label := "CARD64.digitCount(999)";
+  digitCountTest[5].operand.highBits := 0;
+  digitCountTest[5].operand.lowBits := 999;
+  digitCountTest[5].expected := 3;
   
-  constCompTest[6].label := "CARD64.isMax(0:0FFFFFFFF)";
-  constCompTest[6].proc := CARD64.isMax;
-  constCompTest[6].operand.highBits := 0;
-  constCompTest[6].operand.lowBits := 0FFFFFFFFH;
-  constCompTest[6].expected := FALSE;
+  digitCountTest[6].label := "CARD64.digitCount(1,000)";
+  digitCountTest[6].operand.highBits := 0;
+  digitCountTest[6].operand.lowBits := 1000;
+  digitCountTest[6].expected := 4;
   
-  constCompTest[7].label := "CARD64.isMax(0FFFFFFFF:0)";
-  constCompTest[7].proc := CARD64.isMax;
-  constCompTest[7].operand.highBits := 0FFFFFFFFH;
-  constCompTest[7].operand.lowBits := 0;
-  constCompTest[7].expected := FALSE;
+  digitCountTest[7].label := "CARD64.digitCount(9,999)";
+  digitCountTest[7].operand.highBits := 0;
+  digitCountTest[7].operand.lowBits := 9999;
+  digitCountTest[7].expected := 4;
   
-  constCompTest[8].label := "CARD64.isMax(0FFFFFFFF:0FFFFFFFF)";
-  constCompTest[8].proc := CARD64.isMax;
-  constCompTest[8].operand.highBits := 0FFFFFFFFH;
-  constCompTest[8].operand.lowBits := 0FFFFFFFFH;
-  constCompTest[8].expected := TRUE
-END InitConstCompTests;
+  digitCountTest[8].label := "CARD64.digitCount(10,000)";
+  digitCountTest[8].operand.highBits := 0;
+  digitCountTest[8].operand.lowBits := 10000;
+  digitCountTest[8].expected := 5;
+  
+  digitCountTest[9].label := "CARD64.digitCount(99,999)";
+  digitCountTest[9].operand.highBits := 0;
+  digitCountTest[9].operand.lowBits := 99999;
+  digitCountTest[9].expected := 5;
+  
+  digitCountTest[10].label := "CARD64.digitCount(100,000)";
+  digitCountTest[10].operand.highBits := 0;
+  digitCountTest[10].operand.lowBits := 100000;
+  digitCountTest[10].expected := 6;
+  
+  digitCountTest[11].label := "CARD64.digitCount(999,999)";
+  digitCountTest[11].operand.highBits := 0;
+  digitCountTest[11].operand.lowBits := 999999;
+  digitCountTest[11].expected := 6;
+  
+  digitCountTest[12].label := "CARD64.digitCount(1,000,000)";
+  digitCountTest[12].operand.highBits := 0;
+  digitCountTest[12].operand.lowBits := 1000000;
+  digitCountTest[12].expected := 7;
+  
+  digitCountTest[13].label := "CARD64.digitCount(9,999,999)";
+  digitCountTest[13].operand.highBits := 0;
+  digitCountTest[13].operand.lowBits := 9999999;
+  digitCountTest[13].expected := 7;
+  
+  digitCountTest[14].label := "CARD64.digitCount(10,000,000)";
+  digitCountTest[14].operand.highBits := 0;
+  digitCountTest[14].operand.lowBits := 10000000;
+  digitCountTest[14].expected := 8;
+  
+  digitCountTest[15].label := "CARD64.digitCount(99,999,999)";
+  digitCountTest[15].operand.highBits := 0;
+  digitCountTest[15].operand.lowBits := 99999999;
+  digitCountTest[15].expected := 8;
+  
+  digitCountTest[16].label := "CARD64.digitCount(100,000,000)";
+  digitCountTest[16].operand.highBits := 0;
+  digitCountTest[16].operand.lowBits := 100000000;
+  digitCountTest[16].expected := 9;
+  
+  digitCountTest[17].label := "CARD64.digitCount(999,999,999)";
+  digitCountTest[17].operand.highBits := 0;
+  digitCountTest[17].operand.lowBits := 999999999;
+  digitCountTest[17].expected := 9;
+  
+  digitCountTest[18].label := "CARD64.digitCount(1,000,000,000)";
+  digitCountTest[18].operand.highBits := 0;
+  digitCountTest[18].operand.lowBits := 1000000000;
+  digitCountTest[18].expected := 10;
+  
+  digitCountTest[19].label := "CARD64.digitCount(9,999,999,999)";
+  digitCountTest[19].operand.highBits := 2;
+  digitCountTest[19].operand.lowBits := 1410065407;
+  digitCountTest[19].expected := 10;
+  
+  digitCountTest[20].label := "CARD64.digitCount(10,000,000,000)";
+  digitCountTest[20].operand.highBits := 2;
+  digitCountTest[20].operand.lowBits := 1410065408;
+  digitCountTest[20].expected := 11;
+  
+  digitCountTest[21].label := "CARD64.digitCount(99,999,999,999)";
+  digitCountTest[21].operand.highBits := 23;
+  digitCountTest[21].operand.lowBits := 1215752191;
+  digitCountTest[21].expected := 11;
+  
+  digitCountTest[22].label := "CARD64.digitCount(100,000,000,000)";
+  digitCountTest[22].operand.highBits := 23;
+  digitCountTest[22].operand.lowBits := 1215752192;
+  digitCountTest[22].expected := 12;
+  
+  digitCountTest[23].label := "CARD64.digitCount(999,999,999,999)";
+  digitCountTest[23].operand.highBits := 232;
+  digitCountTest[23].operand.lowBits := 3567587327;
+  digitCountTest[23].expected := 12;
+  
+  digitCountTest[24].label := "CARD64.digitCount(1,000,000,000,000)";
+  digitCountTest[24].operand.highBits := 232;
+  digitCountTest[24].operand.lowBits := 3567587328;
+  digitCountTest[24].expected := 13;
+  
+  digitCountTest[25].label := "CARD64.digitCount(9,999,999,999,999)";
+  digitCountTest[25].operand.highBits := 2328;
+  digitCountTest[25].operand.lowBits := 1316134911;
+  digitCountTest[25].expected := 13;
+  
+  digitCountTest[26].label := "CARD64.digitCount(10,000,000,000,000)";
+  digitCountTest[26].operand.highBits := 2328;
+  digitCountTest[26].operand.lowBits := 1316134912;
+  digitCountTest[26].expected := 14;
+  
+  digitCountTest[27].label := "CARD64.digitCount(99,999,999,999,999)";
+  digitCountTest[27].operand.highBits := 23283;
+  digitCountTest[27].operand.lowBits := 276447231;
+  digitCountTest[27].expected := 14;
+  
+  digitCountTest[28].label := "CARD64.digitCount(100,000,000,000,000)";
+  digitCountTest[28].operand.highBits := 23283;
+  digitCountTest[28].operand.lowBits := 276447232;
+  digitCountTest[28].expected := 15;
+  
+  digitCountTest[29].label := "CARD64.digitCount(999,999,999,999,999)";
+  digitCountTest[29].operand.highBits := 232830;
+  digitCountTest[29].operand.lowBits := 2764472319;
+  digitCountTest[29].expected := 15;
+  
+  digitCountTest[30].label := "CARD64.digitCount(1,000,000,000,000,000)";
+  digitCountTest[30].operand.highBits := 232830;
+  digitCountTest[30].operand.lowBits := 2764472320;
+  digitCountTest[30].expected := 16;
+  
+  digitCountTest[31].label := "CARD64.digitCount(9,999,999,999,999,999)";
+  digitCountTest[31].operand.highBits := 2328306;
+  digitCountTest[31].operand.lowBits := 1874919423;
+  digitCountTest[31].expected := 16;
+  
+  digitCountTest[32].label := "CARD64.digitCount(10,000,000,000,000,000)";
+  digitCountTest[32].operand.highBits := 2328306;
+  digitCountTest[32].operand.lowBits := 1874919424;
+  digitCountTest[32].expected := 17;
+  
+  digitCountTest[33].label := "CARD64.digitCount(99,999,999,999,999,999)";
+  digitCountTest[33].operand.highBits := 23283064;
+  digitCountTest[33].operand.lowBits := 1569325055;
+  digitCountTest[33].expected := 17;
+  
+  digitCountTest[34].label := "CARD64.digitCount(100,000,000,000,000,000)";
+  digitCountTest[34].operand.highBits := 23283064;
+  digitCountTest[34].operand.lowBits := 1569325056;
+  digitCountTest[34].expected := 18;
+  
+  digitCountTest[35].label := "CARD64.digitCount(999,999,999,999,999,999)";
+  digitCountTest[35].operand.highBits := 232830643;
+  digitCountTest[35].operand.lowBits := 2808348671;
+  digitCountTest[35].expected := 18;
+  
+  digitCountTest[36].label := "CARD64.digitCount(1,000,000,000,000,000,000)";
+  digitCountTest[36].operand.highBits := 232830643;
+  digitCountTest[36].operand.lowBits := 2808348672;
+  digitCountTest[36].expected := 19;
+  
+  digitCountTest[37].label := "CARD64.digitCount(9,999,999,999,999,999,999)";
+  digitCountTest[37].operand.highBits := 2328306436;
+  digitCountTest[37].operand.lowBits := 2313682943;
+  digitCountTest[37].expected := 19;
+  
+  digitCountTest[38].label := "CARD64.digitCount(10,000,000,000,000,000,000)";
+  digitCountTest[38].operand.highBits := 2328306436;
+  digitCountTest[38].operand.lowBits := 2313682944;
+  digitCountTest[38].expected := 20;
+  
+  digitCountTest[39].label := "CARD64.digitCount(MAX(CARD64T))";
+  digitCountTest[39].operand.highBits := 0FFFFFFFFH;
+  digitCountTest[39].operand.lowBits := 0FFFFFFFFH;
+  digitCountTest[39].expected := 20
+END InitDigitCountTests;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  RunConstCompTest(test, passed, failed)
+ * Procedure:  RunDigitCountTest(test, passed, failed)
  * --------------------------------------------------------------------------
  * Run test and update the appropriate counter. 
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE RunConstCompTest
-  ( test : ConstCompTest; VAR passed, failed : CARDINAL );
+PROCEDURE RunDigitCountTest
+  ( test : DigitCountTest; VAR passed, failed : CARDINAL );
 VAR
-  res : BOOLEAN;
+  res : CARDINAL;
 BEGIN
   PrintLabel(test.label);
   
-  res := test.proc(test.operand);
-  PrintBoolResult(res);
+  res := CARD64.digitCount(test.operand);
+  PrintCardResult(res);
   IF (res = test.expected) THEN
     InOut.WriteString(PassNotice);
     INC(passed)
@@ -228,408 +373,687 @@ BEGIN
   
   InOut.WriteLn;
   InOut.WriteLn
-END RunConstCompTest;
+END RunDigitCountTest;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  RunConstCompTests(passed, failed)
+ * Procedure:  RunDigitCountTests(passed, failed)
  * --------------------------------------------------------------------------
- * Run all ConstCompTest tests and update counters. 
+ * Run all DigitCountTest tests and update counters. 
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE RunConstCompTests ( VAR passed, failed : CARDINAL );
+PROCEDURE RunDigitCountTests ( VAR passed, failed : CARDINAL );
 VAR
   index : CARDINAL;
 BEGIN
-  FOR index := 0 TO ConstCompTestCount-1 DO
-    RunConstCompTest(constCompTest[index], passed, failed)
+  FOR index := 0 TO DigitCountTestCount-1 DO
+    RunDigitCountTest(digitCountTest[index], passed, failed)
   END (* FOR *)
-END RunConstCompTests;
+END RunDigitCountTests;
 
 
 (* --------------------------------------------------------------------------
- * Test parameter type for CARD64.odd()
+ * Test parameter type for CARD64 Inc and Dec
  * ----------------------------------------------------------------------- *)
 
-TYPE OddEvenTest = RECORD
+TYPE UnaryOpProc = PROCEDURE ( VAR CARD64T, VAR Status );
+
+TYPE UnaryOpId = ( Inc, Dec );
+
+TYPE UnaryOp = RECORD
+  proc : UnaryOpProc;
+  expected : CARD64T;
+  expStatus : Status
+END; (* UnaryOp *)
+
+TYPE UnaryOpTest = RECORD
+  operation : ARRAY [Inc..Dec] OF UnaryOp;
   operand : CARD64T;
-  expected : BOOLEAN;
-  label : LabelString
-END; (* OddEvenTest *)
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  InitOddEvenTests
- * --------------------------------------------------------------------------
- * Initialises tests for odd.
- * ----------------------------------------------------------------------- *)
-
-CONST OddEvenTestCount = 11;
-
-VAR oddEvenTest : ARRAY [0..OddEvenTestCount-1] OF OddEvenTest;
-
-PROCEDURE InitOddEvenTests;
-BEGIN
-  oddEvenTest[0].label := "CARD64.odd(0:0)";
-  oddEvenTest[0].operand.highBits := 0;
-  oddEvenTest[0].operand.lowBits := 0;
-  oddEvenTest[0].expected := FALSE;
-  
-  oddEvenTest[1].label := "CARD64.odd(0:1)";
-  oddEvenTest[1].operand.highBits := 0;
-  oddEvenTest[1].operand.lowBits := 1;
-  oddEvenTest[1].expected := TRUE;
-  
-  oddEvenTest[2].label := "CARD64.odd(0:2)";
-  oddEvenTest[2].operand.highBits := 0;
-  oddEvenTest[2].operand.lowBits := 2;
-  oddEvenTest[2].expected := FALSE;
-  
-  oddEvenTest[3].label := "CARD64.odd(0:3)";
-  oddEvenTest[3].operand.highBits := 0;
-  oddEvenTest[3].operand.lowBits := 3;
-  oddEvenTest[3].expected := TRUE;
-  
-  oddEvenTest[4].label := "CARD64.odd(0:4)";
-  oddEvenTest[4].operand.highBits := 0;
-  oddEvenTest[4].operand.lowBits := 4;
-  oddEvenTest[4].expected := FALSE;
-  
-  oddEvenTest[5].label := "CARD64.odd(0:5)";
-  oddEvenTest[5].operand.highBits := 0;
-  oddEvenTest[5].operand.lowBits := 5;
-  oddEvenTest[5].expected := TRUE;
-  
-  oddEvenTest[6].label := "CARD64.odd(1:0)";
-  oddEvenTest[6].operand.highBits := 1;
-  oddEvenTest[6].operand.lowBits := 0;
-  oddEvenTest[6].expected := FALSE;
-  
-  oddEvenTest[7].label := "CARD64.odd(1:1)";
-  oddEvenTest[7].operand.highBits := 1;
-  oddEvenTest[7].operand.lowBits := 1;
-  oddEvenTest[7].expected := TRUE;
-  
-  oddEvenTest[8].label := "CARD64.odd(0FFFFFFFF:0)";
-  oddEvenTest[8].operand.highBits := 0FFFFFFFFH;
-  oddEvenTest[8].operand.lowBits := 0;
-  oddEvenTest[8].expected := FALSE;
-  
-  oddEvenTest[9].label := "CARD64.odd(0FFFFFFFF:1)";
-  oddEvenTest[9].operand.highBits := 0FFFFFFFFH;
-  oddEvenTest[9].operand.lowBits := 1;
-  oddEvenTest[9].expected := TRUE;
-
-  oddEvenTest[10].label := "CARD64.odd(0FFFFFFFF:0FFFFFFFF)";
-  oddEvenTest[10].operand.highBits := 0FFFFFFFFH;
-  oddEvenTest[10].operand.lowBits := 0FFFFFFFFH;
-  oddEvenTest[10].expected := TRUE
-END InitOddEvenTests;
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  RunOddEvenTest(test, passed, failed)
- * --------------------------------------------------------------------------
- * Run test and update the appropriate counter. 
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE RunOddEvenTest
-  ( test : OddEvenTest; VAR passed, failed : CARDINAL );
-VAR
-  res : BOOLEAN;
-BEGIN
-  PrintLabel(test.label);
-  
-  res := CARD64.odd(test.operand);
-  PrintBoolResult(res);
-  IF (res = test.expected) THEN
-    InOut.WriteString(PassNotice);
-    INC(passed)
-  ELSE
-    InOut.WriteString(FailNotice);
-    INC(failed)
-  END; (* IF *)
-  
-  InOut.WriteLn;
-  InOut.WriteLn
-END RunOddEvenTest;
-
-
-(* --------------------------------------------------------------------------
- * Procedure:  RunOddEvenTests(passed, failed)
- * --------------------------------------------------------------------------
- * Run all OddEvenTest tests and update counters. 
- * ----------------------------------------------------------------------- *)
-
-PROCEDURE RunOddEvenTests ( VAR passed, failed : CARDINAL );
-VAR
-  index : CARDINAL;
-BEGIN
-  FOR index := 0 TO OddEvenTestCount-1 DO
-    RunOddEvenTest(oddEvenTest[index], passed, failed)
-  END (* FOR *)
-END RunOddEvenTests;
-
-
-(* --------------------------------------------------------------------------
- * Test parameter type for CARD64 eq, neq, gt, gteq, lt and lteq
- * ----------------------------------------------------------------------- *)
-
-TYPE RelOpProc = PROCEDURE ( VAR CARD64T, VAR CARD64T ) : BOOLEAN;
-
-TYPE RelOpId = ( Eq, Neq, Lt, Lteq, Gt, Gteq );
-
-TYPE RelOp = RECORD
-  proc : RelOpProc;
-  expected : BOOLEAN
-END; (* RelOp *)
-
-TYPE RelOpTest = RECORD
-  operation : ARRAY [Eq..Gteq] OF RelOp;
-  left, right : CARD64T;
   args : LabelString
-END; (* RelOpTest *)
+END; (* UnaryOpTest *)
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  InitRelOpTests
+ * Procedure:  InitUnaryOpTests
  * --------------------------------------------------------------------------
- * Initialises tests for  eq, neq, gt, gteq, lt and lteq
+ * Initialises tests for unary arithmetic operations.
  * ----------------------------------------------------------------------- *)
 
-CONST RelOpTestGroupCount = 11;
+CONST UnaryOpTestGroupCount = 10;
 
-CONST RelOpTestCount = RelOpTestGroupCount * ORD(MAX(RelOpId))+1;
+CONST UnaryOpTestCount = UnaryOpTestGroupCount * ORD(MAX(UnaryOpId)+1);
 
-VAR relOpTest : ARRAY [0..RelOpTestGroupCount-1] OF RelOpTest;
+VAR unaryOpTest : ARRAY [0..UnaryOpTestCount-1] OF UnaryOpTest;
 
-PROCEDURE InitRelOpTests;
+PROCEDURE InitUnaryOpTests;
 VAR
   index : CARDINAL;
 BEGIN
   (* operations *)
-  FOR index := 0 TO RelOpTestGroupCount-1 DO
-    relopTest[index].operation[Eq].proc := CARD64.eq;
-    relopTest[index].operation[Neq].proc := CARD64.neq;
-    relopTest[index].operation[Lt].proc := CARD64.lt;
-    relopTest[index].operation[Lteq].proc := CARD64.lteq;
-    relopTest[index].operation[Gt].proc := CARD64.gt;
-    relopTest[index].operation[Gteq].proc := CARD64.gteq
+  FOR index := 0 TO BinOpTestGroupCount-1 DO
+    unaryOpTest[index].operation[Inc].proc := CARD64.Inc;
+    unaryOpTest[index].operation[Dec].proc := CARD64.Dec
   END; (* FOR *)
   
-  
-  (* operands *)
-  relOpTest[0].args := "(0, 0)";
-  relOpTest[0].left.highBits := 0;
-  relOpTest[0].left.lowBits := 0;
-  relOpTest[0].right.highBits := 0;
-  relOpTest[0].right.lowBits := 0;
-
-  (* expected results *)
-  relopTest[0].operation[Eq].expected := TRUE;
-  relopTest[0].operation[Neq].expected := FALSE;
-  relopTest[0].operation[Lt].expected := FALSE;
-  relopTest[0].operation[Lteq].expected := TRUE;
-  relopTest[0].operation[Gt].expected := FALSE;
-  relopTest[0].operation[Gteq].expected := TRUE;
-  
-  (* operands *)
-  relOpTest[1].args := "(0, 1)";
-  relOpTest[1].left.highBits := 0;
-  relOpTest[1].left.lowBits := 0;
-  relOpTest[1].right.highBits := 0;
-  relOpTest[1].right.lowBits := 1;
-
-  (* expected results *)
-  relopTest[1].operation[Eq].expected := FALSE;
-  relopTest[1].operation[Neq].expected := TRUE;
-  relopTest[1].operation[Lt].expected := TRUE;
-  relopTest[1].operation[Lteq].expected := TRUE;
-  relopTest[1].operation[Gt].expected := FALSE;
-  relopTest[1].operation[Gteq].expected := FALSE;
-   
-  (* operands *)
-  relOpTest[2].args := "(1, 0)";
-  relOpTest[2].left.highBits := 0;
-  relOpTest[2].left.lowBits := 1;
-  relOpTest[2].right.highBits := 0;
-  relOpTest[2].right.lowBits := 0;
-
-  (* expected results *)
-  relopTest[2].operation[Eq].expected := FALSE;
-  relopTest[2].operation[Neq].expected := TRUE;
-  relopTest[2].operation[Lt].expected := FALSE;
-  relopTest[2].operation[Lteq].expected := FALSE;
-  relopTest[2].operation[Gt].expected := TRUE;
-  relopTest[2].operation[Gteq].expected := TRUE;
-   
-  (* operands *)
-  relOpTest[3].args := "(1, MAX(LONGCARD)+2)";
-  relOpTest[3].left.highBits := 0;
-  relOpTest[3].left.lowBits := 1;
-  relOpTest[3].right.highBits := 1;
-  relOpTest[3].right.lowBits := 1;
-
-  (* expected results *)
-  relopTest[3].operation[Eq].expected := FALSE;
-  relopTest[3].operation[Neq].expected := TRUE;
-  relopTest[3].operation[Lt].expected := TRUE;
-  relopTest[3].operation[Lteq].expected := TRUE;
-  relopTest[3].operation[Gt].expected := FALSE;
-  relopTest[3].operation[Gteq].expected := FALSE;
-  
-  (* operands *)
-  relOpTest[4].args := "(MAX(LONGCARD), 0)";
-  relOpTest[4].left.highBits := 0;
-  relOpTest[4].left.lowBits := 0FFFFFFFFH;
-  relOpTest[4].right.highBits := 0;
-  relOpTest[4].right.lowBits := 0;
-
-  (* expected results *)
-  relopTest[4].operation[Eq].expected := FALSE;
-  relopTest[4].operation[Neq].expected := TRUE;
-  relopTest[4].operation[Lt].expected := FALSE;
-  relopTest[4].operation[Lteq].expected := FALSE;
-  relopTest[4].operation[Gt].expected := TRUE;
-  relopTest[4].operation[Gteq].expected := TRUE;
-   
-  (* operands *)
-  relOpTest[5].args := "(MAX(LONGCARD), (MAX(LONGCARD)+1)";
-  relOpTest[5].left.highBits := 0;
-  relOpTest[5].left.lowBits := 0FFFFFFFFH;
-  relOpTest[5].right.highBits := 1;
-  relOpTest[5].right.lowBits := 0;
-
-  (* expected results *)
-  relopTest[5].operation[Eq].expected := FALSE;
-  relopTest[5].operation[Neq].expected := TRUE;
-  relopTest[5].operation[Lt].expected := TRUE;
-  relopTest[5].operation[Lteq].expected := TRUE;
-  relopTest[5].operation[Gt].expected := FALSE;
-  relopTest[5].operation[Gteq].expected := FALSE;
-  
-  (* operands *)
-  relOpTest[6].args := "(MAX(LONGCARD)+1, 0)";
-  relOpTest[6].left.highBits := 1;
-  relOpTest[6].left.lowBits := 0;
-  relOpTest[6].right.highBits := 0;
-  relOpTest[6].right.lowBits := 0;
-
-  (* expected results *)
-  relopTest[6].operation[Eq].expected := FALSE;
-  relopTest[6].operation[Neq].expected := TRUE;
-  relopTest[6].operation[Lt].expected := FALSE;
-  relopTest[6].operation[Lteq].expected := FALSE;
-  relopTest[6].operation[Gt].expected := TRUE;
-  relopTest[6].operation[Gteq].expected := TRUE;
-   
-  (* operands *)
-  relOpTest[7].args := "(MAX(LONGCARD)+1, MAX(LONGCARD))";
-  relOpTest[7].left.highBits := 1;
-  relOpTest[7].left.lowBits := 0;
-  relOpTest[7].right.highBits := 0;
-  relOpTest[7].right.lowBits := 0FFFFFFFFH;
-
-  (* expected results *)
-  relopTest[7].operation[Eq].expected := FALSE;
-  relopTest[7].operation[Neq].expected := TRUE;
-  relopTest[7].operation[Lt].expected := FALSE;
-  relopTest[7].operation[Lteq].expected := FALSE;
-  relopTest[7].operation[Gt].expected := TRUE;
-  relopTest[7].operation[Gteq].expected := TRUE;
-   
-  (* operands *)
-  relOpTest[8].args := "(MAX(LONGCARD)+2, 1)";
-  relOpTest[8].left.highBits := 1;
-  relOpTest[8].left.lowBits := 1;
-  relOpTest[8].right.highBits := 0;
-  relOpTest[8].right.lowBits := 1;
-
-  (* expected results *)
-  relopTest[8].operation[Eq].expected := FALSE;
-  relopTest[8].operation[Neq].expected := TRUE;
-  relopTest[8].operation[Lt].expected := FALSE;
-  relopTest[8].operation[Lteq].expected := FALSE;
-  relopTest[8].operation[Gt].expected := TRUE;
-  relopTest[8].operation[Gteq].expected := TRUE;
-  
-  (* operands *)
-  relOpTest[9].args := "(MAX(CARD64T)-1, MAX(CARD64T))";
-  relOpTest[9].left.highBits := 0FFFFFFFFH;
-  relOpTest[9].left.lowBits := 0FFFFFFFEH;
-  relOpTest[9].right.highBits := 0FFFFFFFFH;
-  relOpTest[9].right.lowBits := 0FFFFFFFFH;
+  (* operand *)
+  unaryOpTest[0].args := "(0:0)";
+  unaryOpTest[0].operand.highBits := 0;
+  unaryOpTest[0].operand.lowBits := 0;
   
   (* expected results *)
-  relopTest[9].operation[Eq].expected := FALSE;
-  relopTest[9].operation[Neq].expected := TRUE;
-  relopTest[9].operation[Lt].expected := TRUE;
-  relopTest[9].operation[Lteq].expected := TRUE;
-  relopTest[9].operation[Gt].expected := FALSE;
-  relopTest[9].operation[Gteq].expected := FALSE;
+  unaryOpTest[0].operation[Inc].expected.highBits := 0;
+  unaryOpTest[0].operation[Inc].expected.lowBits := 1;
+  unaryOpTest[0].operation[Inc].expStatus := Success;
   
-  (* operands *)
-  relOpTest[10].args := "(MAX(CARD64T), MAX(CARD64T))";
-  relOpTest[10].left.highBits := 0FFFFFFFFH;
-  relOpTest[10].left.lowBits := 0FFFFFFFFH;
-  relOpTest[10].right.highBits := 0FFFFFFFFH;
-  relOpTest[10].right.lowBits := 0FFFFFFFFH;
-
+  unaryOpTest[0].operation[Dec].expStatus := Underflow;
+  
+  (* operand *)
+  unaryOpTest[1].args := "(0:1)";
+  unaryOpTest[1].operand.highBits := 0;
+  unaryOpTest[1].operand.lowBits := 1;
+  
   (* expected results *)
-  relopTest[10].operation[Eq].expected := TRUE;
-  relopTest[10].operation[Neq].expected := FALSE;
-  relopTest[10].operation[Lt].expected := FALSE;
-  relopTest[10].operation[Lteq].expected := TRUE;
-  relopTest[10].operation[Gt].expected := FALSE;
-  relopTest[10].operation[Gteq].expected := TRUE
-END InitRelOpTests;
+  unaryOpTest[1].operation[Inc].expected.highBits := 0;
+  unaryOpTest[1].operation[Inc].expected.lowBits := 2;
+  unaryOpTest[1].operation[Inc].expStatus := Success;
+  
+  unaryOpTest[1].operation[Dec].expected.highBits := 0;
+  unaryOpTest[1].operation[Dec].expected.lowBits := 0;
+  unaryOpTest[1].operation[Dec].expStatus := Success;
+  
+  (* operand *)
+  unaryOpTest[2].args := "(0:2)";
+  unaryOpTest[2].operand.highBits := 0;
+  unaryOpTest[2].operand.lowBits := 2;
+  
+  (* expected results *)
+  unaryOpTest[2].operation[Inc].expected.highBits := 0;
+  unaryOpTest[2].operation[Inc].expected.lowBits := 3;
+  unaryOpTest[2].operation[Inc].expStatus := Success;
+  
+  unaryOpTest[2].operation[Dec].expected.highBits := 0;
+  unaryOpTest[2].operation[Dec].expected.lowBits := 1;
+  unaryOpTest[2].operation[Dec].expStatus := Success;
+  
+  (* operand *)
+  unaryOpTest[3].args := "(0:3)";
+  unaryOpTest[3].operand.highBits := 0;
+  unaryOpTest[3].operand.lowBits := 3;
+  
+  (* expected results *)
+  unaryOpTest[3].operation[Inc].expected.highBits := 0;
+  unaryOpTest[3].operation[Inc].expected.lowBits := 4;
+  unaryOpTest[3].operation[Inc].expStatus := Success;
+  
+  unaryOpTest[3].operation[Dec].expected.highBits := 0;
+  unaryOpTest[3].operation[Dec].expected.lowBits := 2;
+  unaryOpTest[3].operation[Dec].expStatus := Success;
+  
+  (* operand *)
+  unaryOpTest[4].args := "(0:4)";
+  unaryOpTest[4].operand.highBits := 0;
+  unaryOpTest[4].operand.lowBits := 4;
+  
+  (* expected results *)
+  unaryOpTest[4].operation[Inc].expected.highBits := 0;
+  unaryOpTest[4].operation[Inc].expected.lowBits := 5;
+  unaryOpTest[4].operation[Inc].expStatus := Success;
+
+  unaryOpTest[4].operation[Dec].expected.highBits := 0;
+  unaryOpTest[4].operation[Dec].expected.lowBits := 3;
+  unaryOpTest[4].operation[Dec].expStatus := Success;
+  
+  (* operand *)
+  unaryOpTest[5].args := "(MAX(LONGCARD))";
+  unaryOpTest[5].operand.highBits := 0;
+  unaryOpTest[5].operand.lowBits := MAX(LONGCARD);
+  
+  (* expected results *)
+  unaryOpTest[5].operation[Inc].expected.highBits := 1;
+  unaryOpTest[5].operation[Inc].expected.lowBits := 0;
+  unaryOpTest[5].operation[Inc].expStatus := Success;
+
+  unaryOpTest[5].operation[Dec].expected.highBits := 0;
+  unaryOpTest[5].operation[Dec].expected.lowBits := MAX(LONGCARD)-1;
+  unaryOpTest[5].operation[Dec].expStatus := Success;
+  
+  (* operand *)
+  unaryOpTest[6].args := "(MAX(LONGCARD)+1)";
+  unaryOpTest[6].operand.highBits := 1;
+  unaryOpTest[6].operand.lowBits := 1;
+  
+  (* expected results *)
+  unaryOpTest[6].operation[Inc].expected.highBits := 1;
+  unaryOpTest[6].operation[Inc].expected.lowBits := 2;
+  unaryOpTest[6].operation[Inc].expStatus := Success;
+
+  unaryOpTest[6].operation[Dec].expected.highBits := 0;
+  unaryOpTest[6].operation[Dec].expected.lowBits := MAX(LONGCARD);
+  unaryOpTest[6].operation[Dec].expStatus := Success;
+  
+  (* operand *)
+  unaryOpTest[7].args := "(MAX(LONGCARD)+2)";
+  unaryOpTest[7].operand.highBits := 1;
+  unaryOpTest[7].operand.lowBits := 2;
+  
+  (* expected results *)
+  unaryOpTest[7].operation[Inc].expected.highBits := 1;
+  unaryOpTest[7].operation[Inc].expected.lowBits := 3;
+  unaryOpTest[7].operation[Inc].expStatus := Success;
+
+  unaryOpTest[7].operation[Dec].expected.highBits := 1;
+  unaryOpTest[7].operation[Dec].expected.lowBits := 1;
+  unaryOpTest[7].operation[Dec].expStatus := Success;
+  
+  (* operand *)
+  unaryOpTest[8].args := "(MAX(CARD64T)-1)";
+  unaryOpTest[8].operand.highBits := MAX(LONGCARD);
+  unaryOpTest[8].operand.lowBits := MAX(LONGCARD)-1;
+  
+  (* expected results *)
+  unaryOpTest[8].operation[Inc].expected.highBits := MAX(LONGCARD);
+  unaryOpTest[8].operation[Inc].expected.lowBits := MAX(LONGCARD);
+  unaryOpTest[8].operation[Inc].expStatus := Success;
+
+  unaryOpTest[8].operation[Dec].expected.highBits := MAX(LONGCARD);
+  unaryOpTest[8].operation[Dec].expected.lowBits := MAX(LONGCARD)-2;
+  unaryOpTest[8].operation[Dec].expStatus := Success;
+  
+  (* operand *)
+  unaryOpTest[9].args := "(MAX(CARD64T))";
+  unaryOpTest[9].operand.highBits := MAX(LONGCARD);
+  unaryOpTest[9].operand.lowBits := MAX(LONGCARD);
+  
+  (* expected results *)
+  unaryOpTest[9].operation[Inc].expStatus := Overflow;
+
+  unaryOpTest[9].operation[Dec].expected.highBits := MAX(LONGCARD);
+  unaryOpTest[9].operation[Dec].expected.lowBits := MAX(LONGCARD)-1;
+  unaryOpTest[9].operation[Dec].expStatus := Success
+END InitUnaryOpTests;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  RunRelOpTest(relOp, test, passed, failed)
+ * Procedure:  RunUnaryOpTest(test, passed, failed)
  * --------------------------------------------------------------------------
  * Run test and update the appropriate counter. 
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE RunRelOpTest
-  ( relOp : RelOpId; test : RelOpTest; VAR passed, failed : CARDINAL );
+PROCEDURE RunUnaryOpTest
+  ( unaryOp : UnaryOpId; test : UnaryOpTest; VAR passed, failed : CARDINAL );
 VAR
-  res : BOOLEAN;
+  operand : CARD64T;
+  operation : UnaryOp;
+  stat : Status;
 BEGIN
-  PrintLabelForRelOp(relOp, test.args);
+  PrintLabelForUnaryOp(test.args);
   
-  res := test.operation[relOp].proc(test.left, test.right);
-  PrintBoolResult(res);
-  IF (res = test.operation[relOp].expected) THEN
-    InOut.WriteString(PassNotice);
-    INC(passed)
-  ELSE
-    InOut.WriteString(FailNotice);
-    INC(failed)
+  operand := test.operand;
+  operation := test.operation[unaryOp];
+  
+  operation.proc(operand, stat);
+  PrintResult(operand); PrintStatus(stat);
+  
+  IF operation.expStatus = Success THEN
+    IF operand = operation.expected THEN
+      InOut.WriteString(PassNotice);
+      INC(passed)
+    ELSE
+      InOut.WriteString(FailNotice);
+      INC(failed)
+    END (* IF *)
+  ELSE (* operation.expStatus # Success *)
+    IF stat = operation.expStatus THEN
+      InOut.WriteString(PassNotice);
+      INC(passed)
+    ELSE
+      InOut.WriteString(FailNotice);
+      INC(failed)
+    END (* IF *)
   END; (* IF *)
   
   InOut.WriteLn;
   InOut.WriteLn
-END RunRelOpTest;
+END RunUnaryOpTest;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  RunRelOpTests(passed, failed)
+ * Procedure:  RunUnaryOpTests(passed, failed)
  * --------------------------------------------------------------------------
- * Run all RelOpTest tests and update counters. 
+ * Run all UnaryTest tests and update counters. 
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE RunRelOpTests ( VAR passed, failed : CARDINAL );
+PROCEDURE RunUnaryOpTests ( VAR passed, failed : CARDINAL );
 VAR
-  relOp : RelOpId;
   index : CARDINAL;
+  unaryOp : UnaryOpId;
 BEGIN
-  FOR relOp := MIN(RelOpId) TO MAX(RelOpId) DO
-    FOR index := 0 TO RelOpTestGroupCount-1 DO
-      RunRelOpTest(relOp, relOpTest[index], passed, failed)
+  FOR unaryOp := MIN(UnaryOpId) TO MAX(UnaryOpId) DO
+    FOR index := 0 TO UnaryOpTestGroupCount-1 DO
+      RunUnaryOpTest(unaryOp, unaryOpTest[index], passed, failed)
     END (* FOR *)
   END (* FOR *)
-END RunRelOpTests;
+END RunUnaryOpTests;
+
+
+(* --------------------------------------------------------------------------
+ * Test parameter type for CARD64 Add, Sub, Mul, Div and Mod
+ * ----------------------------------------------------------------------- *)
+
+TYPE BinOpProc = PROCEDURE ( CARD64T, CARD64T, VAR CARD64T, VAR Status );
+
+TYPE BinOpId = ( Add, Sub, Mul, Div, Mod );
+
+TYPE BinOp = RECORD
+  proc : BinOpProc;
+  expected : CARD64T;
+  expStatus : Status
+END; (* BinOp *)
+
+TYPE BinOpTest = RECORD
+  operation : ARRAY [Add..Mod] OF BinOp;
+  left, right : CARD64T;
+  args : LabelString
+END; (* BinOpTest *)
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  InitBinOpTests
+ * --------------------------------------------------------------------------
+ * Initialises tests for CARD64 Add, Sub, Mul, Div and Mod
+ * ----------------------------------------------------------------------- *)
+
+CONST BinOpTestGroupCount = 12;
+
+CONST BinOpTestCount = BinOpTestGroupCount * ORD(MAX(BinOpId)+1);
+
+VAR binOpTest : ARRAY [0..BinOpTestGroupCount-1] OF BinOpTest;
+
+PROCEDURE InitBinOpTests;
+VAR
+  index : CARDINAL;
+BEGIN
+  (* operations *)
+  FOR index := 0 TO BinOpTestGroupCount-1 DO
+    binOpTest[index].operation[Add].proc := CARD64.Add;
+    binOpTest[index].operation[Sub].proc := CARD64.Sub;
+    binOpTest[index].operation[Mul].proc := CARD64.Mul;
+    binOpTest[index].operation[Div].proc := CARD64.Div;
+    binOpTest[index].operation[Mod].proc := CARD64.Mod
+  END; (* FOR *)
+  
+  (* operands *)
+  binOpTest[0].args := "(0, 0)";
+  binOpTest[0].left.highBits := 0;
+  binOpTest[0].left.lowBits := 0;
+  binOpTest[0].right.highBits := 0;
+  binOpTest[0].right.lowBits := 0;
+
+  (* expected results *)
+  binOpTest[0].operation[Add].expected.highBits := 0;
+  binOpTest[0].operation[Add].expected.lowBits := 0;
+  binOpTest[0].operation[Add].expStatus := Success;
+
+  binOpTest[0].operation[Sub].expected.highBits := 0;
+  binOpTest[0].operation[Sub].expected.lowBits := 0;
+  binOpTest[0].operation[Sub].expStatus := Success;
+
+  binOpTest[0].operation[Mul].expected.highBits := 0;
+  binOpTest[0].operation[Mul].expected.lowBits := 0;
+  binOpTest[0].operation[Mul].expStatus := Success;
+
+  binOpTest[0].operation[Div].expStatus := DivByZero;
+  binOpTest[0].operation[Mod].expStatus := DivByZero;
+  
+  (* operands *)
+  binOpTest[1].args := "(0, 1)";
+  binOpTest[1].left.highBits := 0;
+  binOpTest[1].left.lowBits := 0;
+  binOpTest[1].right.highBits := 0;
+  binOpTest[1].right.lowBits := 1;
+
+  (* expected results *)
+  binOpTest[1].operation[Add].expected.highBits := 0;
+  binOpTest[1].operation[Add].expected.lowBits := 1;
+  binOpTest[1].operation[Add].expStatus := Success;
+
+  binOpTest[1].operation[Sub].expStatus := Underflow;
+
+  binOpTest[1].operation[Mul].expected.highBits := 0;
+  binOpTest[1].operation[Mul].expected.lowBits := 0;
+  binOpTest[1].operation[Mul].expStatus := Success;
+
+  binOpTest[1].operation[Div].expected.highBits := 0;
+  binOpTest[1].operation[Div].expected.lowBits := 0;
+  binOpTest[1].operation[Div].expStatus := Success;
+
+  binOpTest[1].operation[Mod].expected.highBits := 0;
+  binOpTest[1].operation[Mod].expected.lowBits := 0;
+  binOpTest[1].operation[Mod].expStatus := Success;
+  
+  (* operands *)
+  binOpTest[2].args := "(1, 0)";
+  binOpTest[2].left.highBits := 0;
+  binOpTest[2].left.lowBits := 1;
+  binOpTest[2].right.highBits := 0;
+  binOpTest[2].right.lowBits := 0;
+
+  (* expected results *)
+  binOpTest[2].operation[Add].expected.highBits := 0;
+  binOpTest[2].operation[Add].expected.lowBits := 1;
+  binOpTest[2].operation[Add].expStatus := Success;
+
+  binOpTest[2].operation[Sub].expected.highBits := 0;
+  binOpTest[2].operation[Sub].expected.lowBits := 1;
+  binOpTest[2].operation[Sub].expStatus := Success;
+
+  binOpTest[2].operation[Mul].expected.highBits := 0;
+  binOpTest[2].operation[Mul].expected.lowBits := 0;
+  binOpTest[2].operation[Mul].expStatus := Success;
+
+  binOpTest[2].operation[Div].expStatus := DivByZero;
+  binOpTest[2].operation[Mod].expStatus := DivByZero;
+  
+  (* operands *)
+  binOpTest[3].args := "(65535, 1)";
+  binOpTest[3].left.highBits := 0;
+  binOpTest[3].left.lowBits := 0FFFFH;
+  binOpTest[3].right.highBits := 0;
+  binOpTest[3].right.lowBits := 1;
+  
+  (* expected results *)
+  binOpTest[3].operation[Add].expected.highBits := 0;
+  binOpTest[3].operation[Add].expected.lowBits := 010000H;
+  binOpTest[3].operation[Add].expStatus := Success;
+
+  binOpTest[3].operation[Sub].expected.highBits := 0;
+  binOpTest[3].operation[Sub].expected.lowBits := 0FFFEH;
+  binOpTest[3].operation[Sub].expStatus := Success;
+
+  binOpTest[3].operation[Mul].expected.highBits := 0;
+  binOpTest[3].operation[Mul].expected.lowBits := 0FFFFH;
+  binOpTest[3].operation[Mul].expStatus := Success;
+
+  binOpTest[3].operation[Div].expected.highBits := 0;
+  binOpTest[3].operation[Div].expected.lowBits := 0FFFFH;
+  binOpTest[3].operation[Div].expStatus := Success;
+
+  binOpTest[3].operation[Mod].expected.highBits := 0;
+  binOpTest[3].operation[Mod].expected.lowBits := 0;
+  binOpTest[3].operation[Mod].expStatus := Success;
+  
+  (* operands *)
+  binOpTest[4].args := "(MAX(LONGCARD), 1)";
+  binOpTest[4].left.highBits := 0;
+  binOpTest[4].left.lowBits := MAX(LONGCARD);
+  binOpTest[4].right.highBits := 0;
+  binOpTest[4].right.lowBits := 1;
+  
+  (* expected results *)
+  binOpTest[4].operation[Add].expected.highBits := 1;
+  binOpTest[4].operation[Add].expected.lowBits := 0;
+  binOpTest[4].operation[Add].expStatus := Success;
+
+  binOpTest[4].operation[Sub].expected.highBits := 0;
+  binOpTest[4].operation[Sub].expected.lowBits := MAX(LONGCARD) - 1;
+  binOpTest[4].operation[Sub].expStatus := Success;
+
+  binOpTest[4].operation[Mul].expected.highBits := 0;
+  binOpTest[4].operation[Mul].expected.lowBits := MAX(LONGCARD);
+  binOpTest[4].operation[Mul].expStatus := Success;
+
+  binOpTest[4].operation[Div].expected.highBits := 0;
+  binOpTest[4].operation[Div].expected.lowBits := MAX(LONGCARD);
+  binOpTest[4].operation[Div].expStatus := Success;
+
+  binOpTest[4].operation[Mod].expected.highBits := 0;
+  binOpTest[4].operation[Mod].expected.lowBits := 0;
+  binOpTest[4].operation[Mod].expStatus := Success;
+  
+  (* operands *)
+  binOpTest[5].args := "(MAX(LONGCARD)+1, 1)";
+  binOpTest[5].left.highBits := 1;
+  binOpTest[5].left.lowBits := 0;
+  binOpTest[5].right.highBits := 0;
+  binOpTest[5].right.lowBits := 1;
+
+  (* expected results *)
+  binOpTest[5].operation[Add].expected.highBits := 1;
+  binOpTest[5].operation[Add].expected.lowBits := 1;
+  binOpTest[5].operation[Add].expStatus := Success;
+
+  binOpTest[5].operation[Sub].expected.highBits := 0;
+  binOpTest[5].operation[Sub].expected.lowBits := MAX(LONGCARD);
+  binOpTest[5].operation[Sub].expStatus := Success;
+
+  binOpTest[5].operation[Mul].expected.highBits := 1;
+  binOpTest[5].operation[Mul].expected.lowBits := 0;
+  binOpTest[5].operation[Mul].expStatus := Success;
+
+  binOpTest[5].operation[Div].expected.highBits := 1;
+  binOpTest[5].operation[Div].expected.lowBits := 0;
+  binOpTest[5].operation[Div].expStatus := Success;
+
+  binOpTest[5].operation[Mod].expected.highBits := 0;
+  binOpTest[5].operation[Mod].expected.lowBits := 0;
+  binOpTest[5].operation[Mod].expStatus := Success;
+
+  (* operands *)
+  binOpTest[6].args := "(MAX(LONGCARD), MAX(LONGCARD))";
+  binOpTest[6].left.highBits := 0;
+  binOpTest[6].left.lowBits := MAX(LONGCARD);
+  binOpTest[6].right.highBits := 0;
+  binOpTest[6].right.lowBits := MAX(LONGCARD);
+
+  (* expected results *)
+  binOpTest[6].operation[Add].expected.highBits := 1;
+  binOpTest[6].operation[Add].expected.lowBits := MAX(LONGCARD) - 1;
+  binOpTest[6].operation[Add].expStatus := Success;
+
+  binOpTest[6].operation[Sub].expected.highBits := 0;
+  binOpTest[6].operation[Sub].expected.lowBits := 0;
+  binOpTest[6].operation[Sub].expStatus := Success;
+
+  binOpTest[6].operation[Mul].expected.highBits := MAX(LONGCARD) - 1;
+  binOpTest[6].operation[Mul].expected.lowBits := 1;
+  binOpTest[6].operation[Mul].expStatus := Success;
+
+  binOpTest[6].operation[Div].expected.highBits := 0;
+  binOpTest[6].operation[Div].expected.lowBits := 1;
+  binOpTest[6].operation[Div].expStatus := Success;
+
+  binOpTest[6].operation[Mod].expected.highBits := 0;
+  binOpTest[6].operation[Mod].expected.lowBits := 0;
+  binOpTest[6].operation[Mod].expStatus := Success;
+
+  (* operands *)
+  binOpTest[7].args := "(00000001:0000FFFF, 00000000:FFFF0001)";
+  binOpTest[7].left.highBits := 1;
+  binOpTest[7].left.lowBits := 0FFFFH;
+  binOpTest[7].right.highBits := 0;
+  binOpTest[7].right.lowBits := 0FFFF0001H;
+
+  (* expected results *)
+  binOpTest[7].operation[Add].expected.highBits := 2;
+  binOpTest[7].operation[Add].expected.lowBits := 0;
+  binOpTest[7].operation[Add].expStatus := Success;
+
+  binOpTest[7].operation[Sub].expected.highBits := 0;
+  binOpTest[7].operation[Sub].expected.lowBits := 01FFFEH;
+  binOpTest[7].operation[Sub].expStatus := Success;
+
+  binOpTest[7].operation[Mul].expected.highBits := MAX(LONGCARD);
+  binOpTest[7].operation[Mul].expected.lowBits := 01FFFEH;
+  binOpTest[7].operation[Mul].expStatus := Success;
+
+  binOpTest[7].operation[Div].expected.highBits := 0;
+  binOpTest[7].operation[Div].expected.lowBits := 1;
+  binOpTest[7].operation[Div].expStatus := Success;
+
+  binOpTest[7].operation[Mod].expected.highBits := 0;
+  binOpTest[7].operation[Mod].expected.lowBits := 01FFFEH;
+  binOpTest[7].operation[Mod].expStatus := Success;
+
+  (* operands *)
+  binOpTest[8].args := "(MAX(CARD64T), 1000000000)";
+  binOpTest[8].left.highBits := MAX(LONGCARD);
+  binOpTest[8].left.lowBits := MAX(LONGCARD);
+  binOpTest[8].right.highBits := 0;
+  binOpTest[8].right.lowBits := 1000000000;
+
+  (* expected results *)
+  binOpTest[8].operation[Add].expStatus := Overflow;
+
+  binOpTest[8].operation[Sub].expected.highBits := MAX(LONGCARD);
+  binOpTest[8].operation[Sub].expected.lowBits := MAX(LONGCARD) - 1000000000;
+  binOpTest[8].operation[Sub].expStatus := Success;
+
+  binOpTest[8].operation[Mul].expStatus := Overflow;
+
+  binOpTest[8].operation[Div].expected.highBits := 4;
+  binOpTest[8].operation[Div].expected.lowBits := 1266874889; (* 04B82FA09H *)
+  binOpTest[8].operation[Div].expStatus := Success;
+
+  binOpTest[8].operation[Mod].expected.highBits := 0;
+  binOpTest[8].operation[Mod].expected.lowBits := 709551615; (* 02A4A15FFH *)
+  binOpTest[8].operation[Mod].expStatus := Success;
+  
+  (* operands *)
+  binOpTest[9].args := "(MAX(CARD64T), MAX(LONGCARD)+1)";
+  binOpTest[9].left.highBits := MAX(LONGCARD);
+  binOpTest[9].left.lowBits := MAX(LONGCARD);
+  binOpTest[9].right.highBits := 1;
+  binOpTest[9].right.lowBits := 0;
+
+  (* expected results *)
+  binOpTest[9].operation[Add].expStatus := Overflow;
+
+  binOpTest[9].operation[Sub].expected.highBits := MAX(LONGCARD) - 1;
+  binOpTest[9].operation[Sub].expected.lowBits := MAX(LONGCARD);
+  binOpTest[9].operation[Sub].expStatus := Success;
+
+  binOpTest[9].operation[Mul].expStatus := Overflow;
+
+  binOpTest[9].operation[Div].expected.highBits := 0;
+  binOpTest[9].operation[Div].expected.lowBits := MAX(LONGCARD);
+  binOpTest[9].operation[Div].expStatus := Success;
+
+  binOpTest[9].operation[Mod].expected.highBits := 0;
+  binOpTest[9].operation[Mod].expected.lowBits := MAX(LONGCARD);
+  binOpTest[9].operation[Mod].expStatus := Success;
+
+  (* operands *)
+  binOpTest[10].args := "(MAX(CARD64T), 80000000:00000001)";
+  binOpTest[10].left.highBits := MAX(LONGCARD);
+  binOpTest[10].left.lowBits := MAX(LONGCARD);
+  binOpTest[10].right.highBits := 080000000H;
+  binOpTest[10].right.lowBits := 1;
+
+  (* expected results *)
+  binOpTest[10].operation[Add].expStatus := Overflow;
+
+  binOpTest[10].operation[Sub].expected.highBits := 07FFFFFFFH;
+  binOpTest[10].operation[Sub].expected.lowBits := MAX(LONGCARD) - 1;
+  binOpTest[10].operation[Sub].expStatus := Success;
+
+  binOpTest[10].operation[Mul].expStatus := Overflow;
+
+  binOpTest[10].operation[Div].expected.highBits := 0;
+  binOpTest[10].operation[Div].expected.lowBits := 1;
+  binOpTest[10].operation[Div].expStatus := Success;
+
+  binOpTest[10].operation[Mod].expected.highBits := 07FFFFFFFH;
+  binOpTest[10].operation[Mod].expected.lowBits := MAX(LONGCARD) - 1;
+  binOpTest[10].operation[Mod].expStatus := Success;
+
+  (* operands *)
+  binOpTest[11].args := "(80000000:00000000, 2)";
+  binOpTest[11].left.highBits := 080000000H;
+  binOpTest[11].left.lowBits := 0;
+  binOpTest[11].right.highBits := 0;
+  binOpTest[11].right.lowBits := 2;
+
+  (* expected results *)
+  binOpTest[11].operation[Add].expected.highBits := 080000000H;
+  binOpTest[11].operation[Add].expected.lowBits := 2;
+  binOpTest[11].operation[Add].expStatus := Success;
+
+  binOpTest[11].operation[Sub].expected.highBits := 07FFFFFFFH;
+  binOpTest[11].operation[Sub].expected.lowBits := MAX(LONGCARD) - 1;
+  binOpTest[11].operation[Sub].expStatus := Success;
+
+  binOpTest[11].operation[Mul].expStatus := Overflow;
+
+  binOpTest[11].operation[Div].expected.highBits := 040000000H;
+  binOpTest[11].operation[Div].expected.lowBits := 0;
+  binOpTest[11].operation[Div].expStatus := Success;
+
+  binOpTest[11].operation[Mod].expected.highBits := 0;
+  binOpTest[11].operation[Mod].expected.lowBits := 0;
+  binOpTest[11].operation[Mod].expStatus := Success
+END InitBinOpTests;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  RunBinOpTest(binOp, test, passed, failed)
+ * --------------------------------------------------------------------------
+ * Run test and update the appropriate counter. 
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE RunBinOpTest
+  ( binOp : BinOpId; test : BinOpTest; VAR passed, failed : CARDINAL );
+VAR
+  res : CARD64T;
+  operation : BinOp;
+  stat : Status;
+BEGIN
+  PrintLabelForBinOp(binOp, test.args);
+  
+  operation := test.operation[binOp];
+  
+  operation.proc(test.left, test.right, res, stat);
+  PrintResult(res); PrintStatus(stat);
+
+  IF operation.expStatus = Success THEN
+    IF res = operation.expected THEN
+      InOut.WriteString(PassNotice);
+      INC(passed)
+    ELSE
+      InOut.WriteString(FailNotice);
+      INC(failed)
+    END (* IF *)
+  ELSE (* operation.expStatus # Success *)
+    IF stat = operation.expStatus THEN
+      InOut.WriteString(PassNotice);
+      INC(passed)
+    ELSE
+      InOut.WriteString(FailNotice);
+      INC(failed)
+    END (* IF *)
+  END; (* IF *)
+  
+  InOut.WriteLn;
+  InOut.WriteLn
+END RunBinOpTest;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  RunBinOpTests(passed, failed)
+ * --------------------------------------------------------------------------
+ * Run all BinOpTest tests and update counters. 
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE RunBinOpTests ( VAR passed, failed : CARDINAL );
+VAR
+  binOp : BinOpId;
+  index : CARDINAL;
+BEGIN
+  FOR binOp := MIN(BinOpId) TO MAX(BinOpId) DO
+    FOR index := 0 TO BinOpTestGroupCount-1 DO
+      RunBinOpTest(binOp, binOpTest[index], passed, failed)
+    END (* FOR *)
+  END (* FOR *)
+END RunBinOpTests;
 
 
 (* --------------------------------------------------------------------------
@@ -648,46 +1072,88 @@ END PrintLabel;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  PrintLabelForRelOp(label)
+ * Procedure:  PrintLabelForUnaryOp(unaryOp, label)
  * --------------------------------------------------------------------------
- * Prints test label string for relOp with args. 
+ * Prints test label string for binOp with args. 
  * ----------------------------------------------------------------------- *)
 
-PROCEDURE PrintLabelForRelOp ( relOp : RelOpId; args : LabelString );
+PROCEDURE PrintLabelForUnaryOp ( unaryOp : UnaryOpId; args : LabelString );
 BEGIN
   InOut.WriteString("*** ");
   CASE relOp OF
-    Eq   : InOut.WriteString("CARD64.eq")
-  | Neq  : InOut.WriteString("CARD64.neq")
-  | Lt   : InOut.WriteString("CARD64.lt")
-  | Lteq : InOut.WriteString("CARD64.lteq")
-  | Gt   : InOut.WriteString("CARD64.gt")
-  | Gteq : InOut.WriteString("CARD64.gteq")
+    Inc : InOut.WriteString("CARD64.Inc")
+  | Dec : InOut.WriteString("CARD64.Dec")
   END; (* CASE *)
   InOut.WriteString(args);
   InOut.WriteString(" ***");
   InOut.WriteLn;
-END PrintLabelForRelOp;
+END PrintLabelForUnaryOp;
 
 
 (* --------------------------------------------------------------------------
- * Procedure:  PrintBoolResult(bool)
+ * Procedure:  PrintLabelForBinOp(label)
  * --------------------------------------------------------------------------
- * Prints result label followed by value bool. 
+ * Prints test label string for binOp with args. 
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE PrintLabelForBinOp ( binOp : BinOpId; args : LabelString );
+BEGIN
+  InOut.WriteString("*** ");
+  CASE relOp OF
+    Add : InOut.WriteString("CARD64.Add")
+  | Sub : InOut.WriteString("CARD64.Sub")
+  | Mul : InOut.WriteString("CARD64.Mul")
+  | Div : InOut.WriteString("CARD64.Div")
+  | Mod : InOut.WriteString("CARD64.Mod")
+  END; (* CASE *)
+  InOut.WriteString(args);
+  InOut.WriteString(" ***");
+  InOut.WriteLn;
+END PrintLabelForBinOp;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  PrintResult(n)
+ * --------------------------------------------------------------------------
+ * Prints result label followed by value n. 
  * ----------------------------------------------------------------------- *)
 
 CONST ResultLabel = " result: ";
 
-PROCEDURE PrintBoolResult ( bool : BOOLEAN );
+PROCEDURE PrintResult ( n : CARD64T );
 BEGIN
   InOut.WriteString(ResultLabel);
-  IF bool THEN
-    InOut.WriteString("TRUE")
-  ELSE
-    InOut.WriteString("FALSE")
-  END; (* IF *)
+  Card64IO.Write(n);
   InOut.WriteLn
-END PrintBoolResult;
+END PrintResult;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  PrintCardResult(n)
+ * --------------------------------------------------------------------------
+ * Prints result label followed by value n. 
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE PrintCardResult ( n : CARDINAL );
+BEGIN
+  InOut.WriteString(ResultLabel);
+  LongCardIO.Write(VAL(LONGCARD), n);
+  InOut.WriteLn
+END PrintCardResult;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  PrintStatus(stat)
+ * --------------------------------------------------------------------------
+ * Prints status label followed by status stat. 
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE PrintStatus ( stat : Status );
+BEGIN
+  InOut.WriteString(" status: ");
+  NumStatusIO.Write(stat);
+  InOut.WriteLn
+END PrintStatus;
 
 
 (* --------------------------------------------------------------------------
@@ -695,8 +1161,7 @@ END PrintBoolResult;
  * ----------------------------------------------------------------------- *)
 
 BEGIN (* TestCard64BaseMath *)
-  InitConstCompTests;
-  InitOddEvenTests;
-  InitRelOpTests
+  InitDigitCountTests;
+  InitUnaryOpTests;
+  InitBinOpTests
 END TestCard64BaseMath.
-
