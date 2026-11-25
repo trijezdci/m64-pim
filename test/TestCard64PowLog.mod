@@ -137,13 +137,13 @@ TYPE NumberString = ARRAY [0..MaxNumberLength] OF CHAR;
  * Initialises tests for Pow2
  * ----------------------------------------------------------------------- *)
 
-CONST Pow2TestCount = MAX(BitIndex) + 1;
+CONST Pow2TestCount = MAX(CARD64.BitIndex) + 1;
 
-VAR powerOf2 : ARRAY BitIndex OF CARD64T;
+VAR powerOf2 : ARRAY CARD64.BitIndex OF CARD64T;
 
 PROCEDURE InitPow2Tests;
 VAR
-  n : BitIndex;
+  n : CARD64.BitIndex;
   two : CARD64T;
   ignore : Status;
 BEGIN
@@ -151,7 +151,7 @@ BEGIN
   two.highBits := 0;
   two.lowBits := 2;
   
-  FOR n := 1 TO MAX(BitIndex) DO
+  FOR n := 1 TO MAX(CARD64.BitIndex) DO
     CARD64.Mul(powerOf2[n-1], two, powerOf2[n], ignore)
   END (* FOR *)
 END InitPow2Tests;
@@ -165,10 +165,10 @@ END InitPow2Tests;
 
 PROCEDURE RunPow2Tests ( VAR passed, failed : CARDINAL );
 VAR
-  n : BitIndex;
+  n : CARD64.BitIndex;
   res : CARD64T;
 BEGIN
-  FOR n := 0 TO MAX(BitIndex) DO
+  FOR n := 0 TO MAX(CARD64.BitIndex) DO
     PrintLabelForPow2(n);
     CARD64.Pow2(n, res);
     PrintResult(res);
@@ -191,13 +191,13 @@ END RunPow2Tests;
  * Initialises tests for Pow10
  * ----------------------------------------------------------------------- *)
 
-CONST Pow10TestCount = MAX(DigitRange) + 1;
+CONST Pow10TestCount = MAX(CARD64.DigitRange) + 1;
 
-VAR powerOf10 : ARRAY DigitRange OF CARD64T;
+VAR powerOf10 : ARRAY CARD64.DigitRange OF CARD64T;
 
 PROCEDURE InitPow10Tests;
 VAR
-  n : DigitRange;
+  n : CARD64.DigitRange;
   ten : CARD64T;
   ignore : Status;
 BEGIN
@@ -205,7 +205,7 @@ BEGIN
   ten.highBits := 0;
   ten.lowBits := 10;
   
-  FOR n := 1 TO MAX(DigitRange) DO
+  FOR n := 1 TO MAX(CARD64.DigitRange) DO
     CARD64.Mul(powerOf10[n-1], ten, powerOf10[n], ignore)
   END (* FOR *)
 END InitPow10Tests;
@@ -219,10 +219,10 @@ END InitPow10Tests;
 
 PROCEDURE RunPow10Tests ( VAR passed, failed : CARDINAL );
 VAR
-  n : DigitRange;
+  n : CARD64.DigitRange;
   res : CARD64T;
 BEGIN
-  FOR n := 0 TO MAX(DigitRange) DO
+  FOR n := 0 TO MAX(CARD64.DigitRange) DO
     PrintLabelForPow10(n);
     CARD64.Pow10(n, res);
     PrintResult(res);
