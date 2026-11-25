@@ -364,7 +364,7 @@ VAR
   absNegOp : AbsNegOpId;
 BEGIN
   FOR absNegOp := MIN(AbsNegOpId) TO MAX(AbsNegOpId) DO
-    FOR index := 0 TO AbsNegOpTestGroupCount-1 DO
+    FOR index := 0 TO AbsNegTestGroupCount-1 DO
       RunAbsNegTest(absNegOp, absNegTest[index], passed, failed)
     END (* FOR *)
   END (* FOR *)
