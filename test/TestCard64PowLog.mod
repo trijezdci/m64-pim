@@ -147,7 +147,7 @@ VAR
   two : CARD64T;
   ignore : Status;
 BEGIN
-  SetOne(powerOf2[0]);
+  CARD64.SetOne(powerOf2[0]);
   two.highBits := 0;
   two.lowBits := 2;
   
@@ -169,7 +169,7 @@ VAR
   res : CARD64T;
 BEGIN
   FOR n := 0 TO MAX(CARD64.BitIndex) DO
-    PrintLabelForPow2(n);
+    PrintLabelForPow(Pow2, n);
     CARD64.Pow2(n, res);
     PrintResult(res);
     IF CARD64.eq(res, powerOf2[n]) THEN
@@ -201,7 +201,7 @@ VAR
   ten : CARD64T;
   ignore : Status;
 BEGIN
-  SetOne(powerOf10[0]);
+  CARD64.SetOne(powerOf10[0]);
   ten.highBits := 0;
   ten.lowBits := 10;
   
@@ -223,7 +223,7 @@ VAR
   res : CARD64T;
 BEGIN
   FOR n := 0 TO MAX(CARD64.DigitRange) DO
-    PrintLabelForPow10(n);
+    PrintLabelForPow(Pow10, n);
     CARD64.Pow10(n, res);
     PrintResult(res);
     IF CARD64.eq(res, powerOf10[n]) THEN
@@ -521,7 +521,7 @@ BEGIN
   log10Test[17].label := "CARD64.Log10(MAX(CARD64T), n)";
   log10Test[17].operand.highBits := 0FFFFFFFFH;
   log10Test[17].operand.lowBits := 0FFFFFFFFH;
-  log10Test[17].expected := MaxDecimalDigits;
+  log10Test[17].expected := CARD64.MaxDecimalDigits;
   log10Test[17].expStatus := Success
 END InitLog10Tests;
 
@@ -596,6 +596,27 @@ BEGIN
   InOut.WriteString(" ***");
   InOut.WriteLn;
 END PrintLabel;
+
+
+(* --------------------------------------------------------------------------
+ * Procedure:  PrintLabelForPow(pow, n)
+ * --------------------------------------------------------------------------
+ * Prints test label string for Pow2 and Pow10 test. 
+ * ----------------------------------------------------------------------- *)
+
+TYPE PowProcId = ( Pow2, Pow10 );
+
+PROCEDURE PrintLabelForPow ( pow : PowProcId; n : CARD64.BitIndex );
+BEGIN
+  InOut.WriteString("*** CARD64.");
+  CASE pow OF
+    Pow2  : InOut.WriteString("Pow2(")
+  | Pow10 : InOut.WriteString("Pow10(")
+  END; (* CASE *)
+  LongCardIO.Write(VAL(LONGCARD, n)));
+  InOut.WriteString(", res) ***");
+  InOut.WriteLn
+END PrintLabelForPow;
 
 
 (* --------------------------------------------------------------------------
