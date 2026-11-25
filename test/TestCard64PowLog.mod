@@ -613,7 +613,7 @@ BEGIN
     Pow2  : InOut.WriteString("Pow2(")
   | Pow10 : InOut.WriteString("Pow10(")
   END; (* CASE *)
-  LongCardIO.Write(VAL(LONGCARD, n)));
+  LongCardIO.Write(VAL(LONGCARD, n));
   InOut.WriteString(", res) ***");
   InOut.WriteLn
 END PrintLabelForPow;
