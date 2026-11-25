@@ -1011,7 +1011,7 @@ BEGIN
   IF i.highBits < 0 THEN
     res.highBits := VAL(LONGCARD, -(i.highBits + 1));
     res.lowBits := MAX(LONGCARD) - i.lowBits;
-    CARD64.Inc(c, dummy)
+    CARD64.Inc(res, ignore)
   ELSE
     ToCard64(i, res, ignore)
   END (* IF *)
