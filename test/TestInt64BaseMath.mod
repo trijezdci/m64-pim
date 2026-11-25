@@ -1332,8 +1332,8 @@ BEGIN
   
   binOpTest[21].operation[Mul].expStatus := Overflow;
   
-  binOpTest[21].operation[Div].expected.highBits := 2;
-  binOpTest[21].operation[Div].expected.lowBits := 633437444; (* 025C17D04H *)
+  binOpTest[21].operation[Div].expected.highBits := 0;
+  binOpTest[21].operation[Div].expected.lowBits := 1;
   binOpTest[21].operation[Div].expStatus := Success;
   
   binOpTest[21].operation[Mod].expected.highBits := 0;
@@ -1381,7 +1381,7 @@ BEGIN
   binOpTest[23].operation[Mul].expStatus := Overflow;
   
   binOpTest[23].operation[Div].expected.highBits := 2;
-  binOpTest[23].operation[Div].expected.lowBits := 633825300; (* 025C71E14H *)
+  binOpTest[23].operation[Div].expected.lowBits := 633437444; (* 025C17D04H *)
   binOpTest[23].operation[Div].expStatus := Success;
   
   binOpTest[23].operation[Mod].expected.highBits := -1;
