@@ -11,10 +11,10 @@ SRC_DIR="$REPO_ROOT/src"
 TEST_DIR="$REPO_ROOT/test"
 
 # test modules
-TEST_LIBS="TestCard64Conv TestInt64Conv TestCard64RelOps TestInt64RelOps TestCard64BaseMath TestInt64BaseMath"
+TEST_LIBS="TestCard64Conv TestInt64Conv TestCard64RelOps TestInt64RelOps TestCard64BaseMath TestInt64BaseMath TestCard64PowLog"
 
 # test programs 
-TEST_PROGRAMS="VisualIOTest TestConv TestRelOps TestBaseMath"
+TEST_PROGRAMS="VisualIOTest TestConv TestRelOps TestBaseMath TestPowLog"
 
 cd "$TEST_DIR"
 
