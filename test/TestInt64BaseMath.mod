@@ -5,9 +5,11 @@ IMPLEMENTATION MODULE TestInt64BaseMath;
 (* Test Suite for INT64 Basic Arithmetic Operations *)
 
 
-IMPORT CARD64, Int64IO, LongCardIO, NumStatusIO, InOut;
+IMPORT CARD64, INT64, Int64IO, LongCardIO, NumStatusIO, InOut;
 
 FROM CARD64 IMPORT CARD64T;
+
+FROM INT64 IMPORT INT64T;
 
 FROM NumStatus IMPORT Status;
 
