@@ -2,12 +2,13 @@
 
 DEFINITION MODULE TestCard64PowLog;
 
-(* Test Suite for CARD64 Exponential and Logarithmic Operations *)
+(* Test Suite for CARD64 Exponentiation and Logarithm Functions *)
 
 PROCEDURE RunTests ( VAR passed, failed : CARDINAL );
-(* Exponentiation, logarithm and decimal digit count tests *)
+(* Exponentiation and logarithm tests *)
 
 PROCEDURE testCount () : CARDINAL;
 (* Returns the number of tests in this test suite *)
 
 END TestCard64PowLog.
+
