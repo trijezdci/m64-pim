@@ -521,7 +521,7 @@ BEGIN
   log10Test[17].label := "CARD64.Log10(MAX(CARD64T), n)";
   log10Test[17].operand.highBits := 0FFFFFFFFH;
   log10Test[17].operand.lowBits := 0FFFFFFFFH;
-  log10Test[17].expected := CARD64.MaxDecimalDigits;
+  log10Test[17].expected := MAX(CARD64.DigitRange);
   log10Test[17].expStatus := Success
 END InitLog10Tests;
 
