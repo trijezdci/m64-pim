@@ -21,11 +21,13 @@ done
 
 # compile interfaces
 for mod in $MODULES; do
+  echo "*** compiling $mod.def ***"
   mocka -d "$LIB_DIR" -d "$SRC_DIR" -s "$mod"
 done
 
 # compile implementations
 for mod in $MODULES; do
+  echo "*** compiling $mod.mod ***"
   mocka -d "$LIB_DIR" -d "$SRC_DIR" -S -c "$mod"
 done
 
