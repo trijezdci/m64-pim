@@ -11,7 +11,7 @@ SRC_DIR="$REPO_ROOT/src"
 TEST_DIR="$REPO_ROOT/test"
 
 # test modules
-TEST_LIBS="TestCard64Conv TestInt64Conv TestCard64RelOps TestInt64RelOps TestCard64BaseMath"
+TEST_LIBS="TestCard64Conv TestInt64Conv TestCard64RelOps TestInt64RelOps TestCard64BaseMath TestInt64BaseMath"
 
 # test programs 
 TEST_PROGRAMS="VisualIOTest TestConv TestRelOps TestBaseMath"

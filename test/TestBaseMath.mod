@@ -2,7 +2,7 @@
 
 MODULE TestBaseMath;
 
-IMPORT InOut, TestCard64BaseMath (*, TestInt64BaseMath *);
+IMPORT InOut, TestCard64BaseMath , TestInt64BaseMath;
 
 
 (* --------------------------------------------------------------------------
@@ -65,10 +65,8 @@ BEGIN
   TestCard64BaseMath.RunTests(passed, failed);
   Tally;
   
-  (*
   TestInt64BaseMath.RunTests(passed, failed);
   Tally;
-  *)
   
   Summary
 END TestBaseMath.
