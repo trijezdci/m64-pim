@@ -192,9 +192,9 @@ BEGIN
   absNegTest[1].operation[Abs].expected.lowBits := 1;
   absNegTest[1].operation[Abs].expStatus := Success;
   
-  absNegTest[0].operation[Neg].expected.highBits := -1;
-  absNegTest[0].operation[Neg].expected.lowBits := MAX(LONGCARD);
-  absNegTest[0].operation[Neg].expStatus := Success;
+  absNegTest[1].operation[Neg].expected.highBits := -1;
+  absNegTest[1].operation[Neg].expected.lowBits := MAX(LONGCARD);
+  absNegTest[1].operation[Neg].expStatus := Success;
   
   (* operand *)
   absNegTest[2].args := "(-1)";
@@ -1332,8 +1332,8 @@ BEGIN
   
   binOpTest[21].operation[Mul].expStatus := Overflow;
   
-  binOpTest[21].operation[Div].expected.highBits := 0;
-  binOpTest[21].operation[Div].expected.lowBits := 1;
+  binOpTest[21].operation[Div].expected.highBits := 2;
+  binOpTest[21].operation[Div].expected.lowBits := 633437444; (* 025C17D04H *)
   binOpTest[21].operation[Div].expStatus := Success;
   
   binOpTest[21].operation[Mod].expected.highBits := 0;
@@ -1357,7 +1357,7 @@ BEGIN
   binOpTest[22].operation[Mul].expStatus := Overflow;
   
   binOpTest[22].operation[Div].expected.highBits := 2;
-  binOpTest[22].operation[Div].expected.lowBits := 633825300; (* 025C71E14H *)
+  binOpTest[22].operation[Div].expected.lowBits := 633437444; (* 025C17D04H *)
   binOpTest[22].operation[Div].expStatus := Success;
   
   binOpTest[22].operation[Mod].expected.highBits := 0;

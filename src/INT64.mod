@@ -650,7 +650,7 @@ END Add;
 
 PROCEDURE Dec ( VAR i : INT64T; VAR stat : Status );
 BEGIN
-  IF (i.highBits = MIN(LONGINT)) AND (i.lowBits = MAX(LONGCARD)) THEN
+  IF (i.highBits = MIN(LONGINT)) AND (i.lowBits = 0) THEN
     stat := Underflow;
     RETURN
   END; (* IF *)
