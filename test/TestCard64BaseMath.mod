@@ -430,7 +430,7 @@ VAR
   index : CARDINAL;
 BEGIN
   (* operations *)
-  FOR index := 0 TO BinOpTestGroupCount-1 DO
+  FOR index := 0 TO UnaryOpTestGroupCount-1 DO
     unaryOpTest[index].operation[Inc].proc := CARD64.Inc;
     unaryOpTest[index].operation[Dec].proc := CARD64.Dec
   END; (* FOR *)

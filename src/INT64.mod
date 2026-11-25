@@ -801,7 +801,6 @@ END Mul;
 
 PROCEDURE Div ( left, right : INT64T; VAR res : INT64T; VAR stat : Status );
 VAR
-  absLeft, absRight : INT64T;
   cardLeft, cardRight, cardQuot : CARD64T;
 BEGIN
   IF isZero(right) THEN
@@ -810,7 +809,7 @@ BEGIN
   END; (* IF *)
 
   IF isZero(left) THEN
-    res := left;
+    res := left; (* 0 *)
     stat := Success;
     RETURN
   END; (* IF *)
@@ -821,30 +820,27 @@ BEGIN
     RETURN
   END; (* IF *)
   
-  IF isOne(left) THEN
-    SetZero(res);
-    stat := Success;
-    RETURN
-  END; (* IF *)
-  
   IF eq(left, right) THEN
     SetOne(res);
     stat := Success;
     RETURN
   END; (* IF *)
-    
-  Abs(left, absLeft, stat);
-  IF stat # Success THEN RETURN END;
-  Abs(right, absRight, stat);
-  IF stat # Success THEN RETURN END;
-
-  ToCard64(absLeft, cardLeft, stat);
-  ToCard64(absRight, cardRight, stat);
-
+  
+  (* shortcut for left=1 and all remaining positive values of right *)
+  IF (right.highBits >= 0) AND (isOne(left)) THEN
+    SetZero(res);
+    stat := Success;
+    RETURN
+  END; (* IF *)
+  
+  AbsToCard64(left, cardLeft);
+  AbsToCard64(right, cardRight);
+  
   CARD64.Div(cardLeft, cardRight, cardQuot, stat);
   IF stat # Success THEN RETURN END;
 
   FromCard64(cardQuot, res, stat);
+  IF stat # Success THEN RETURN END;
   
   (* operands with different signs determine negative result *)
   IF (left.highBits < 0) # (right.highBits < 0) THEN
@@ -861,7 +857,6 @@ END Div;
 
 PROCEDURE Mod ( left, right : INT64T; VAR res : INT64T; VAR stat : Status );
 VAR
-  absLeft, absRight : INT64T;
   cardLeft, cardRight, cardRem : CARD64T;
 BEGIN
   IF isZero(right) THEN
@@ -881,30 +876,27 @@ BEGIN
     RETURN
   END; (* IF *)
   
-  IF isOne(left) THEN
-    res := left;
-    stat := Success;
-    RETURN
-  END; (* IF *)
-  
   IF eq(left, right) THEN
     SetZero(res);
     stat := Success;
     RETURN
   END; (* IF *)
-
-  Abs(left, absLeft, stat);
-  IF stat # Success THEN RETURN END;
-  Abs(right, absRight, stat);
-  IF stat # Success THEN RETURN END;
   
-  ToCard64(absLeft, cardLeft, stat);
-  ToCard64(absRight, cardRight, stat);
+  (* shortcut for left=1 and all remaining positive values of right *)
+  IF (right.highBits >= 0) AND (isOne(left)) THEN
+    res := left; (* 1 *)
+    stat := Success;
+    RETURN
+  END; (* IF *)
+  
+  AbsToCard64(left, cardLeft);
+  AbsToCard64(right, cardRight);
 
   CARD64.Mod(cardLeft, cardRight, cardRem, stat);
   IF stat # Success THEN RETURN END;
 
   FromCard64(cardRem, res, stat);
+  IF stat # Success THEN RETURN END;
   
   (* left always determines sign of result *)
   IF left.highBits < 0 THEN
@@ -1005,6 +997,26 @@ END AShr;
 (* **************************************************************************
  * P R I V A T E   P R O C E D U R E S
  * *********************************************************************** *)
+
+(* --------------------------------------------------------------------------
+ * Procedure: AbsToCard64(i, res)
+ * --------------------------------------------------------------------------
+ * Converts the absolute value of i to CARD64T and passes it in res.
+ * ----------------------------------------------------------------------- *)
+
+PROCEDURE AbsToCard64 ( i : INT64T; VAR res : CARD64T );
+VAR
+  ignore : Status;
+BEGIN
+  IF i.highBits < 0 THEN
+    res.highBits := VAL(LONGCARD, -(i.highBits + 1));
+    res.lowBits := MAX(LONGCARD) - i.lowBits;
+    CARD64.Inc(c, dummy)
+  ELSE
+    ToCard64(i, res, ignore)
+  END (* IF *)
+END AbsToCard64;
+
 
 (* --------------------------------------------------------------------------
  * Procedure: TwosComplement(i, res)
